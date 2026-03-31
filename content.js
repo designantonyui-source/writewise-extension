@@ -607,16 +607,8 @@
     <div class="__ww-applied-title">Correction applied</div>
     <div class="__ww-applied-sub" id="__ww-undo-sub">Want a fresh check?</div>
   </div>
-  <button class="__ww-undo-btn" data-action="undo">
-    <svg class="__ww-undo-ring" viewBox="0 0 32 32" width="40" height="40">
-      <circle cx="16" cy="16" r="13" fill="none" stroke="#383836" stroke-width="2.5"/>
-      <circle class="__ww-undo-arc" cx="16" cy="16" r="13" fill="none" stroke="#e2673a" stroke-width="2.5"
-        stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="0" stroke-linecap="round"
-        transform="rotate(-90 16 16)"/>
-    </svg>
-    <span class="__ww-undo-label">Undo</span>
-  </button>
   <button class="__ww-recheck-btn" data-action="recheck">Recheck</button>
+  <button class="__ww-btn __ww-btn-dismiss" data-action="dismiss">Dismiss</button>
 </div>`;
     bubble.style.display = 'block';
     requestAnimationFrame(() => positionBubble(appliedEl));
