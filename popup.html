@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteWise</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body class="w-[320px] bg-bg text-tx font-sans text-[13px] [border-top:3px_solid_#e2673a] select-none">
+
+<!-- ── Onboarding ── -->
+<div id="onboarding">
+
+  <!-- Step 1: Welcome -->
+  <div id="ob-step-1" class="px-5 py-6">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="logo-mark w-9 h-9 rounded-full bg-[rgba(226,103,58,0.1)] border border-[rgba(226,103,58,0.35)] flex items-center justify-center text-accent flex-shrink-0">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+          <line x1="9" y1="1" x2="9" y2="17" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="1" y1="9" x2="17" y2="9" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2.64" y1="2.64" x2="15.36" y2="15.36" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15.36" y1="2.64" x2="2.64" y2="15.36" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-[16px] font-semibold tracking-tight text-tx">Welcome to WriteWise</div>
+        <div class="text-[11px] text-tx3 mt-0.5">AI-powered writing assistant</div>
+      </div>
+    </div>
+    <div class="text-[12px] text-tx2 mb-5 leading-relaxed">Choose your preferred AI provider to get started. You can always switch later.</div>
+    <div class="flex gap-2.5 mb-5">
+      <button class="ob-provider-btn" id="ob-gemini-btn">
+        <div class="ob-dot"></div>
+        <div class="text-[13px] font-semibold">Gemini</div>
+        <div class="text-[10px]">Free tier available</div>
+      </button>
+      <button class="ob-provider-btn" id="ob-claude-btn">
+        <div class="ob-dot"></div>
+        <div class="text-[13px] font-semibold">Claude</div>
+        <div class="text-[10px]">~$1–2/month</div>
+      </button>
+    </div>
+    <button id="ob-continue" class="w-full save-btn py-2.5 text-[13px] opacity-50 cursor-not-allowed" disabled>Continue →</button>
+  </div>
+
+  <!-- Step 2: Add API key -->
+  <div id="ob-step-2" class="px-5 py-6 hidden">
+    <button id="ob-back" class="text-[11px] text-tx3 mb-4 flex items-center gap-1 hover:text-tx2 transition-colors bg-transparent border-none cursor-pointer font-sans p-0">← Back</button>
+    <div class="text-[16px] font-semibold text-tx mb-1">Add your API key</div>
+    <div class="text-[12px] text-tx3 mb-4">
+      Get your free key at <a href="#" id="ob-key-link" target="_blank" class="text-azure hover:underline">aistudio.google.com</a>
+    </div>
+    <div class="input-wrap mb-3">
+      <input type="password" id="ob-key-input" placeholder="AIza…"
+        class="w-full bg-surface2 border border-border2 rounded-[9px] px-3 py-2.5 text-tx font-sans text-[12px] outline-none transition-all duration-150 placeholder:text-tx3 focus:border-azure focus:shadow-[0_0_0_3px_rgba(74,144,226,0.12)]">
+      <button class="eye-btn" id="ob-eye" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+    <button id="ob-save-btn" class="w-full save-btn py-2.5 text-[13px] mb-3">Save &amp; Continue</button>
+    <div id="ob-save-err" class="text-[11px] text-[#e2673a] hidden">Please enter a valid API key</div>
+  </div>
+
+  <!-- Step 3: All set -->
+  <div id="ob-step-3" class="px-5 py-6 hidden text-center">
+    <div class="text-4xl mb-3">✓</div>
+    <div class="text-[16px] font-semibold text-tx mb-2">You're all set!</div>
+    <div class="text-[12px] text-tx2 mb-5 leading-relaxed">WriteWise will now check your writing as you type on any website.</div>
+    <button id="ob-to-settings" class="w-full save-btn py-2.5 text-[13px]">Open settings</button>
+  </div>
+
+</div><!-- /onboarding -->
+
+<!-- ── Main app ── -->
+<div id="main-app" class="hidden">
+
+<!-- Header -->
+<header class="flex items-center gap-3 px-4 py-3.5 border-b border-border bg-linear-to-b from-surface to-bg">
+  <div class="logo-mark w-8 h-8 rounded-full bg-[rgba(226,103,58,0.1)] border border-[rgba(226,103,58,0.35)] flex items-center justify-center text-accent flex-shrink-0">
+    <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="9" y1="1" x2="9" y2="17" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="1" y1="9" x2="17" y2="9" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="2.64" y1="2.64" x2="15.36" y2="15.36" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="15.36" y1="2.64" x2="2.64" y2="15.36" stroke="#e2673a" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="flex-1">
+    <div class="text-[15px] font-semibold tracking-tight text-tx">WriteWise</div>
+    <div class="text-[10px] text-tx3 mt-0.5 tracking-wide uppercase font-medium">AI writing assistant</div>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="text-[11px] text-tx3 font-medium" id="toggleLabel">On</span>
+    <label class="toggle" title="Enable / disable">
+      <input type="checkbox" id="masterToggle" checked>
+      <div class="toggle-track"></div>
+      <div class="toggle-thumb"></div>
+    </label>
+  </div>
+</header>
+
+<!-- Site context row -->
+<div class="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-surface" id="siteContextRow">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-tx3 flex-shrink-0" style="color:var(--color-tx3)">
+    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+  </svg>
+  <span class="text-[11px] text-tx2 flex-1 truncate font-medium" id="siteDomain">this site</span>
+  <button class="site-pause-btn" id="sitePauseBtn" title="Pause on this site">
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+    </svg>
+    Pause here
+  </button>
+</div>
+
+<!-- Provider -->
+<div class="px-4 pt-4 pb-3 border-b border-border">
+  <div class="flex items-center mb-2.5">
+    <div class="text-[10px] font-semibold uppercase tracking-[0.08em] text-tx3 flex-1">AI Provider</div>
+    <button class="section-toggle-btn" id="providerSectionToggle" title="Collapse/expand">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+  </div>
+  <div class="collapsible" id="providerList">
+  <div class="provider-tabs flex gap-2 mb-3">
+    <button class="provider-tab" id="tab-gemini">
+      <span class="tab-dot"></span>
+      Gemini
+      <span class="text-[9px] font-semibold uppercase tracking-wider bg-[rgba(92,184,122,0.12)] text-jade border border-[rgba(92,184,122,0.3)] rounded-full px-1.5 py-0.5">Free</span>
+    </button>
+    <button class="provider-tab" id="tab-claude">
+      <span class="tab-dot"></span>
+      Claude
+    </button>
+  </div>
+
+  <div class="provider-panel" id="panel-gemini">
+    <div class="flex gap-2 items-center">
+      <div class="input-wrap flex-1">
+        <input type="password" id="geminiKeyInput" placeholder="AIza…"
+          class="bg-surface2 border border-border2 rounded-[9px] px-3 py-2 text-tx font-sans text-[12px] outline-none transition-all duration-150 placeholder:text-tx3 focus:border-azure focus:shadow-[0_0_0_3px_rgba(74,144,226,0.12)]">
+        <button class="eye-btn" id="geminiEye" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="key-status-dot" id="geminiStatus"></div>
+      <button class="save-btn gemini-save" id="saveGeminiBtn">Save</button>
+    </div>
+    <div class="mt-2.5 text-[11px] text-tx3 leading-relaxed">
+      Free at <a href="https://aistudio.google.com/apikey" target="_blank" class="text-azure hover:underline">aistudio.google.com</a> — no credit card needed
+    </div>
+  </div>
+
+  <div class="provider-panel" id="panel-claude">
+    <div class="flex gap-2 items-center">
+      <div class="input-wrap flex-1">
+        <input type="password" id="claudeKeyInput" placeholder="sk-ant-…"
+          class="bg-surface2 border border-border2 rounded-[9px] px-3 py-2 text-tx font-sans text-[12px] outline-none transition-all duration-150 placeholder:text-tx3 focus:border-accent focus:shadow-[0_0_0_3px_rgba(226,103,58,0.12)]">
+        <button class="eye-btn" id="claudeEye" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="key-status-dot" id="claudeStatus"></div>
+      <button class="save-btn" id="saveClaudeBtn">Save</button>
+    </div>
+    <div class="mt-2.5 text-[11px] text-tx3 leading-relaxed">
+      Get key at <a href="https://console.anthropic.com" target="_blank" class="text-accent hover:underline">console.anthropic.com</a> · ~$1–2/month
+    </div>
+    <!-- Model selector (#9) -->
+    <div class="flex gap-1.5 mt-2.5">
+      <button class="model-pill" id="model-claude-haiku">Haiku</button>
+      <button class="model-pill" id="model-claude-sonnet">Sonnet</button>
+    </div>
+  </div>
+  </div><!-- /providerList -->
+</div>
+
+<!-- Fix options -->
+<div class="px-4 pt-4 pb-3 border-b border-border">
+  <div class="flex items-center mb-2.5">
+    <div class="text-[10px] font-semibold uppercase tracking-[0.08em] text-tx3 flex-1">What to fix</div>
+    <!-- Collapse toggle (#13) -->
+    <button class="section-toggle-btn" id="fixSectionToggle" title="Collapse/expand">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+  </div>
+  <div class="collapsible" id="fixList">
+    <div class="flex flex-col gap-0.5">
+
+      <label class="fix-item active" id="fix-spelling">
+        <input type="checkbox" value="spelling" checked>
+        <div class="fix-icon-wrap">✎</div>
+        <span class="fix-label">Spelling</span>
+        <div class="fix-toggle"><div class="fix-toggle-track"></div><div class="fix-toggle-thumb"></div></div>
+      </label>
+
+      <label class="fix-item active" id="fix-grammar">
+        <input type="checkbox" value="grammar" checked>
+        <div class="fix-icon-wrap">◉</div>
+        <span class="fix-label">Grammar</span>
+        <div class="fix-toggle"><div class="fix-toggle-track"></div><div class="fix-toggle-thumb"></div></div>
+      </label>
+
+      <label class="fix-item active" id="fix-clarity">
+        <input type="checkbox" value="clarity" checked>
+        <div class="fix-icon-wrap">◈</div>
+        <span class="fix-label">Clarity &amp; style</span>
+        <div class="fix-toggle"><div class="fix-toggle-track"></div><div class="fix-toggle-thumb"></div></div>
+      </label>
+
+      <label class="fix-item active" id="fix-tone">
+        <input type="checkbox" value="tone" checked>
+        <div class="fix-icon-wrap">♪</div>
+        <span class="fix-label">Tone</span>
+        <div class="fix-toggle"><div class="fix-toggle-track"></div><div class="fix-toggle-thumb"></div></div>
+      </label>
+
+      <!-- Tone preset row (#7) -->
+      <div id="tonePresetRow" class="hidden px-2 pt-1.5 pb-0.5">
+        <div class="text-[9px] text-tx3 uppercase tracking-widest mb-1.5 font-semibold">Preset</div>
+        <div class="flex gap-1.5 flex-wrap">
+          <button class="tone-pill" id="tone-professional">Professional</button>
+          <button class="tone-pill" id="tone-casual">Casual</button>
+          <button class="tone-pill" id="tone-formal">Formal</button>
+          <button class="tone-pill" id="tone-friendly">Friendly</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Status bar -->
+<div class="flex items-center gap-3 px-4 py-3 bg-surface">
+  <div class="flex items-center gap-2 flex-1">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="text-[11px] text-tx3" id="statusText">Active on all sites</span>
+  </div>
+  <!-- Session stats (#6) -->
+  <span class="text-[10px] text-tx3" id="sessionStats"></span>
+  <div class="provider-chip gemini" id="providerBadge">
+    <div class="provider-chip-dot"></div>
+    <span id="providerBadgeLabel">Gemini 2.5 Flash-Lite</span>
+  </div>
+</div>
+
+<!-- Keyboard shortcut hint -->
+<div class="px-4 py-2 text-[9px] text-tx3 tracking-wide border-t border-border text-center">
+  ⌨ Tab · apply &nbsp; Esc · dismiss &nbsp; ✳ · recheck
+</div>
+
+</div><!-- /main-app -->
+
+<script src="popup.js"></script>
+</body>
+</html>

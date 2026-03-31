@@ -1,0 +1,17 @@
+{
+  "name": "writewise-extension",
+  "version": "1.0.0",
+  "description": "Auto-corrects spelling, grammar, clarity & tone as you type, powered by Claude AI.",
+  "main": "background.js",
+  "scripts": {
+    "build": "tailwindcss -i ./src/input.css -o ./popup.css --minify",
+    "watch": "tailwindcss -i ./src/input.css -o ./popup.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}
