@@ -380,7 +380,8 @@
         }
 
         const isQuota = err.startsWith('quota_exceeded') || err.toLowerCase().includes('quota') || err.includes('429');
-        if (err === 'NO_API_KEY') {
+        const isInvalidKey = err.includes('400') || err.toLowerCase().includes('api key not valid') || err.toLowerCase().includes('invalid api key');
+        if (err === 'NO_API_KEY' || isInvalidKey) {
           showBubble(el, 'no-key'); showAnchor(el, 'unchecked');
         } else if (isQuota) {
           const parts = err.split('|');
