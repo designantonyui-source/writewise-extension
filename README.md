@@ -35,12 +35,13 @@ Get a key: [platform.deepseek.com](https://platform.deepseek.com/api_keys) ·
 - You type in any `input`, `textarea` or `contenteditable` field.
 - After you stop for ~0.9 s, WriteWise sends the text to your provider and shows
   a card with an inline diff below the field.
-- **Apply** replaces the text in place. **Dismiss** leaves it alone.
+- **Apply** replaces the text in place. To leave it alone, click anywhere outside
+  the card, press `Esc`, or use the ✕.
   `Undo` after applying restores the original.
 - The field's own undo stack still works: textareas and inputs get a native
   value write + `input` event, contenteditable gets `execCommand('insertText')`.
 
-The card closes when you press `Esc` or click anywhere outside it.
+The card closes when you press `Esc`, click anywhere outside it, or hit its ✕.
 
 Keyboard: `Enter` applies when the card is focused · `Esc` dismisses ·
 `⌥⇧W` (Alt+Shift+W) checks the focused field on demand · right-click a text

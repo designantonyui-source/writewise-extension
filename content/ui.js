@@ -381,7 +381,7 @@
       head = headHTML({ title: 'Suggested fix', chip: chip, chipTitle: chipTitle });
       body = '<div class="ww-body"><div class="ww-diff" data-ww-diff></div></div>';
       foot = footHTML(ms ? changesLabel(changes) + ' · ' + ms : changesLabel(changes),
-        btnHTML('dismiss', 'Dismiss', false) + btnHTML('apply', 'Apply', true));
+        btnHTML('apply', 'Apply', true));
     } else if (state === 'clean') {
       head = headHTML({ title: 'Looks good', chip: chip, chipTitle: chipTitle });
       body = '<div class="ww-body"><p class="ww-sub">No changes needed.</p></div>';
@@ -389,9 +389,7 @@
     } else if (state === 'applied') {
       head = headHTML({ title: 'Applied', chip: chip, chipTitle: chipTitle });
       body = '<div class="ww-body"><p class="ww-sub">Your text has been updated.</p></div>';
-      foot = footHTML('',
-        (data.canUndo === false ? '' : btnHTML('undo', 'Undo', false)) +
-        btnHTML('dismiss', 'Dismiss', false));
+      foot = footHTML('', data.canUndo === false ? '' : btnHTML('undo', 'Undo', false));
     } else if (state === 'translation') {
       const translation = str(data.translation);
       const source = str(data.sourceLanguage);
@@ -403,7 +401,7 @@
       if (ms) metaBits.push(ms);
       const copyLabel = data.copied ? 'Copied' : 'Copy';
 
-      let buttons = btnHTML('dismiss', 'Dismiss', false);
+      let buttons = '';
       let primaryUsed = false;
       if (data.canReplace) {
         buttons += btnHTML('copy', copyLabel, false);
