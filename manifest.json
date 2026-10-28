@@ -1,17 +1,16 @@
 {
   "manifest_version": 3,
   "name": "WriteWise",
-  "version": "1.0.1",
-  "description": "Check spelling, grammar, clarity, and tone with your chosen AI provider. Review every correction before applying it.",
+  "version": "1.0.2",
+  "description": "Check your writing with OpenAI or DeepSeek. Review spelling, grammar, clarity, and tone corrections before applying.",
   "permissions": [
     "storage",
     "activeTab",
     "contextMenus"
   ],
   "host_permissions": [
-    "https://api.anthropic.com/*",
-    "https://generativelanguage.googleapis.com/*",
-    "https://api.groq.com/*"
+    "https://api.openai.com/*",
+    "https://api.deepseek.com/*"
   ],
   "background": {
     "service_worker": "background.js"

@@ -25,14 +25,14 @@ const test = base.extend({
     const extensionId = worker.url().split('/')[2];
     await worker.evaluate(async () => {
       await WriteWiseSecrets.ready;
-      await chrome.storage.local.set({geminiKey:'fake-test-key'});
-      await chrome.storage.sync.set({dataSharingConsent:true, enabled:true, provider:'gemini', autoCheckEnabled:false});
+      await chrome.storage.local.set({openaiKey:'fake-test-key'});
+      await chrome.storage.sync.set({dataSharingConsent:true, providerConsentVersion:2, enabled:true, provider:'openai', autoCheckEnabled:false});
       globalThis.requests = [];
-      globalThis.fixture = {text:'This is correct text.', finish:'STOP', hold:false};
+      globalThis.fixture = {text:'This is correct text.', finish:'stop', hold:false};
       globalThis.fetch = async (url, options) => {
         requests.push({url, body:JSON.parse(options.body)});
         if (fixture.hold) await new Promise(resolve => { globalThis.releaseRequest = resolve; });
-        return {ok:true,json:async () => ({candidates:[{finishReason:fixture.finish,content:{parts:[{text:fixture.text}]}}]})};
+        return {ok:true,json:async () => ({choices:[{finish_reason:fixture.finish,message:{content:fixture.text}}]})};
       };
     });
     const page = await context.newPage();
@@ -94,7 +94,7 @@ test('selected-text checking sends and replaces only the selected section', asyn
   await selection(app,before.length,before.length + selected.length);
   await apply(app.page).click();
   await expect(field(app.page)).toHaveValue(before+'This is correct text. Keep after.');
-  expect(await app.worker.evaluate(() => requests[0].body.contents[0].parts[0].text)).toBe(selected);
+  expect(await app.worker.evaluate(() => requests[0].body.messages[1].content)).toBe(selected);
 });
 test('rich text shows copy-only suggestions and preserves links, formatting, and editor state', async ({app}) => {
   const rich = app.page.getByRole('textbox',{name:'Rich draft'});
@@ -107,7 +107,7 @@ test('rich text shows copy-only suggestions and preserves links, formatting, and
   expect(await rich.innerHTML()).toBe(html);
 });
 test('truncated AI responses show an error and cannot replace text', async ({app}) => {
-  await app.worker.evaluate(() => {fixture.finish = 'MAX_TOKENS';fixture.text = 'Incomplete';});
+  await app.worker.evaluate(() => {fixture.finish = 'length';fixture.text = 'Incomplete';});
   await check(app.page);
   await expect(app.page.getByText(/AI response was incomplete/)).toBeVisible();
   await expect(apply(app.page)).toHaveCount(0);
@@ -124,12 +124,12 @@ test('pause cancels queued automatic checks and blocks the selection command', a
 });
 test('automatic checking is off by default and works after opt-in', async ({app}) => {
   const popup = await app.popup();
-  await expect(popup.getByLabel('Check automatically after typing')).not.toBeChecked();
+  await expect(popup.getByLabel('Check automatically', {exact:true})).not.toBeChecked();
   await app.page.clock.install();
   await field(app.page).fill('This is corect text.');
   await app.page.clock.fastForward(5000);
   expect(await app.worker.evaluate(() => requests.length)).toBe(0);
-  await popup.getByLabel('Check automatically after typing').check();
+  await popup.getByLabel('Check automatically', {exact:true}).check();
   await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('autoCheckEnabled')).autoCheckEnabled)).toBe(true);
   await field(app.page).fill('This is anoter draft.');
   await app.page.clock.fastForward(2500);
@@ -142,26 +142,28 @@ test('consent is required for existing users and can be revoked', async ({app}) 
   await field(app.page).fill('This is corect text.'); await expect(anchor(app.page)).toBeHidden();
   await popup.getByRole('button',{name:'Allow checks and continue'}).click();
   await expect(popup.locator('#main-app')).toBeVisible();
+  await popup.getByText('More preferences', {exact:true}).click();
   await popup.getByRole('button',{name:'Stop sharing text'}).click();
   await expect(popup.locator('#privacyConsent')).toBeVisible();
   await field(app.page).fill('Another corect draft.'); await expect(anchor(app.page)).toBeHidden();
   expect(await app.worker.evaluate(() => requests.length)).toBe(0);
 });
-test('credentials are local, Groq-only setup reopens, and fix options toggle once', async ({app}) => {
+test('credentials are local, DeepSeek-only setup reopens, and fix options toggle once', async ({app}) => {
   await app.worker.evaluate(async () => {
-    await chrome.storage.local.remove('geminiKey');
-    await chrome.storage.local.set({groqKey:'fake-groq-only'});
-    await chrome.storage.sync.set({provider:'groq'});
+    await chrome.storage.local.remove('openaiKey');
+    await chrome.storage.local.set({deepseekKey:'fake-deepseek-only'});
+    await chrome.storage.sync.set({provider:'deepseek'});
   });
   const popup = await app.popup();
   await expect(popup.locator('#main-app')).toBeVisible();
-  await expect(popup.locator('#groqKeyInput')).toHaveValue('fake-groq-only');
+  await expect(popup.locator('#apiKeyInput')).toHaveValue('fake-deepseek-only');
   await popup.locator('#fix-spelling').click();
   await expect(popup.locator('#fix-spelling input')).not.toBeChecked();
   await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('spelling')).spelling)).toBe(false);
-  await popup.locator('#groqKeyInput').fill(''); await popup.getByRole('button',{name:'Save',exact:true}).filter({visible:true}).click();
-  await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.local.get('groqKey')).groqKey)).toBe(undefined);
-  expect(await app.worker.evaluate(async () => Object.keys(await chrome.storage.sync.get(['groqKey','geminiKey','claudeKey'])))).toEqual([]);
+  await popup.locator('#connectionDetails summary').click();
+  await popup.locator('#apiKeyInput').fill(''); await popup.getByRole('button',{name:'Save',exact:true}).click();
+  await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.local.get('deepseekKey')).deepseekKey)).toBe(undefined);
+  expect(await app.worker.evaluate(async () => Object.keys(await chrome.storage.sync.get(['deepseekKey','openaiKey','retiredKey'])))).toEqual([]);
 });
 test('password, payment, and opted-out fields are excluded', async ({app}) => {
   for (const name of ['Password','Card','Private draft']) {
@@ -171,22 +173,20 @@ test('password, payment, and opted-out fields are excluded', async ({app}) => {
   expect(await app.worker.evaluate(() => requests.length)).toBe(0);
 });
 
-test('new users can choose Groq during onboarding and reopen the saved configuration', async ({app}) => {
+test('new users can choose DeepSeek during onboarding and reopen the saved configuration', async ({app}) => {
   await app.worker.evaluate(async () => {
-    await chrome.storage.local.remove(['claudeKey','geminiKey','groqKey']);
+    await chrome.storage.local.remove(['retiredKey','openaiKey','deepseekKey']);
     await chrome.storage.sync.remove('dataSharingConsent');
   });
   const popup = await app.popup();
   await popup.getByRole('button',{name:'Allow checks and continue'}).click();
-  await popup.locator('#ob-groq-btn').click();
-  await popup.getByRole('button',{name:'Continue →',exact:true}).click();
-  await popup.locator('#ob-key-input').fill('gsk_fake-new-key');
-  await popup.getByRole('button',{name:'Save & Continue'}).click();
-  await popup.getByRole('button',{name:'Open settings'}).click();
-  await expect(popup.locator('#groqKeyInput')).toHaveValue('gsk_fake-new-key');
+  await popup.getByRole('button',{name:'DeepSeek',exact:true}).click();
+  await popup.locator('#apiKeyInput').fill('sk-fake-deepseek');
+  await popup.getByRole('button',{name:'Save',exact:true}).click();
+  await expect(popup.locator('#keyStatus')).toHaveText('Key saved on this device');
   await popup.close();
   const reopened = await app.popup();
-  await expect(reopened.locator('#panel-groq')).toBeVisible();
+  await expect(reopened.getByRole('button',{name:'DeepSeek',exact:true})).toHaveAttribute('aria-pressed','true');
 });
 test('restricted local storage cannot be read from the actual content-script world', async ({app}) => {
   const session = await app.context.newCDPSession(app.page);
@@ -197,17 +197,17 @@ test('restricted local storage cannot be read from the actual content-script wor
   expect(world).toBeTruthy();
   const result = await session.send('Runtime.evaluate', {
     contextId:world.id, awaitPromise:true, returnByValue:true,
-    expression:'chrome.storage.local.get(["geminiKey"]).then(() => "ACCESS_GRANTED", () => "ACCESS_DENIED")'
+    expression:'chrome.storage.local.get(["openaiKey"]).then(() => "ACCESS_GRANTED", () => "ACCESS_DENIED")'
   });
   expect(result.result.value).toBe('ACCESS_DENIED');
 });
 test('an old synced key is migrated when settings reopen, and stays out of sync', async ({app}) => {
   await app.worker.evaluate(async () => {
-    await chrome.storage.sync.set({groqKey:'fake-legacy-key',provider:'groq'});
+    await chrome.storage.sync.set({deepseekKey:'fake-legacy-key',provider:'deepseek'});
   });
   const popup = await app.popup();
-  await expect(popup.locator('#groqKeyInput')).toHaveValue('fake-legacy-key');
-  expect(await app.worker.evaluate(async () => (await chrome.storage.sync.get('groqKey')).groqKey)).toBe(undefined);
+  await expect(popup.locator('#apiKeyInput')).toHaveValue('fake-legacy-key');
+  expect(await app.worker.evaluate(async () => (await chrome.storage.sync.get('deepseekKey')).deepseekKey)).toBe(undefined);
 });
 test('undo cannot overwrite a later programmatic edit', async ({app}) => {
   await check(app.page); await apply(app.page).click();
@@ -240,4 +240,44 @@ test('synthetic website input cannot trigger automatic checking', async ({app}) 
   await field(app.page).evaluate(el => {el.focus();el.value = 'Website generated text.';el.dispatchEvent(new Event('input',{bubbles:true}));});
   await app.page.clock.fastForward(10000);
   expect(await app.worker.evaluate(() => requests.length)).toBe(0);
+});
+
+test('shared key control keeps provider credentials separate and routes checks only to the selected provider', async ({app}) => {
+  const popup = await app.popup();
+  await popup.getByRole('button',{name:'DeepSeek',exact:true}).click();
+  await expect(popup.getByLabel('DeepSeek API key',{exact:true})).toHaveValue('');
+  await popup.getByLabel('DeepSeek API key',{exact:true}).fill('fake-deepseek-key');
+  await popup.getByRole('button',{name:'Save',exact:true}).click();
+  await expect(popup.locator('#keyStatus')).toHaveText('Key saved on this device');
+  await popup.getByRole('button',{name:'OpenAI',exact:true}).click();
+  await expect(popup.getByLabel('OpenAI API key',{exact:true})).toHaveValue('fake-test-key');
+  await popup.getByRole('button',{name:'DeepSeek',exact:true}).click();
+  await check(app.page); await expect(apply(app.page)).toBeVisible();
+  expect(await app.worker.evaluate(() => requests[0].url)).toBe('https://api.deepseek.com/chat/completions');
+});
+test('updated provider disclosure requires consent again after the previous release', async ({app}) => {
+  await app.worker.evaluate(async () => {
+    await chrome.storage.sync.remove('providerConsentVersion');
+    await chrome.storage.sync.set({dataSharingConsent:true,autoCheckEnabled:true,provider:'gemini'});
+  });
+  const popup = await app.popup();
+  await expect(popup.locator('#privacyConsent')).toBeVisible();
+  await expect(popup.locator('#main-app')).toBeHidden();
+  await popup.getByRole('button',{name:'Allow checks and continue'}).click();
+  await expect(popup.getByRole('button',{name:'OpenAI',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(popup.getByLabel('Check automatically',{exact:true})).not.toBeChecked();
+});
+test('key visibility and expanded preferences are keyboard accessible', async ({app}) => {
+  const popup = await app.popup();
+  await popup.locator('#connectionDetails summary').focus();
+  await popup.keyboard.press('Enter');
+  await popup.getByRole('button',{name:'Show API key',exact:true}).click();
+  await expect(popup.locator('#apiKeyInput')).toHaveAttribute('type','text');
+  await popup.getByRole('button',{name:'Hide API key',exact:true}).click();
+  await expect(popup.locator('#apiKeyInput')).toHaveAttribute('type','password');
+  await popup.locator('#preferencesDetails summary').focus(); await popup.keyboard.press('Enter');
+  await popup.getByLabel('Tone style',{exact:true}).selectOption('professional');
+  await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('tonePreset')).tonePreset)).toBe('professional');
+  await popup.getByLabel('Enable WriteWise',{exact:true}).focus(); await popup.keyboard.press('Space');
+  await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('enabled')).enabled)).toBe(false);
 });

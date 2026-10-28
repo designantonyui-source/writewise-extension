@@ -1,6 +1,6 @@
 {
   "name": "writewise-extension",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AI writing checks with explicit privacy controls and reviewed corrections.",
   "main": "background.js",
   "scripts": {

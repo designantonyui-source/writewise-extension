@@ -1,9 +1,13 @@
 // Loaded only by trusted extension pages and the service worker, never content scripts.
 // Local storage persists on this device; it is not an encrypted credential vault.
 const WriteWiseSecrets = (() => {
-  const keys = ['claudeKey', 'geminiKey', 'groqKey'];
+  const keys = ['openaiKey', 'deepseekKey'];
+  const retiredKeys = ['claudeKey', 'geminiKey', 'groqKey'];
   const ready = (async () => {
     await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
+    // Removed providers are no longer used or retained.
+    await chrome.storage.local.remove(retiredKeys);
+    await chrome.storage.sync.remove(retiredKeys);
     const [legacy, local] = await Promise.all([
       chrome.storage.sync.get(keys), chrome.storage.local.get(keys)
     ]);

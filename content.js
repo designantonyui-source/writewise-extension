@@ -27,9 +27,9 @@
   const MIN_CHECK_INTERVAL = 8000; // ms — minimum gap between API calls
 
   const defaults = { spelling:true, grammar:true, clarity:true, tone:true, delay:2000,
-    enabled:true, pausedSites:[], autoCheckEnabled:false, dataSharingConsent:false };
+    enabled:true, pausedSites:[], autoCheckEnabled:false, dataSharingConsent:false, providerConsentVersion:0 };
   let settings = { ...defaults };
-  const settingKeys = [...Object.keys(defaults), 'provider', 'claudeModel', 'tonePreset'];
+  const settingKeys = [...Object.keys(defaults), 'provider', 'tonePreset'];
 
   try {
     chrome.storage.sync.get(settingKeys, (data) => {
@@ -72,7 +72,7 @@
   }
 
   function allowed(el) {
-    return settingsLoaded && settings.enabled && settings.dataSharingConsent === true &&
+    return settingsLoaded && settings.enabled && settings.dataSharingConsent === true && settings.providerConsentVersion === 2 &&
       !settings.pausedSites?.includes(location.hostname) && isEditable(el) && el.isConnected &&
       ['spelling','grammar','clarity','tone'].some(k => settings[k]);
   }
@@ -187,10 +187,10 @@
   function refreshProviderChip() {
     try {
       chrome.storage.sync.get(['provider'], (d) => {
-        const p = d.provider || 'gemini';
+        const p = d.provider || 'openai';
         const tag = document.getElementById('__ww-chip');
         if (tag) {
-          tag.textContent = { claude:'Claude', gemini:'Gemini', groq:'Groq' }[p] || 'Gemini';
+          tag.textContent = { openai:'OpenAI', deepseek:'DeepSeek' }[p] || 'OpenAI';
           tag.className = '__ww-chip ' + p;
         }
       });
@@ -213,10 +213,10 @@
   // ── Anchor dot ────────────────────────────────────────────────────────────
 
   const STARBURST_SVG = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <line x1="6.5" y1="0.5" x2="6.5" y2="12.5" stroke="#e2673a" stroke-width="1.8" stroke-linecap="round"/>
-    <line x1="0.5" y1="6.5" x2="12.5" y2="6.5" stroke="#e2673a" stroke-width="1.8" stroke-linecap="round"/>
-    <line x1="1.55" y1="1.55" x2="11.45" y2="11.45" stroke="#e2673a" stroke-width="1.8" stroke-linecap="round"/>
-    <line x1="11.45" y1="1.55" x2="1.55" y2="11.45" stroke="#e2673a" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="6.5" y1="0.5" x2="6.5" y2="12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="0.5" y1="6.5" x2="12.5" y2="6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="1.55" y1="1.55" x2="11.45" y2="11.45" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="11.45" y1="1.55" x2="1.55" y2="11.45" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
   </svg>`;
 
   function initAnchor() {
@@ -278,17 +278,14 @@
     if (!icon || !fill) return;
 
     if (state === 'done' || state === 'applied') {
-      fill.style.cssText = 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#5cb87a;border:none;box-shadow:0 2px 8px rgba(92,184,122,0.5);';
-      icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       // #7 — tooltip showing change count
       const tip = changeCount > 0 ? `${changeCount} change${changeCount !== 1 ? 's' : ''} — click to review` : 'Text looks good';
       anchor.title = tip;
     } else if (state === 'checking') {
-      fill.style.cssText = 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(226,103,58,0.15);border:1.5px solid rgba(226,103,58,0.5);box-shadow:none;';
       icon.innerHTML = STARBURST_SVG;
       anchor.title = 'Checking…';
     } else {
-      fill.style.cssText = 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(226,103,58,0.12);border:1.5px solid rgba(226,103,58,0.4);box-shadow:none;';
       icon.innerHTML = STARBURST_SVG;
       anchor.title = 'Click to check';
     }
@@ -498,7 +495,7 @@
     if (!bubble) return;
     const rect    = target.getBoundingClientRect();
     const scrollY = window.scrollY, scrollX = window.scrollX;
-    const bw = 380, bh = bubble.offsetHeight || 180;
+    const bw = Math.min(360, window.innerWidth - 24), bh = bubble.offsetHeight || 180;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
@@ -547,7 +544,7 @@
         : '';
       bubble.innerHTML = `
         <div class="__ww-header">
-          <span class="__ww-icon">✳</span>
+          <span class="__ww-icon">${STARBURST_SVG}</span>
           <span class="__ww-title">Suggestion ready</span>
           ${catBadges}
           <button class="__ww-close" data-action="close">✕</button>
@@ -564,7 +561,7 @@
     } else if (state === 'applied') {
       bubble.innerHTML = `
         <div class="__ww-row __ww-applied">
-          <span class="__ww-applied-icon">✓</span>
+          <span class="__ww-applied-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8 3 3 7-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <div>
             <div class="__ww-applied-title">Correction applied</div>
             <div class="__ww-applied-sub">Undo is available until you edit this field.</div>
@@ -576,15 +573,15 @@
     } else if (state === 'no-key') {
       bubble.innerHTML = `
         <div class="__ww-nokey">
-          <div class="__ww-nokey-title">⚠ No API key set</div>
+          <div class="__ww-nokey-title">Add an API key</div>
           <div class="__ww-nokey-sub">Click the WriteWise icon in your toolbar to add your API key and start checking.</div>
         </div>`;
 
     } else if (state === 'rate-limit') {
-      const detailLine = rateLimitDetail ? `<div class="__ww-nokey-sub" style="margin-top:6px;color:#e2673a;font-size:11px">${escHtml(rateLimitDetail)}</div>` : '';
+      const detailLine = rateLimitDetail ? `<div class="__ww-nokey-sub" style="margin-top:6px;color:currentColor;font-size:11px">${escHtml(rateLimitDetail)}</div>` : '';
       bubble.innerHTML = `
         <div class="__ww-nokey">
-          <div class="__ww-nokey-title">⚠ Provider limit reached</div>
+          <div class="__ww-nokey-title">Provider limit reached</div>
           <div class="__ww-nokey-sub">Your AI provider has reached a usage limit. Try again later or choose another provider in WriteWise settings.</div>
           ${detailLine}
           <button class="__ww-close" data-action="close" style="position:absolute;top:10px;right:10px">✕</button>
@@ -598,7 +595,7 @@
     } else if (state === 'error') {
       bubble.innerHTML = `
         <div class="__ww-row __ww-warn">
-          <span>⚠ ${escHtml(errorMsgOrEl || 'Something went wrong')}</span>
+          <span>${escHtml(errorMsgOrEl || 'Something went wrong')}</span>
           <button class="__ww-close" data-action="close">✕</button>
         </div>`;
       bubble.addEventListener('click', onBubbleClick);
@@ -608,7 +605,7 @@
           <div class="__ww-ok-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="8" cy="8" r="8" fill="#5cb87a"/>
-              <path d="M4 8L7 11L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 8L7 11L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <span>Text looks great — no changes needed.</span>

@@ -1,16 +1,16 @@
 # WriteWise privacy policy
 
-Effective date: 28 October 2026. Applies to WriteWise 1.0.1.
+Effective date: 28 October 2026. Applies to WriteWise 1.0.2.
 
 ## Writing checks
 
-After you allow checks, WriteWise sends text directly from your browser to the AI provider you select: Google Gemini, Anthropic Claude, or Groq. Manual checks send the current eligible field's text; selection checks send only the selected text. If you turn on automatic checking, eligible field text is sent after a typing pause. Automatic checking is off by default. Each request also includes writing instructions and your selected fix categories/tone. Your API key is sent only to its corresponding provider to authenticate the request.
+After you allow checks, WriteWise sends text directly from your browser to the AI provider you select: OpenAI or DeepSeek. Manual checks send the current eligible field's text; selection checks send only the selected text. If you turn on automatic checking, eligible field text is sent after a typing pause. Automatic checking is off by default. Each request also includes writing instructions and your selected fix categories/tone. Your API key is sent only to its corresponding provider to authenticate the request.
 
-WriteWise does not operate an intermediary server. Provider handling, retention, training policies, and charges depend on your provider account and terms. Read [Google's Gemini terms](https://ai.google.dev/gemini-api/terms), [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy), and [Groq's privacy policy](https://groq.com/privacy-policy/). Avoid checking confidential information.
+WriteWise does not operate an intermediary server. Provider handling, retention, training policies, and charges depend on your provider account and terms. Read [OpenAI's privacy policy](https://openai.com/policies/privacy-policy/) and [DeepSeek's privacy policy](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html). Avoid checking confidential information.
 
 ## Data on your device
 
-API keys are saved in Chrome extension local storage restricted to trusted extension pages and its service worker. They are not synced by WriteWise. This storage is not encrypted by WriteWise and is not an operating-system credential vault. Clearing a key and saving removes it from this installation. When upgrading from versions that saved keys in Chrome sync storage, WriteWise copies them locally and removes their sync entries only after the local write succeeds. Previously synced copies may exist on other devices or older installations.
+API keys are saved in Chrome extension local storage restricted to trusted extension pages and its service worker. They are not synced by WriteWise. This storage is not encrypted by WriteWise and is not an operating-system credential vault. Clearing a key and saving removes it from this installation. OpenAI and DeepSeek keys found in Chrome sync storage are copied locally; their sync entries are removed only after the local write succeeds. Keys for removed providers (Gemini, Claude, and Groq) are deleted from both local and sync extension storage on upgrade. Previously synced copies may exist on other devices or older installations. The updated provider disclosure requires consent again before new checks can run.
 
 Preferences, consent, and paused hostnames use Chrome sync storage and may sync if Chrome sync is enabled. Local daily usage statistics contain only the date and number of corrections applied. They are not sent to the developer.
 
