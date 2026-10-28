@@ -1,0 +1,135 @@
+/* ─────────────────────────────────────────────────────────────
+   WriteWise design tokens
+   One source of truth for the popup (extension page) and the
+   in-page card (shadow DOM). Default theme is dark; light follows
+   the OS or an explicit [data-theme="light"].
+   `:root`  → extension pages
+   `.ww-tokens` → shadow-root wrapper (content/ui.css)
+   ───────────────────────────────────────────────────────────── */
+
+:root,
+.ww-tokens {
+  /* brand */
+  --ww-accent: #e2673a;
+  --ww-accent-hi: #c7502a; /* filled buttons: white text ≥ 4.5:1 */
+  --ww-accent-soft: rgba(226, 103, 58, 0.13);
+  --ww-accent-text: #e2673a;
+  --ww-jade: #5cb87a;
+  --ww-jade-soft: rgba(92, 184, 122, 0.15);
+  --ww-danger: #e27d79;
+  --ww-danger-soft: rgba(217, 83, 79, 0.15);
+  --ww-amber: #e0a33a;
+  --ww-focus: #4a90e2;
+  /* switch knob is white in both themes; the track carries the state */
+  --ww-switch-thumb: #ffffff;
+
+  /* surfaces — dark */
+  --ww-bg: #0c0c0b;
+  --ww-surface: #141413;
+  --ww-surface-2: #1c1c1a;
+  --ww-surface-3: #24231f;
+  --ww-border: #262521;
+  --ww-border-2: #33322c;
+  --ww-tx: #f2ede6;
+  --ww-tx-2: #aeaaa3;
+  --ww-tx-3: #8c8882;
+
+  /* type */
+  --ww-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --ww-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --ww-fs-10: 10px;
+  --ww-fs-11: 11px;
+  --ww-fs-12: 12px;
+  --ww-fs-13: 13px;
+  --ww-fs-15: 15px;
+  --ww-fs-18: 18px;
+  --ww-lh-tight: 1.3;
+  --ww-lh-body: 1.5;
+  --ww-track-tight: -0.01em;
+
+  /* space */
+  --ww-1: 4px;
+  --ww-2: 8px;
+  --ww-3: 12px;
+  --ww-4: 16px;
+  --ww-5: 20px;
+  --ww-6: 24px;
+
+  /* shape */
+  --ww-r-sm: 8px;
+  --ww-r: 12px;
+  --ww-r-lg: 16px;
+  --ww-r-pill: 999px;
+  --ww-control-h: 32px;
+  --ww-touch-h: 36px;
+
+  /* depth + motion */
+  --ww-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
+  --ww-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --ww-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ww-dur: 140ms;
+  --ww-dur-slow: 200ms;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root,
+  .ww-tokens {
+    --ww-bg: #faf7f2;
+    --ww-surface: #ffffff;
+    --ww-surface-2: #f4efe7;
+    --ww-surface-3: #e9e3d8;
+    --ww-border: #e8e2d9;
+    --ww-border-2: #d8d1c5;
+    --ww-tx: #1d1b18;
+    --ww-tx-2: #5c5852;
+    --ww-tx-3: #6f6a64;
+    --ww-jade: #2a7448;
+    --ww-danger: #b3261e;
+    --ww-accent-soft: rgba(226, 103, 58, 0.1);
+    --ww-accent-text: #b8461f;
+    --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
+    --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="dark"],
+.ww-tokens[data-theme="dark"] {
+  --ww-bg: #0c0c0b;
+  --ww-surface: #141413;
+  --ww-surface-2: #1c1c1a;
+  --ww-surface-3: #24231f;
+  --ww-border: #262521;
+  --ww-border-2: #33322c;
+  --ww-tx: #f2ede6;
+  --ww-tx-2: #aeaaa3;
+  --ww-tx-3: #8c8882;
+  --ww-accent-soft: rgba(226, 103, 58, 0.13);
+  --ww-accent-text: #e2673a;
+  --ww-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
+  --ww-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"],
+.ww-tokens[data-theme="light"] {
+  --ww-bg: #faf7f2;
+  --ww-surface: #ffffff;
+  --ww-surface-2: #f4efe7;
+  --ww-surface-3: #e9e3d8;
+  --ww-border: #e8e2d9;
+  --ww-border-2: #d8d1c5;
+  --ww-tx: #1d1b18;
+  --ww-tx-2: #5c5852;
+  --ww-tx-3: #6f6a64;
+  --ww-jade: #2a7448;
+  --ww-danger: #b3261e;
+  --ww-accent-soft: rgba(226, 103, 58, 0.1);
+  --ww-accent-text: #b8461f;
+  --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
+  --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
+  color-scheme: light;
+}

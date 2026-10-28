@@ -1,0 +1,410 @@
+/* WriteWise in-page card — content/ui.css
+ *
+ * Scoped entirely to the shadow root created by content/ui.js.
+ * Colours, type, spacing and motion come from shared/tokens.css
+ * (custom properties are declared on the same `.ww-tokens` wrapper).
+ *
+ * Rules of the house:
+ *  · nothing here may target the page — no global selectors, no :root
+ *  · the card is the only scroller; the page never reflows because of it
+ *  · one 180ms entrance; only the spinner loops (and it stops for
+ *    prefers-reduced-motion)
+ */
+
+:host {
+  all: initial;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ── wrapper: hard reset of every inherited property the page might leak ── */
+
+.ww-tokens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--ww-font);
+  font-size: var(--ww-fs-13);
+  font-weight: 400;
+  font-style: normal;
+  font-variant: normal;
+  line-height: var(--ww-lh-body);
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-align: left;
+  text-indent: 0;
+  text-transform: none;
+  text-shadow: none;
+  white-space: normal;
+  direction: ltr;
+  color: var(--ww-tx);
+  cursor: auto;
+  visibility: visible;
+  opacity: 1;
+  quotes: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+.ww-tokens[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+.ww-tokens[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ── card ─────────────────────────────────────────────────────────────── */
+
+.ww-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  max-width: calc(100vw - 16px);
+  max-height: 320px;
+  margin: 0;
+  padding: 12px;
+  overflow: hidden;
+  background: var(--ww-surface);
+  color: var(--ww-tx);
+  border: 1px solid var(--ww-border);
+  border-radius: 14px;
+  box-shadow: var(--ww-shadow);
+  font-family: var(--ww-font);
+  font-size: var(--ww-fs-13);
+  line-height: var(--ww-lh-body);
+  pointer-events: auto;
+}
+
+.ww-card:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+}
+
+/* entrance — the only animation on the card */
+.ww-card[data-enter="1"] {
+  animation: ww-in 180ms var(--ww-ease) both;
+}
+
+@keyframes ww-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── header ───────────────────────────────────────────────────────────── */
+
+.ww-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+}
+
+.ww-mark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--ww-accent-text); /* accent is under AA as text; accent-text is the text-safe step */
+}
+
+.ww-mark svg {
+  display: block;
+}
+
+.ww-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--ww-fs-13);
+  font-weight: 600;
+  letter-spacing: var(--ww-track-tight);
+  color: var(--ww-tx);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ww-timer {
+  flex: 0 0 auto;
+  font-size: var(--ww-fs-11);
+  color: var(--ww-tx-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ww-chip {
+  flex: 0 0 auto;
+  max-width: 120px;
+  overflow: hidden;
+  padding: 1px 7px;
+  border: 1px solid var(--ww-border-2);
+  border-radius: var(--ww-r-pill);
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-10);
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ww-x {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: -4px -6px -4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ww-tx-3);
+  cursor: pointer;
+  transition: background-color var(--ww-dur) var(--ww-ease),
+    color var(--ww-dur) var(--ww-ease);
+}
+
+.ww-x:hover {
+  background: var(--ww-surface-2);
+  color: var(--ww-tx);
+}
+
+.ww-x:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+}
+
+/* ── body ─────────────────────────────────────────────────────────────── */
+
+.ww-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 10px;
+  padding-right: 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ww-border-2) transparent;
+}
+
+.ww-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.ww-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ww-body::-webkit-scrollbar-thumb {
+  background: var(--ww-border-2);
+  border: 3px solid var(--ww-surface);
+  border-radius: 99px;
+}
+
+/* diff ------------------------------------------------------------------ */
+
+.ww-diff {
+  margin: 0;
+  color: var(--ww-tx);
+  font-size: var(--ww-fs-13);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* colour is never the only signal: ins carries an underline, del a strike */
+.ww-ins {
+  padding: 0 1px;
+  background: var(--ww-jade-soft);
+  color: var(--ww-jade);
+  border-radius: 3px;
+  text-decoration: underline;
+  text-decoration-color: var(--ww-jade);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.ww-del {
+  padding: 0 1px;
+  background: var(--ww-danger-soft);
+  color: var(--ww-danger);
+  border-radius: 3px;
+  text-decoration: line-through;
+  text-decoration-color: var(--ww-danger);
+  text-decoration-thickness: 1px;
+}
+
+/* plain-text states ----------------------------------------------------- */
+
+.ww-sub {
+  margin: 0;
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-13);
+}
+
+.ww-msg {
+  margin: 0;
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-12);
+  line-height: var(--ww-lh-body);
+}
+
+/* loading skeleton ------------------------------------------------------ */
+
+.ww-skel {
+  height: 8px;
+  margin: 0 0 8px;
+  border-radius: 4px;
+  background: var(--ww-surface-3);
+}
+
+.ww-skel:last-child {
+  margin-bottom: 0;
+}
+
+/* spinner --------------------------------------------------------------- */
+
+.ww-spin {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--ww-border-2);
+  border-top-color: var(--ww-accent-text);
+  border-radius: 50%;
+  animation: ww-spin 700ms linear infinite;
+}
+
+@keyframes ww-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* visually hidden, still in the accessibility tree / textContent */
+.ww-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── footer ───────────────────────────────────────────────────────────── */
+
+.ww-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ww-border);
+}
+
+.ww-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-11);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── buttons ──────────────────────────────────────────────────────────── */
+
+.ww-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ww-tx);
+  font-family: var(--ww-font);
+  font-size: var(--ww-fs-12);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ww-dur) var(--ww-ease),
+    border-color var(--ww-dur) var(--ww-ease),
+    box-shadow var(--ww-dur) var(--ww-ease);
+}
+
+.ww-btn:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+}
+
+.ww-btn-ghost {
+  color: var(--ww-tx-2);
+  border-color: var(--ww-border-2);
+}
+
+.ww-btn-ghost:hover {
+  background: var(--ww-surface-2);
+  color: var(--ww-tx);
+}
+
+.ww-btn-primary {
+  /* --ww-accent-hi + white = 4.56:1 */
+  background: var(--ww-accent-hi);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.ww-btn-primary:hover {
+  background: var(--ww-accent-hi);
+  box-shadow: 0 2px 10px rgba(199, 80, 42, 0.38);
+}
+
+/* ── motion preferences ───────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-card[data-enter="1"] {
+    animation: none;
+  }
+
+  .ww-spin {
+    animation: none;
+    border-top-color: var(--ww-accent-text);
+  }
+
+  .ww-x,
+  .ww-btn {
+    transition: none;
+  }
+}

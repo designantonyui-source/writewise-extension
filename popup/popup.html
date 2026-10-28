@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WriteWise</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="hdr">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor"
+           stroke-width="1.6" stroke-linecap="round">
+        <path d="M10 2.8v14.4M2.8 10h14.4M4.9 4.9l10.2 10.2M15.1 4.9L4.9 15.1"/>
+      </svg>
+    </span>
+    <div class="hdr-text">
+      <h1 class="hdr-title">WriteWise</h1>
+      <p class="hdr-status" id="statusText" aria-live="polite">Add a key to start</p>
+    </div>
+    <label class="switch" title="Enable or pause WriteWise">
+      <input type="checkbox" id="masterToggle" role="switch" aria-label="Enable WriteWise">
+      <span class="switch-track" aria-hidden="true"></span>
+      <span class="switch-thumb" aria-hidden="true"></span>
+    </label>
+  </header>
+
+  <section class="sec">
+    <div class="seg" role="group" aria-label="AI provider">
+      <button type="button" class="seg-btn" id="segDeepseek" aria-pressed="true">DeepSeek</button>
+      <button type="button" class="seg-btn" id="segOpenai" aria-pressed="false">OpenAI</button>
+    </div>
+
+    <div class="setup" id="setupCard" hidden>
+      <p class="setup-text" id="setupText">Add your key to start checking.</p>
+      <a class="setup-link" id="setupLink" href="#" target="_blank" rel="noreferrer">Get a key</a>
+    </div>
+
+    <div class="keyrow">
+      <input class="input input-mono" id="keyInput" type="password" autocomplete="off"
+             spellcheck="false" placeholder="sk-…" aria-label="API key">
+      <button type="button" class="btn" id="testBtn">Test</button>
+      <span class="dot" id="keyStatus" aria-hidden="true"></span>
+    </div>
+
+    <p class="hint" id="keyHelp">
+      <span id="keyHelpText">Stored on this device — sent only to DeepSeek.</span>
+      <a class="hint-link" id="keyHelpLink" href="#" target="_blank" rel="noreferrer">Get a key</a>
+    </p>
+
+    <div class="field">
+      <label class="field-label" for="modelSelect">Model</label>
+      <span class="select-wrap">
+        <select class="select" id="modelSelect" aria-label="Model"></select>
+        <span class="select-chev" aria-hidden="true">
+          <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2.5 4.5L6 8l3.5-3.5"/>
+          </svg>
+        </span>
+      </span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title">Fix while typing</h2>
+
+    <div class="list">
+      <label class="row">
+        <span class="row-label">Check automatically</span>
+        <span class="switch">
+          <input type="checkbox" id="autoCheckToggle" role="switch" aria-label="Check automatically">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <div class="row row-slider">
+        <label class="row-label" for="delaySlider">Wait after typing</label>
+        <span class="slider-wrap">
+          <span class="slider-rail" aria-hidden="true"></span>
+          <span class="slider-fill" id="delayFill" aria-hidden="true"></span>
+          <input class="slider" id="delaySlider" type="range" min="400" max="3000" step="100"
+                 value="900" aria-label="Wait after typing">
+        </span>
+        <span class="slider-value" id="delayValue">0.9 s</span>
+      </div>
+    </div>
+
+    <div class="list list-fix">
+      <label class="row row-fix">
+        <span class="row-label">Spelling</span>
+        <span class="switch">
+          <input type="checkbox" id="fixSpelling" role="switch" aria-label="Fix spelling">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="row row-fix">
+        <span class="row-label">Grammar</span>
+        <span class="switch">
+          <input type="checkbox" id="fixGrammar" role="switch" aria-label="Fix grammar">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="row row-fix">
+        <span class="row-label">Clarity</span>
+        <span class="switch">
+          <input type="checkbox" id="fixClarity" role="switch" aria-label="Improve clarity">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="row row-fix">
+        <span class="row-label">Tone</span>
+        <span class="switch">
+          <input type="checkbox" id="fixTone" role="switch" aria-label="Refine tone">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="pills" id="toneRow">
+      <button type="button" class="pill" id="tonePill-professional" aria-pressed="false">Professional</button>
+      <button type="button" class="pill" id="tonePill-casual" aria-pressed="false">Casual</button>
+      <button type="button" class="pill" id="tonePill-formal" aria-pressed="false">Formal</button>
+      <button type="button" class="pill" id="tonePill-friendly" aria-pressed="false">Friendly</button>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title">On this site</h2>
+    <div class="row row-site">
+      <span class="site-host" id="siteHost">Checking…</span>
+      <button type="button" class="btn" id="pauseSiteBtn" aria-pressed="false">Pause</button>
+    </div>
+  </section>
+
+  <details class="adv">
+    <summary class="adv-summary">
+      <span class="adv-chev" aria-hidden="true">
+        <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 2.5L8 6l-3.5 3.5"/>
+        </svg>
+      </span>
+      <span>Advanced</span>
+    </summary>
+    <div class="adv-body">
+      <div class="row">
+        <label class="row-label" for="minChars">Minimum characters</label>
+        <input class="input input-num" id="minChars" type="number" min="1" max="400" step="1"
+               inputmode="numeric" aria-label="Minimum characters">
+      </div>
+      <div class="row">
+        <label class="row-label" for="maxWords">Maximum words</label>
+        <input class="input input-num" id="maxWords" type="number" min="10" max="2000" step="10"
+               inputmode="numeric" aria-label="Maximum words">
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<footer class="foot">
+  <span id="statFixes">0 fixes today</span>
+  <span class="foot-sep" aria-hidden="true">·</span>
+  <span id="statCost">≈$0.00</span>
+</footer>
+<script type="module" src="popup.js"></script>
+</body>
+</html>
