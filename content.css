@@ -58,3 +58,5 @@
 #__writewise-anchor.__ww-anchor-checking .__ww-anchor-icon { animation: __ww-spin 1600ms linear infinite; }
 @keyframes __ww-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #__writewise-anchor *, #__writewise-bubble * { animation: none !important; } }
+
+#__writewise-bubble .__ww-copy-fallback { display: block; width: calc(100% - 28px); min-height: 100px; margin: 0 14px 14px; padding: 10px; border: 1px solid #68695f; border-radius: 6px; background: #171814; color: var(--ww-text); font: inherit; resize: vertical; }

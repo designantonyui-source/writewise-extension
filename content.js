@@ -486,7 +486,7 @@
     el.setAttribute('data-writewise', 'true');
     el.setAttribute('role', 'region');
     el.setAttribute('aria-label', 'WriteWise suggestion');
-    el.addEventListener('mousedown', e => e.preventDefault());
+    el.addEventListener('mousedown', e => { if (e.target.closest('button')) e.preventDefault(); });
     document.body.appendChild(el);
     return el;
   }
@@ -660,7 +660,11 @@
       }
     } catch {
       if (suggestion !== check || !unchanged(check)) return;
-      bubble.innerHTML = `<div class="__ww-row">Copy was blocked. Select and copy this correction:</div><div class="__ww-diff">${escHtml(check.corrected)}</div>`;
+      bubble.innerHTML = `<div class="__ww-row">Copy was blocked. Copy the correction below:</div><textarea class="__ww-copy-fallback" aria-label="Corrected text" readonly></textarea>`;
+      const fallback = bubble.querySelector('textarea');
+      fallback.value = check.corrected;
+      fallback.focus();
+      fallback.select();
       bubble.style.display = 'block';
     }
   }

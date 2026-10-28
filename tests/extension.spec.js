@@ -281,3 +281,24 @@ test('key visibility and expanded preferences are keyboard accessible', async ({
   await popup.getByLabel('Enable WriteWise',{exact:true}).focus(); await popup.keyboard.press('Space');
   await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('enabled')).enabled)).toBe(false);
 });
+
+test('a blocked clipboard offers selectable corrected text without changing the rich editor', async ({app}) => {
+  const session = await app.context.newCDPSession(app.page);
+  const worlds = [];
+  session.on('Runtime.executionContextCreated', ({context}) => worlds.push(context));
+  await session.send('Runtime.enable');
+  const world = worlds.find(w => w.origin.startsWith('chrome-extension://'));
+  await session.send('Runtime.evaluate',{
+    contextId:world.id,
+    expression:'Object.defineProperty(navigator.clipboard,"writeText",{value:async()=>{throw new Error("blocked");}})'
+  });
+  const rich = app.page.getByRole('textbox',{name:'Rich draft'});
+  await rich.press('End'); await rich.press('Space'); const html = await rich.innerHTML();
+  await anchor(app.page).click();
+  await app.page.getByRole('button',{name:'Copy correction',exact:true}).click();
+  const fallback = app.page.getByRole('textbox',{name:'Corrected text',exact:true});
+  await expect(fallback).toHaveValue('This is correct text.');
+  await expect(fallback).toBeFocused();
+  expect(await fallback.evaluate(el => el.selectionEnd - el.selectionStart)).toBe('This is correct text.'.length);
+  expect(await rich.innerHTML()).toBe(html);
+});
