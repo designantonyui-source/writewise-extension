@@ -244,6 +244,7 @@
   display: none;
   align-items: center; justify-content: center;
   transition: transform 0.15s;
+  border: none; background: transparent;
   /* Center the fill inside */
   padding: 0;
   overflow: visible;

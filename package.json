@@ -1,16 +1,19 @@
 {
   "name": "writewise-extension",
-  "version": "1.0.0",
-  "description": "Auto-corrects spelling, grammar, clarity & tone as you type, powered by Claude AI.",
+  "version": "1.0.1",
+  "description": "AI writing checks with explicit privacy controls and reviewed corrections.",
   "main": "background.js",
   "scripts": {
     "build": "tailwindcss -i ./src/input.css -o ./popup.css --minify",
-    "watch": "tailwindcss -i ./src/input.css -o ./popup.css --watch"
+    "watch": "tailwindcss -i ./src/input.css -o ./popup.css --watch",
+    "test": "node --test tests/background.test.js",
+    "test:e2e": "playwright test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/cli": "^4.2.2",
     "tailwindcss": "^4.2.2"
   }

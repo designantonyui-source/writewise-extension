@@ -1,13 +1,28 @@
 // ── Onboarding (#1) ───────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get(['claudeKey','geminiKey'], (d) => {
-    if (!d.claudeKey && !d.geminiKey) {
-      showOnboarding();
-    } else {
-      showMainApp();
-    }
-  });
+function showStorageError() {
+  document.getElementById('storageError').classList.remove('hidden');
+}
+
+async function openApp() {
+  const [keys, data] = await Promise.all([
+    WriteWiseSecrets.get(), chrome.storage.sync.get(['dataSharingConsent'])
+  ]);
+  if (data.dataSharingConsent !== true) {
+    document.getElementById('privacyConsent').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('privacyConsent').classList.add('hidden');
+  if (!keys.claudeKey && !keys.geminiKey && !keys.groqKey) showOnboarding();
+  else showMainApp();
+}
+
+document.addEventListener('DOMContentLoaded', () => { openApp().catch(showStorageError); });
+document.getElementById('acceptPrivacy').addEventListener('click', async () => {
+  try {
+    await chrome.storage.sync.set({dataSharingConsent:true, autoCheckEnabled:false});
+    await openApp();
+  } catch { showStorageError(); }
 });
 
 function showOnboarding() {
@@ -30,39 +45,29 @@ function showObStep(n) {
   });
 }
 
-document.getElementById('ob-gemini-btn').addEventListener('click', () => {
-  obSelectedProvider = 'gemini';
-  document.getElementById('ob-gemini-btn').classList.add('selected');
-  document.getElementById('ob-claude-btn').classList.remove('selected');
-  const cont = document.getElementById('ob-continue');
-  cont.disabled = false;
-  cont.classList.remove('opacity-50','cursor-not-allowed');
-});
-
-document.getElementById('ob-claude-btn').addEventListener('click', () => {
-  obSelectedProvider = 'claude';
-  document.getElementById('ob-claude-btn').classList.add('selected');
-  document.getElementById('ob-gemini-btn').classList.remove('selected');
-  const cont = document.getElementById('ob-continue');
-  cont.disabled = false;
-  cont.classList.remove('opacity-50','cursor-not-allowed');
-});
+for (const provider of ['gemini','claude','groq']) {
+  document.getElementById('ob-' + provider + '-btn').addEventListener('click', () => {
+    obSelectedProvider = provider;
+    for (const p of ['gemini','claude','groq']) {
+      document.getElementById('ob-' + p + '-btn').classList.toggle('selected', p === provider);
+    }
+    const cont = document.getElementById('ob-continue');
+    cont.disabled = false;
+    cont.classList.remove('opacity-50','cursor-not-allowed');
+  });
+}
 
 document.getElementById('ob-continue').addEventListener('click', () => {
   if (!obSelectedProvider) return;
+  const providers = {
+    gemini:['https://aistudio.google.com/apikey','aistudio.google.com','AIza…'],
+    claude:['https://console.anthropic.com','console.anthropic.com','sk-ant-…'],
+    groq:['https://console.groq.com/keys','console.groq.com','gsk_…']
+  };
+  const [href, label, placeholder] = providers[obSelectedProvider];
   const link = document.getElementById('ob-key-link');
-  const input = document.getElementById('ob-key-input');
-  if (obSelectedProvider === 'gemini') {
-    link.href = 'https://aistudio.google.com/apikey';
-    link.textContent = 'aistudio.google.com';
-    input.placeholder = 'AIza…';
-    input.className = input.className.replace('focus:border-accent focus:shadow-[0_0_0_3px_rgba(226,103,58,0.12)]', '')
-      + ' focus:border-azure focus:shadow-[0_0_0_3px_rgba(74,144,226,0.12)]';
-  } else {
-    link.href = 'https://console.anthropic.com';
-    link.textContent = 'console.anthropic.com';
-    input.placeholder = 'sk-ant-…';
-  }
+  link.href = href; link.textContent = label;
+  document.getElementById('ob-key-input').placeholder = placeholder;
   showObStep(2);
 });
 
@@ -74,7 +79,7 @@ document.getElementById('ob-eye').addEventListener('click', () => {
   input.type = input.type === 'password' ? 'text' : 'password';
 });
 
-document.getElementById('ob-save-btn').addEventListener('click', () => {
+document.getElementById('ob-save-btn').addEventListener('click', async () => {
   const key = document.getElementById('ob-key-input').value.trim();
   const errEl = document.getElementById('ob-save-err');
   if (!key) {
@@ -82,10 +87,12 @@ document.getElementById('ob-save-btn').addEventListener('click', () => {
     return;
   }
   errEl.classList.add('hidden');
-  const storageKey = obSelectedProvider === 'claude' ? 'claudeKey' : 'geminiKey';
-  chrome.storage.sync.set({ [storageKey]: key, provider: obSelectedProvider }, () => {
+  const storageKey = obSelectedProvider + 'Key';
+  try {
+    await WriteWiseSecrets.set(storageKey, key);
+    await chrome.storage.sync.set({provider:obSelectedProvider});
     showObStep(3);
-  });
+  } catch { showStorageError(); }
 });
 
 document.getElementById('ob-to-settings').addEventListener('click', () => {
@@ -97,21 +104,26 @@ document.getElementById('ob-to-settings').addEventListener('click', () => {
 let mainAppInited = false;
 
 function initMainApp() {
-  loadMainAppData();
+  loadMainAppData().catch(showStorageError);
   if (mainAppInited) return;
   mainAppInited = true;
   bindMainAppEvents();
 }
 
-function loadMainAppData() {
-  const storageKeys = ['provider','claudeKey','geminiKey','groqKey','spelling','grammar','clarity','tone','enabled',
+async function loadMainAppData() {
+  const storageKeys = ['provider','autoCheckEnabled','delay','spelling','grammar','clarity','tone','enabled',
     'claudeModel','tonePreset','fixSectionCollapsed','providerSectionCollapsed','pausedSites'];
 
-  chrome.storage.sync.get(storageKeys, (data) => {
+  const [settings, keys] = await Promise.all([chrome.storage.sync.get(storageKeys), WriteWiseSecrets.get()]);
+  const data = { ...settings, ...keys };
+  {
     // Master toggle
     const masterToggle = document.getElementById('masterToggle');
     masterToggle.checked = data.enabled !== false;
     updateStatus(masterToggle.checked, data.provider || 'gemini');
+
+    document.getElementById('autoCheckToggle').checked = data.autoCheckEnabled === true;
+    document.getElementById('checkDelay').value = data.delay || 2000;
 
     // API keys
     if (data.claudeKey) document.getElementById('claudeKeyInput').value = data.claudeKey;
@@ -163,14 +175,14 @@ function loadMainAppData() {
       const count = (d.wwStats?.date === today) ? d.wwStats.count : 0;
       document.getElementById('sessionStats').textContent = count > 0 ? `${count} fix${count !== 1 ? 'es' : ''} today` : '';
     });
-  });
+  }
 }
 
 function bindMainAppEvents() {
   // Per-site pause (#4)
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = tabs[0]?.url;
-    if (!url || url.startsWith('chrome://')) {
+    if (!url || !/^https?:/.test(url)) {
       document.getElementById('siteContextRow').style.display = 'none';
       return;
     }
@@ -204,31 +216,30 @@ function bindMainAppEvents() {
   document.getElementById('tab-gemini').addEventListener('click', () => switchProvider('gemini'));
   document.getElementById('tab-claude').addEventListener('click', () => switchProvider('claude'));
 
-  // Save Groq key
-  document.getElementById('saveGroqBtn').addEventListener('click', () => {
-    const key = document.getElementById('groqKeyInput').value.trim();
-    chrome.storage.sync.set({ groqKey: key }, () => {
-      flashSaved('saveGroqBtn');
-      updateKeyStatus('groq', !!key);
+  for (const [provider, name] of [['groq','Groq'], ['claude','Claude'], ['gemini','Gemini']]) {
+    document.getElementById('save' + name + 'Btn').addEventListener('click', async () => {
+      try {
+        const key = document.getElementById(provider + 'KeyInput').value.trim();
+        await WriteWiseSecrets.set(provider + 'Key', key);
+        flashSaved('save' + name + 'Btn');
+        updateKeyStatus(provider, !!key);
+      } catch { showStorageError(); }
     });
+  }
+  document.getElementById('autoCheckToggle').addEventListener('change', async e => {
+    try { await chrome.storage.sync.set({autoCheckEnabled:e.target.checked}); }
+    catch { showStorageError(); }
   });
-
-  // Save Claude key
-  document.getElementById('saveClaudeBtn').addEventListener('click', () => {
-    const key = document.getElementById('claudeKeyInput').value.trim();
-    chrome.storage.sync.set({ claudeKey: key }, () => {
-      flashSaved('saveClaudeBtn');
-      updateKeyStatus('claude', !!key);
-    });
+  document.getElementById('checkDelay').addEventListener('change', async e => {
+    try { await chrome.storage.sync.set({delay:Number(e.target.value)}); }
+    catch { showStorageError(); }
   });
-
-  // Save Gemini key
-  document.getElementById('saveGeminiBtn').addEventListener('click', () => {
-    const key = document.getElementById('geminiKeyInput').value.trim();
-    chrome.storage.sync.set({ geminiKey: key }, () => {
-      flashSaved('saveGeminiBtn');
-      updateKeyStatus('gemini', !!key);
-    });
+  document.getElementById('revokePrivacy').addEventListener('click', async () => {
+    try {
+      await chrome.storage.sync.set({dataSharingConsent:false, autoCheckEnabled:false});
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('privacyConsent').classList.remove('hidden');
+    } catch { showStorageError(); }
   });
 
   // Eye toggle buttons (#3)
@@ -249,15 +260,6 @@ function bindMainAppEvents() {
   ['spelling','grammar','clarity','tone'].forEach(key => {
     const item = document.getElementById('fix-' + key);
     const cb = item.querySelector('input');
-    item.addEventListener('click', (e) => {
-      if (e.target === cb) return;
-      cb.checked = !cb.checked;
-      item.classList.toggle('active', cb.checked);
-      chrome.storage.sync.set({ [key]: cb.checked });
-      if (key === 'tone') {
-        document.getElementById('tonePresetRow').classList.toggle('hidden', !cb.checked);
-      }
-    });
     cb.addEventListener('change', () => {
       item.classList.toggle('active', cb.checked);
       chrome.storage.sync.set({ [key]: cb.checked });
@@ -335,7 +337,7 @@ function flashSaved(btnId) {
 
 function updateStatus(enabled, provider) {
   document.getElementById('statusDot').classList.toggle('active', enabled);
-  document.getElementById('statusText').textContent = enabled ? 'Active on all sites' : 'Paused';
+  document.getElementById('statusText').textContent = enabled ? 'Enabled' : 'Paused';
   const lbl = document.getElementById('toggleLabel');
   if (lbl) lbl.textContent = enabled ? 'On' : 'Off';
 }
@@ -359,13 +361,8 @@ function updateSitePauseUI(paused) {
 // Model selector UI (#9)
 function updateModelUI(provider, selection) {
   const activeClass = 'active-' + provider;
-  if (provider === 'gemini') {
-    document.getElementById('model-gemini-lite')?.classList.toggle(activeClass, selection === 'lite');
-    document.getElementById('model-gemini-flash')?.classList.toggle(activeClass, selection === 'flash');
-  } else {
-    document.getElementById('model-claude-haiku')?.classList.toggle(activeClass, selection === 'haiku');
-    document.getElementById('model-claude-sonnet')?.classList.toggle(activeClass, selection === 'sonnet');
-  }
+  document.getElementById('model-claude-haiku').classList.toggle(activeClass, selection === 'haiku');
+  document.getElementById('model-claude-sonnet').classList.toggle(activeClass, selection === 'sonnet');
 }
 
 // Tone preset UI (#7)

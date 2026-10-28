@@ -9,8 +9,17 @@
 </head>
 <body class="w-[320px] bg-bg text-tx font-sans text-[13px] [border-top:3px_solid_#e2673a] select-none">
 
+<div id="storageError" role="alert" class="hidden px-5 py-3 text-[12px] text-accent">Could not save or load settings. Reopen WriteWise and try again.</div>
+<div id="privacyConsent" class="hidden px-5 py-6">
+  <h1 class="text-[16px] font-semibold mb-3">Before you check your writing</h1>
+  <p class="text-[12px] text-tx2 mb-3 leading-relaxed">Checking sends the field's text, or your selected text, to your chosen AI provider: Google Gemini, Anthropic Claude, or Groq. Their data policies apply.</p>
+  <p class="text-[12px] text-tx2 mb-3 leading-relaxed">Automatic checking is off until you turn it on. Avoid confidential information. API keys stay on this device in local extension storage.</p>
+  <a href="privacy.html" target="_blank" class="text-azure text-[12px]">Read the privacy policy</a>
+  <button id="acceptPrivacy" class="save-btn w-full mt-4">Allow checks and continue</button>
+</div>
+
 <!-- ── Onboarding ── -->
-<div id="onboarding">
+<div id="onboarding" class="hidden">
 
   <!-- Step 1: Welcome -->
   <div id="ob-step-1" class="px-5 py-6">
@@ -30,6 +39,7 @@
     </div>
     <div class="text-[12px] text-tx2 mb-5 leading-relaxed">Choose your preferred AI provider to get started. You can always switch later.</div>
     <div class="flex gap-2.5 mb-5">
+      <button class="ob-provider-btn" id="ob-groq-btn"><div class="ob-dot"></div><div class="text-[13px] font-semibold">Groq</div><div class="text-[10px]">Free tier available</div></button>
       <button class="ob-provider-btn" id="ob-gemini-btn">
         <div class="ob-dot"></div>
         <div class="text-[13px] font-semibold">Gemini</div>
@@ -38,7 +48,7 @@
       <button class="ob-provider-btn" id="ob-claude-btn">
         <div class="ob-dot"></div>
         <div class="text-[13px] font-semibold">Claude</div>
-        <div class="text-[10px]">~$1–2/month</div>
+        <div class="text-[10px]">Paid API usage</div>
       </button>
     </div>
     <button id="ob-continue" class="w-full save-btn py-2.5 text-[13px] opacity-50 cursor-not-allowed" disabled>Continue →</button>
@@ -49,7 +59,7 @@
     <button id="ob-back" class="text-[11px] text-tx3 mb-4 flex items-center gap-1 hover:text-tx2 transition-colors bg-transparent border-none cursor-pointer font-sans p-0">← Back</button>
     <div class="text-[16px] font-semibold text-tx mb-1">Add your API key</div>
     <div class="text-[12px] text-tx3 mb-4">
-      Get your free key at <a href="#" id="ob-key-link" target="_blank" class="text-azure hover:underline">aistudio.google.com</a>
+      Create a key at <a href="#" id="ob-key-link" target="_blank" class="text-azure hover:underline">aistudio.google.com</a>
     </div>
     <div class="input-wrap mb-3">
       <input type="password" id="ob-key-input" placeholder="AIza…"
@@ -68,7 +78,7 @@
   <div id="ob-step-3" class="px-5 py-6 hidden text-center">
     <div class="text-4xl mb-3">✓</div>
     <div class="text-[16px] font-semibold text-tx mb-2">You're all set!</div>
-    <div class="text-[12px] text-tx2 mb-5 leading-relaxed">WriteWise will now check your writing as you type on any website.</div>
+    <div class="text-[12px] text-tx2 mb-5 leading-relaxed">Click the ✳ beside a text field to check your writing. You can turn on automatic checks in settings.</div>
     <button id="ob-to-settings" class="w-full save-btn py-2.5 text-[13px]">Open settings</button>
   </div>
 
@@ -157,7 +167,7 @@
       <button class="save-btn" id="saveGroqBtn">Save</button>
     </div>
     <div class="mt-2.5 text-[11px] text-tx3 leading-relaxed">
-      Free at <a href="https://console.groq.com/keys" target="_blank" style="color:#8b5cf6" class="hover:underline">console.groq.com</a> — 1,000 req/day, no credit card
+      Free at <a href="https://console.groq.com/keys" target="_blank" style="color:#8b5cf6" class="hover:underline">console.groq.com</a> — provider usage limits apply
     </div>
   </div>
 
@@ -195,7 +205,7 @@
       <button class="save-btn" id="saveClaudeBtn">Save</button>
     </div>
     <div class="mt-2.5 text-[11px] text-tx3 leading-relaxed">
-      Get key at <a href="https://console.anthropic.com" target="_blank" class="text-accent hover:underline">console.anthropic.com</a> · ~$1–2/month
+      Get key at <a href="https://console.anthropic.com" target="_blank" class="text-accent hover:underline">console.anthropic.com</a> · Paid API usage
     </div>
     <!-- Model selector (#9) -->
     <div class="flex gap-1.5 mt-2.5">
@@ -205,6 +215,18 @@
   </div>
 
   </div><!-- /providerList -->
+</div>
+
+<div class="px-4 py-3 border-b border-border">
+  <label class="flex items-center gap-2 text-[12px] mb-2">
+    <input id="autoCheckToggle" type="checkbox"> Check automatically after typing
+  </label>
+  <p class="text-[11px] text-tx2 mb-2">When on, eligible fields are sent to your AI provider after you pause. Turn off for manual checks.</p>
+  <label class="text-[11px] text-tx2" for="checkDelay">Check after</label>
+  <select id="checkDelay" class="bg-surface2 text-tx rounded-[9px] px-3 py-2">
+    <option value="500">0.5 seconds</option><option value="1500">1.5 seconds</option>
+    <option value="2000" selected>2 seconds</option><option value="4000">4 seconds</option>
+  </select>
 </div>
 
 <!-- Fix options -->
@@ -269,7 +291,7 @@
 <div class="flex items-center gap-3 px-4 py-3 bg-surface">
   <div class="flex items-center gap-2 flex-1">
     <div class="status-dot" id="statusDot"></div>
-    <span class="text-[11px] text-tx3" id="statusText">Active on all sites</span>
+    <span class="text-[11px] text-tx3" id="statusText">Enabled</span>
   </div>
   <!-- Session stats (#6) -->
   <span class="text-[10px] text-tx3" id="sessionStats"></span>
@@ -284,8 +306,13 @@
   ⌨ Tab · apply &nbsp; Esc · dismiss &nbsp; ✳ · recheck
 </div>
 
+<div class="px-4 py-3 text-[11px] text-tx2 border-t border-border">
+  <a href="privacy.html" target="_blank" class="text-azure">Privacy policy</a>
+  <span> · Clear a key and save to remove it.</span>
+  <button id="revokePrivacy" class="site-pause-btn mt-2">Stop sharing text</button>
+</div>
 </div><!-- /main-app -->
-
+<script src="secrets.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>
