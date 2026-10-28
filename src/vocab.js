@@ -34,7 +34,9 @@ export function normalizeWord(raw) {
     word,
     translation,
     source: clip(w.source, 40),
+    sourceCode: clip(w.sourceCode, 8).toLowerCase(),
     target: clip(w.target, 40),
+    targetCode: clip(w.targetCode, 8).toLowerCase(),
     context: clip(w.context, 280),
     host: clip(w.host, 80),
     createdAt: str(w.createdAt) || new Date().toISOString(),
@@ -83,6 +85,8 @@ export async function saveWord(raw) {
       translation: entry.translation || existing.translation,
       context: entry.context || existing.context,
       source: entry.source || existing.source,
+      sourceCode: entry.sourceCode || existing.sourceCode,
+      targetCode: entry.targetCode || existing.targetCode,
     };
     list[existingIndex] = merged;
     const next = await writeList(list);

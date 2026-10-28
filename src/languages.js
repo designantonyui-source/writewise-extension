@@ -36,6 +36,36 @@ export function languagePromptLabel(code) {
   return found ? `${found.label} (${found.code})` : 'English (en)';
 }
 
+/** English names a model returns, e.g. "Polish", mapped to a code. */
+const NAME_TO_CODE = {
+  english: 'en', polish: 'pl', ukrainian: 'uk', german: 'de', french: 'fr',
+  spanish: 'es', italian: 'it', portuguese: 'pt', dutch: 'nl', swedish: 'sv',
+  czech: 'cs', russian: 'ru', turkish: 'tr', japanese: 'ja', chinese: 'zh',
+  arabic: 'ar', hindi: 'hi',
+};
+
+/**
+ * Best code for a language the model named in prose ("English", "Polish").
+ * Returns '' when it is not one we ship — callers then hide the control
+ * rather than guess and pronounce the word in the wrong language.
+ */
+export function codeForLanguageName(name) {
+  const key = String(name || '').trim().toLowerCase();
+  if (!key) return '';
+  if (NAME_TO_CODE[key]) return NAME_TO_CODE[key];
+  const exact = LANGUAGES.find((l) => l.label.toLowerCase() === key);
+  if (exact) return exact.code;
+  const partial = Object.keys(NAME_TO_CODE).find((name) => key.indexOf(name) !== -1);
+  return partial ? NAME_TO_CODE[partial] : '';
+}
+
+/** Code from a stored label: "Polski (pl)" or "English". */
+export function codeFromLabel(label) {
+  const match = String(label || '').match(/\(([a-z]{2})\)/i);
+  if (match) return match[1].toLowerCase();
+  return codeForLanguageName(label);
+}
+
 /**
  * Resolve the configured target. Empty setting = follow the browser UI
  * language, falling back to English when we do not ship that language.

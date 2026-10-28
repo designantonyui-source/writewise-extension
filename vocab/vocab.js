@@ -20,6 +20,7 @@ import {
   toJson,
   INTERVALS,
 } from '../src/vocab.js';
+import { codeForLanguageName, codeFromLabel } from '../src/languages.js';
 
 /* ── small helpers ───────────────────────────────────────────────────── */
 
@@ -72,6 +73,45 @@ const TRASH_SVG =
   '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
   '<path d="M2.5 3.5h9M5.5 3.5V2.3h3v1.2M4 3.5l.5 8h5l.5-8" stroke="currentColor" ' +
   'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const SPEAK_SVG =
+  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
+  '<path d="M2 5.4h2.2L7 3v8L4.2 8.6H2a.6.6 0 0 1-.6-.6V6a.6.6 0 0 1 .6-.6Z" ' +
+  'stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
+  '<path d="M9.1 5.1a2.6 2.6 0 0 1 0 3.8M10.9 3.4a5 5 0 0 1 0 7.2" ' +
+  'stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>';
+
+/* ── pronunciation ──────────────────────────────────────────────────── */
+
+const speech = () => (typeof window !== 'undefined' && window.WriteWiseSpeech) || null;
+const canSpeak = () => {
+  const api = speech();
+  return !!(api && api.available());
+};
+
+/** The language a saved entry is worth hearing in: target, else source. */
+const entryLang = (w, which) => {
+  if (which === 'source') return w.sourceCode || codeForLanguageName(w.source) || '';
+  return w.targetCode || codeFromLabel(w.target) || '';
+};
+
+function play(btn, text, lang, done) {
+  const api = speech();
+  if (!api || !btn || !text) return;
+  btn.classList.add('is-playing');
+  btn.setAttribute('aria-pressed', 'true');
+  const reset = () => {
+    btn.classList.remove('is-playing');
+    btn.setAttribute('aria-pressed', 'false');
+    if (typeof done === 'function') done();
+  };
+  if (!api.speak(text, { lang: lang || 'en', onend: reset })) reset();
+}
+
+function stopSpeech() {
+  const api = speech();
+  if (api) api.cancel();
+}
 
 /* ── data ────────────────────────────────────────────────────────────── */
 
@@ -151,7 +191,10 @@ function rowHtml(w) {
   <div class="wr-top">
     <div class="wr-word" title="${esc(w.word)}">${esc(w.word)}</div>
     <div class="wr-context" title="${esc(context)}">${context ? esc(context) : 'No context'}</div>
-    <div class="wr-translation" title="${esc(w.translation)}">${esc(w.translation)}</div>
+    <div class="wr-trans-line">
+      <div class="wr-translation" title="${esc(w.translation)}">${esc(w.translation)}</div>
+      ${speakButton(w)}
+    </div>
     <div class="wr-meta">
       ${pair ? `<span class="wr-pair">${esc(pair)}</span>` : ''}
       ${w.host ? `<span class="wr-host" title="${esc(w.host)}">${esc(w.host)}</span>` : ''}
@@ -173,6 +216,16 @@ function rowHtml(w) {
     </dl>
   </div>
 </article>`;
+}
+
+function speakButton(w) {
+  if (!canSpeak() || !w.translation) return '';
+  const lang = entryLang(w, 'target') || entryLang(w, 'source');
+  return `<button type="button" class="icon-btn speak-btn" data-action="speak"
+    data-text="${esc(w.translation)}" data-lang="${esc(lang)}"
+    aria-label="Play pronunciation of ${esc(w.translation)}" title="Play pronunciation">
+    ${SPEAK_SVG}
+  </button>`;
 }
 
 function focusRow(id) {
@@ -281,6 +334,7 @@ function enterReview() {
 }
 
 function exitReview() {
+  stopSpeech();
   state.view = 'list';
   state.queue = [];
   state.index = 0;
@@ -315,6 +369,13 @@ function renderReview() {
   el.reviewHint.textContent = [pairOf(w), w.host].filter(Boolean).join(' · ') || 'Saved word';
   el.reviewWord.textContent = w.word;
 
+  const wordLang = entryLang(w, 'source');
+  const targetLang = entryLang(w, 'target');
+  el.wordSpeak.hidden = !(canSpeak() && w.word && wordLang);
+  el.wordSpeak.dataset.text = w.word;
+  el.wordSpeak.dataset.lang = wordLang;
+  el.wordSpeak.setAttribute('aria-label', `Play pronunciation of ${w.word}`);
+
   if (!state.revealed) {
     el.revealWrap.hidden = false;
     el.translationWrap.hidden = true;
@@ -326,6 +387,10 @@ function renderReview() {
   el.revealWrap.hidden = true;
   el.translationWrap.hidden = false;
   el.translationText.textContent = w.translation;
+  el.translationSpeak.hidden = !(canSpeak() && w.translation && targetLang);
+  el.translationSpeak.dataset.text = w.translation;
+  el.translationSpeak.dataset.lang = targetLang;
+  el.translationSpeak.setAttribute('aria-label', `Play pronunciation of ${w.translation}`);
   el.reviewContext.textContent = w.context || '';
   el.reviewContext.hidden = !w.context;
   el.grades.hidden = false;
@@ -334,6 +399,7 @@ function renderReview() {
 }
 
 function showDone(kind) {
+  stopSpeech();
   el.reviewCard.hidden = true;
   el.grades.hidden = true;
   el.reviewDone.hidden = false;
@@ -362,6 +428,7 @@ async function grade(g) {
   if (state.view !== 'review' || !state.revealed) return;
   const w = currentCard();
   if (!w) return;
+  stopSpeech();
   state.revealed = false;
   try {
     await reviewWord(w.id, g);
@@ -432,8 +499,14 @@ function bind() {
   /* list: expand + delete (delegated) */
   el.list.addEventListener('click', (e) => {
     const del = e.target.closest('[data-action="delete"]');
+    const speak = e.target.closest('[data-action="speak"]');
     const row = e.target.closest('.word-row');
     if (!row) return;
+    if (speak) {
+      e.stopPropagation();
+      play(speak, speak.dataset.text, speak.dataset.lang);
+      return;
+    }
     if (del) {
       e.stopPropagation();
       void onDelete(row.dataset.id);
@@ -507,6 +580,14 @@ function bind() {
     if (el.reviewBtn.disabled) return;
     enterReview();
   });
+  el.wordSpeak.addEventListener('click', () => {
+    const w = currentCard();
+    if (w) play(el.wordSpeak, w.word, entryLang(w, 'source'));
+  });
+  el.translationSpeak.addEventListener('click', () => {
+    const w = currentCard();
+    if (w) play(el.translationSpeak, w.translation, entryLang(w, 'target'));
+  });
   el.revealBtn.addEventListener('click', reveal);
   el.reviewExit.addEventListener('click', exitReview);
   el.doneBack.addEventListener('click', exitReview);
@@ -541,9 +622,20 @@ function bind() {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         reveal();
+        return;
       }
+    }
+
+    if (e.key === 'p' || e.key === 'P') {
+      const w = currentCard();
+      if (!w) return;
+      e.preventDefault();
+      if (state.revealed) play(el.translationSpeak, w.translation, entryLang(w, 'target'));
+      else play(el.wordSpeak, w.word, entryLang(w, 'source'));
       return;
     }
+
+    if (!state.revealed) return;
 
     if (e.key === '1' || e.key === '2' || e.key === '3') {
       e.preventDefault();
@@ -591,8 +683,8 @@ function cache() {
     'emptyMatchTitle', 'emptyMatchText', 'clearSearchBtn',
     'foot', 'footStats', 'clearBtn', 'clearConfirm', 'clearCancel', 'clearYes',
     'listView', 'reviewView', 'reviewCount', 'progress', 'progressFill',
-    'reviewCard', 'reviewHint', 'reviewWord', 'revealWrap', 'revealBtn',
-    'translationWrap', 'translationText', 'reviewContext', 'grades',
+    'reviewCard', 'reviewHint', 'reviewWord', 'wordSpeak', 'revealWrap', 'revealBtn',
+    'translationWrap', 'translationText', 'translationSpeak', 'reviewContext', 'grades',
     'reviewDone', 'doneStats', 'doneBack', 'reviewExit', 'live',
   ];
   for (const id of ids) el[id] = $(id);

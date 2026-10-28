@@ -30,6 +30,8 @@ third compatible provider means adding one object to `PROVIDERS`, nothing else.
    "Fix selection".
 6. Translate a word I do not know, and keep it — with its sentence — in a local
    vocabulary I can review later and export to my own tools.
+7. Hear a word, not just read it: play the translation in the target language,
+   at no cost and without leaving the page.
 
 ## Principles
 
@@ -42,7 +44,8 @@ third compatible provider means adding one object to `PROVIDERS`, nothing else.
 - **Keys are secrets.** `storage.local`, never `storage.sync`, never a server of
   ours. There is no backend.
 - **Learning is local.** The vocabulary is a file on this device; export is how
-  you take it with you.
+  you take it with you. Pronunciation is the device's own speech engine, so
+  learning keeps working offline and costs nothing.
 - **No build step.** Load unpacked, read the source, edit it, reload.
 
 ## Non-goals

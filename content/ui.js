@@ -32,6 +32,13 @@
     '<path d="M8 1.2v13.6M1.2 8h13.6M3.2 3.2l9.6 9.6M12.8 3.2l-9.6 9.6" ' +
     'stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 
+  const SPEAK_SVG =
+    '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
+    '<path d="M2 5.4h2.2L7 3v8L4.2 8.6H2a.6.6 0 0 1-.6-.6V6a.6.6 0 0 1 .6-.6Z" ' +
+    'stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
+    '<path d="M9.1 5.1a2.6 2.6 0 0 1 0 3.8M10.9 3.4a5 5 0 0 1 0 7.2" ' +
+    'stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>';
+
   const CLOSE_SVG =
     '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false">' +
     '<path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.6" ' +
@@ -276,6 +283,11 @@
         ? '<span class="ww-chip"' + (chipTitle ? ' title="' + esc(chipTitle) + '"' : '') + '>' +
           esc(chip) + '</span>'
         : '') +
+      (opts.speak
+        ? '<button type="button" class="ww-x ww-speak" data-ww-action="speak"' +
+          ' aria-label="Play pronunciation" aria-pressed="false" title="Play pronunciation">' +
+          '<span class="ww-sr">Play pronunciation</span>' + SPEAK_SVG + '</button>'
+        : '') +
       '<button type="button" class="ww-x" data-ww-action="dismiss" aria-label="Dismiss">' +
         '<span class="ww-sr">Dismiss</span>' + CLOSE_SVG + '</button>' +
       '</div>';
@@ -404,7 +416,12 @@
       }
       if (!primaryUsed) buttons += btnHTML('copy', copyLabel, true);
 
-      head = headHTML({ title: 'Translation', chip: chip, chipTitle: chipTitle });
+      head = headHTML({
+        title: 'Translation',
+        chip: chip,
+        chipTitle: chipTitle,
+        speak: speechAvailable() && !!translation,
+      });
       body = '<div class="ww-body">' +
         '<p class="ww-trans" data-ww-trans>' + esc(translation) + '</p>' +
         (source ? '<p class="ww-src">from ' + esc(source) + '</p>' : '') +
@@ -578,6 +595,30 @@
 
   /* ── events ────────────────────────────────────────────────────────── */
 
+  function speech() {
+    return (typeof window !== 'undefined' && window.WriteWiseSpeech) || null;
+  }
+
+  function speechAvailable() {
+    const api = speech();
+    return !!(api && api.available());
+  }
+
+  /** Speak the translation on screen; the header button owns the state. */
+  function speakCurrent(btn) {
+    const api = speech();
+    const text = str(curData.translation);
+    if (!api || !btn || !text) return;
+    const lang = str(curData.targetCode) || str(curData.targetLabel) || 'en';
+    btn.classList.add('ww-playing');
+    btn.setAttribute('aria-pressed', 'true');
+    const done = () => {
+      btn.classList.remove('ww-playing');
+      btn.setAttribute('aria-pressed', 'false');
+    };
+    if (!api.speak(text, { lang: lang, onend: done })) done();
+  }
+
   function emit(action) {
     if (!action || typeof actionFn !== 'function') return;
     try { actionFn(action); } catch (err) { warn('onAction handler threw', err); }
@@ -590,6 +631,10 @@
     const action = btn.getAttribute('data-ww-action');
     e.preventDefault();
     e.stopPropagation();
+    if (action === 'speak') {
+      speakCurrent(btn);
+      return;
+    }
     emit(action);
     if (action === 'dismiss') hide();
   }
@@ -702,6 +747,8 @@
 
   function hide() {
     visible = false;
+    const api = speech();
+    if (api) api.cancel();
     stopElapsed();
     if (posRaf) { try { cancelAnimationFrame(posRaf); } catch (e) {} posRaf = 0; }
     if (posFallback) { clearTimeout(posFallback); posFallback = 0; }

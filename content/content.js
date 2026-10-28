@@ -655,6 +655,8 @@
     lastTranslation = {
       translation: r.translation,
       sourceLanguage: r.sourceLanguage,
+      sourceCode: r.sourceCode || '',
+      targetCode: r.targetCode || '',
       targetLabel: r.targetLabel,
       ms: r.ms,
       provider: r.providerLabel,
@@ -672,6 +674,8 @@
     UI.show(anchor, 'translation', {
       translation: r.translation,
       sourceLanguage: r.sourceLanguage,
+      sourceCode: r.sourceCode || '',
+      targetCode: r.targetCode || '',
       targetLabel: r.targetLabel,
       ms: r.ms,
       provider: r.providerLabel,
@@ -710,6 +714,8 @@
     UI.show(t.anchor, 'translation', {
       translation: t.translation,
       sourceLanguage: t.sourceLanguage,
+      sourceCode: t.sourceCode,
+      targetCode: t.targetCode,
       targetLabel: t.targetLabel,
       ms: t.ms,
       provider: t.provider,
@@ -730,7 +736,9 @@
       word: t.word,
       translation: t.translation,
       source: t.sourceLanguage,
+      sourceCode: t.sourceCode,
       target: t.targetLabel,
+      targetCode: t.targetCode,
       context: t.contextText,
       host: location.hostname,
     });

@@ -2,8 +2,8 @@
 
 A quiet proofreader for any text field on the web. It waits for you to pause,
 shows what it would change, and applies it in one click — or one key. It also
-translates — double-click a word or select a passage — and keeps a local
-vocabulary of the words you want to remember.
+translates — double-click a word or select a passage — keeps a local
+vocabulary of the words you want to remember, and says them out loud.
 
 Two providers, one key each: **DeepSeek** (default) or **OpenAI**.
 
@@ -55,6 +55,8 @@ selection → **Fix selection** checks only that fragment.
   characters).
 - The card shows the translation, the detected source language, and gives you
   **Copy** — or **Replace**, when the text came from a field you were editing.
+- The **speaker** in the card's header plays the translation in the target
+  language, so you can hear a word you have only ever read.
 
 ![Translate card](docs/card-translate.png)
 
@@ -77,6 +79,9 @@ Open the list from the popup footer (**N saved words**) for a full page with:
 - **Review** — a spaced-repetition session over the due queue. Reveal with
   `Space`, grade with `1` (again) / `2` (good) / `3` (easy), `Esc` to leave.
   Intervals run 1 → 2 → 4 → 8 → 16 days;
+- **Speakers** — the one next to a row plays the translation; in review, the
+  word plays in its own language and the translation in the target language.
+  `P` plays whichever side is showing;
 - **Add word** for words you meet away from the browser;
 - **Export CSV**, **Export Anki** (tab-separated, import straight into Anki) and
   **Export JSON**.
@@ -85,6 +90,20 @@ Open the list from the popup footer (**N saved words**) for a full page with:
 
 The vault holds up to 2,000 words in `chrome.storage.local`; saving the same
 word again updates its translation instead of duplicating it.
+
+## Pronunciation
+
+Saved words and translations can be played out loud. This uses the speech
+engine Chrome already has — the same voices you get from `say` on macOS or
+Speech Dispatcher on Linux.
+
+- **No key and no request.** Nothing is sent anywhere; no provider is billed.
+- **Works offline**, using the voices installed on the device.
+- One word at a time: starting a new one stops the previous one.
+- Speaking rate is 0.95×, a touch slower than normal, because the point is to
+  hear the word clearly.
+- Quality depends on your system voices. If a language has no installed voice,
+  Chrome pronounces it with its default voice instead of failing.
 
 ## Settings
 
@@ -137,6 +156,8 @@ That is roughly **$0.40–0.50 per 1,000 checks** on the fast models.
 - Very long fields are skipped above the word limit instead of being truncated.
 - If a model answer is cut off (`finish_reason: length`) it is discarded rather
   than partially applied.
+- Pronunciation is only as good as the voices installed on your system; there is
+  no cloud text-to-speech in the product.
 
 ## Project layout
 
@@ -145,6 +166,7 @@ manifest.json          MV3, two API hosts, no broad host permissions
 background.js          message router, API calls, stats, context menu
 src/providers.js       one OpenAI-compatible client + error taxonomy
 src/languages.js       translation targets + browser-language fallback
+shared/speech.js       pronunciation through the browser's speech engine
 icons/                 generated from icon.svg (16/48/128)
 src/prompt.js          the guardrail prompt and JSON envelope
 src/storage.js         settings/stats shape, defaults, v1 key cleanup
@@ -163,6 +185,8 @@ PRODUCT.md, DESIGN.md  why it exists, how it should look
 # unit: provider client + settings (plain node, stubbed fetch/chrome)
 node _wwtest/provider.test.mjs
 node _wwtest/storage.test.mjs
+node _wwtest/vocab.test.mjs
+node _wwtest/speech.test.mjs
 
 # end-to-end: real Chrome, real extension, mocked provider responses
 _wwtest/run-all.sh
@@ -173,6 +197,14 @@ intercepts provider calls in the service worker, and drives the UI with real
 mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
+
+## Differences from v2.2
+
+- Pronunciation: a speaker in the translation card, on saved-word rows, and in
+  review, with `P` as the keyboard path. Browser speech engine — no key, no
+  cost, offline.
+- Saved words now remember the language pair as codes, so a word can always be
+  played in the right language.
 
 ## Differences from v2.1
 

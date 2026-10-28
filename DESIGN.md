@@ -47,12 +47,20 @@ instructions.
 - **Card** — 380px, 12px padding, 14px radius, one shadow, hairline border.
 - **Diff** — inline `<ins>` jade with underline, `<del>` danger with strike.
   Never colour alone: the underline/strike carries the meaning too.
+- **Speaker** — a 28px quiet icon at 50–65% (`--ww-tx-3`), resolving to
+  accent-on-accent-soft on hover and while playing. It is a glyph button, not a
+  labelled button: the word it belongs to is the label, and `aria-label` spells
+  the pair out for screen readers. In the card it sits in the header, last
+  before the close button; in the vocabulary list it leads the row's side
+  cluster, before the due pill.
 
 ## Motion
 
 One entrance (180ms, opacity + 4px rise). Everything else 140ms. Nothing loops,
-nothing spins forever, no springy overshoot. `prefers-reduced-motion: reduce`
-removes the entrance and the spinner rotation.
+nothing spins forever, no springy overshoot — with one deliberate exception: the
+speaker pulses at 1.1s while audio is playing, because that is the only signal
+that sound is coming from this button. `prefers-reduced-motion: reduce` removes
+the entrance, the spinner rotation and the pulse.
 
 ## Copy
 
@@ -91,7 +99,9 @@ the mark and wordmark.
   actions and shouldn't compete with Review.
 - **Review** is focus mode: centered 560px column, progress line, one card,
   word at 32px, reveal, then grade buttons with `kbd` chips (1/2/3). The card
-  keeps a fixed height so revealing does not jump the layout.
+  keeps a fixed height so revealing does not jump the layout. Both sides of a
+  card carry a speaker in the target/source language, and `P` plays the visible
+  one — hearing a word is part of learning it, not a separate screen.
 - **Empty states** are copy, not illustration: what happened, and the one action
   that fixes it.
 - Destructive actions confirm inline (`Clear all? Cancel / Clear`), never with

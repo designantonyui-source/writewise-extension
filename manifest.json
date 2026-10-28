@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "WriteWise",
-  "version": "2.2.1",
-  "description": "Quiet writing fixes as you type — DeepSeek or OpenAI.",
+  "version": "2.3.0",
+  "description": "Quiet writing fixes as you type \u2014 DeepSeek or OpenAI.",
   "minimum_chrome_version": "116",
   "permissions": [
     "storage",
@@ -22,6 +22,7 @@
         "<all_urls>"
       ],
       "js": [
+        "shared/speech.js",
         "content/ui.js",
         "content/content.js"
       ],

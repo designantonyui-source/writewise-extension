@@ -479,8 +479,16 @@ button {
   text-overflow: ellipsis;
 }
 
-.wr-translation {
+.wr-trans-line {
   grid-area: trans;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wr-translation {
+  flex: 0 1 auto;
   min-width: 0;
   font-size: var(--ww-fs-13);
   color: var(--ww-tx);
@@ -572,6 +580,31 @@ button {
 .icon-btn:hover {
   color: var(--ww-danger);
   background: var(--ww-danger-soft);
+}
+
+/* Pronunciation: a quiet speaker that warms to the accent on hover. */
+.speak-btn {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  color: var(--ww-tx-2);
+  opacity: 0.7;
+}
+
+.speak-btn:hover,
+.speak-btn.is-playing {
+  color: var(--ww-accent-text);
+  background: var(--ww-accent-soft);
+  opacity: 1;
+}
+
+.speak-btn.is-playing svg {
+  animation: ww-speak-pulse 1.1s var(--ww-ease) infinite;
+}
+
+@keyframes ww-speak-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .wr-detail {
@@ -765,6 +798,41 @@ button {
   margin: 0 0 10px;
   font-size: var(--ww-fs-11);
   color: var(--ww-tx-2);
+}
+
+.card-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.card-line .card-word,
+.card-line .translation {
+  min-width: 0;
+}
+
+.card-speak {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  color: var(--ww-tx-2);
+  opacity: 0.8;
+}
+
+.card-speak[hidden] {
+  display: none;
+}
+
+.card-speak:hover,
+.card-speak.is-playing {
+  color: var(--ww-accent-text);
+  background: var(--ww-accent-soft);
+  opacity: 1;
+}
+
+.card-speak.is-playing svg {
+  animation: ww-speak-pulse 1.1s var(--ww-ease) infinite;
 }
 
 .card-word {

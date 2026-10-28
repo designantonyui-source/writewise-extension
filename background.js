@@ -8,7 +8,12 @@
 
 import { analyze, translate, listModels, providerMeta, estimateCost } from './src/providers.js';
 import { getSettings, bumpStats, migrateLegacy } from './src/storage.js';
-import { languagePromptLabel, resolveTarget } from './src/languages.js';
+import {
+  codeForLanguageName,
+  codeFromLabel,
+  languagePromptLabel,
+  resolveTarget,
+} from './src/languages.js';
 import { saveWord as saveVocabWord } from './src/vocab.js';
 
 const MAX_TRANSLATE_CHARS = 2400;
@@ -235,6 +240,7 @@ async function onTranslate(msg, sender, respond) {
       result: {
         translation: result.translation,
         sourceLanguage: result.sourceLanguage,
+        sourceCode: codeForLanguageName(result.sourceLanguage),
         targetCode,
         targetLabel,
         ms: result.ms,
@@ -263,7 +269,9 @@ async function onSaveWord(msg, respond) {
       word: msg.word,
       translation: msg.translation,
       source: msg.source,
+      sourceCode: msg.sourceCode || codeForLanguageName(msg.source),
       target: msg.target,
+      targetCode: msg.targetCode || codeFromLabel(msg.target),
       context: msg.context,
       host: msg.host,
     });

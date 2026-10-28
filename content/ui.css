@@ -194,6 +194,32 @@
   outline-offset: 2px;
 }
 
+/* ── pronunciation ────────────────────────────────────────────────────── */
+
+.ww-speak {
+  margin-left: -2px;
+  color: var(--ww-tx-2);
+}
+
+.ww-speak:hover {
+  color: var(--ww-accent-text);
+  background: var(--ww-accent-soft);
+}
+
+.ww-speak.ww-playing {
+  color: var(--ww-accent-text);
+  background: var(--ww-accent-soft);
+}
+
+.ww-speak.ww-playing svg {
+  animation: ww-speak-pulse 1.1s var(--ww-ease) infinite;
+}
+
+@keyframes ww-speak-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
 /* ── body ─────────────────────────────────────────────────────────────── */
 
 .ww-body {
