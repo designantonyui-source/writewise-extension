@@ -11,9 +11,9 @@ duration or font in a component file.
 
 | Token | Meaning |
 |---|---|
-| `--ww-accent` | the brand orange, `#ff8204`; marks, dots, focus, graphics. Darkens to `#c25f00` in light mode, where graphics sit on white |
-| `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the ink that goes on them. Ink on `#ff8204` is 7.2:1; white would be 2.5:1 |
-| `--ww-accent-text` | accent used *as text*: `#ff8204` on the dark ground (7.4:1), `#a95200` on white (5.4:1) |
+| `--ww-accent` | the brand gold, `#ffaf01`; marks, dots, focus, graphics. Darkens to `#b57a00` in light mode, where graphics sit on white (3.7:1) |
+| `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the ink that goes on them. Ink on `#ffaf01` is 9.4:1; white would be 1.8:1 |
+| `--ww-accent-text` | accent used *as text*: `#ffaf01` on the dark ground (10:1), `#8f5c00` on white (5.7:1) |
 | `--ww-accent-soft` | 12–14% tint for selected pills, hint chips, hover washes |
 | `--ww-jade` / `--ww-danger` | insertions / deletions |
 | `--ww-bg`, `--ww-surface`, `--ww-surface-2`, `--ww-surface-3` | depth ladder |
@@ -23,17 +23,23 @@ duration or font in a component file.
 | `--ww-1 … --ww-6` | 4/8/12/16/20/24 spacing |
 | `--ww-r-sm`, `--ww-r`, `--ww-r-lg`, `--ww-r-pill` | 8/12/16/999 |
 | `--ww-control-h`, `--ww-touch-h` | 32px controls, 36px touch target |
-| `--ww-shadow`, `--ww-shadow-sm` | only two depths exist |
+| `--ww-shadow` | the single depth: the floating card. Controls are flat |
 | `--ww-ease`, `--ww-dur`, `--ww-dur-slow` | 140ms / 200ms, one easing curve |
 
 Dark is the default. Light follows `prefers-color-scheme` or an explicit
 `[data-theme]` on `:root` (extension pages) / `.ww-tokens` (shadow card).
 
 The accent is deliberately allowed to change *role* rather than get muddied:
-`#ff8204` is unchanged where it is a surface, ink is used where text sits on it,
+`#ffaf01` is unchanged where it is a surface, ink is used where text sits on it,
 and the accent darkens only when it is text or a hairline on white. Every pair
 below is asserted in `_wwtest/contrast.test.mjs`, so a future palette tweak
 cannot quietly break AA.
+
+The greys are neutral, not warm. A warm-grey ground plus a warm accent reads as
+someone else's brand; neutral surfaces let the gold be the only colour in the
+room. Depth is equally disciplined: only the floating card has a shadow. Buttons,
+switches, segmented tiles and slider thumbs are flat — a control that floats
+reads as a different material from the field it sits in.
 
 ## Type
 
@@ -46,7 +52,7 @@ instructions.
 
 - **Switch** — 36×20, real `<input type="checkbox">` + styled track. React to
   `change` only. Never re-toggle `.checked` in a click handler; that is the bug
-  that broke v1. The off track is neutral with a muted knob; the on track is
+  that broke v1. Flat, no shadow; the thumb is ink on the accent track. The off track is neutral with a muted knob; the on track is
   the accent with an ink knob (`--ww-switch-thumb`), because the accent is
   brighter than a white knob can survive on.
 - **Segmented control** — 2–3 equal segments, 32px tall, selected segment gets

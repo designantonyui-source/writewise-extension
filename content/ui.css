@@ -390,15 +390,14 @@
 }
 
 .ww-btn-primary {
-  /* accent surface + ink label = 7.2:1 — the orange stays the orange */
+  /* accent surface + ink label = 9.4:1 — the gold stays the gold.
+     Flat on purpose: no lift, no glow. The fill is the emphasis. */
   background: var(--ww-accent-hi);
   color: var(--ww-accent-ink);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 .ww-btn-primary:hover {
-  background: var(--ww-accent-hi);
-  box-shadow: 0 2px 10px rgba(255, 130, 4, 0.34);
+  background: color-mix(in srgb, var(--ww-accent-hi) 92%, #000000);
 }
 
 /* ── motion preferences ───────────────────────────────────────────────── */

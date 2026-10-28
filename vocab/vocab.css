@@ -329,7 +329,6 @@ button {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border-color: var(--ww-border-2);
-  box-shadow: var(--ww-shadow-sm);
 }
 
 .seg-count {

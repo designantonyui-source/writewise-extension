@@ -9,33 +9,34 @@
 
 :root,
 .ww-tokens {
-  /* brand — #ff8204 is the identity. White text on it is only 2.5:1, so an
-     accent *surface* carries ink instead (7.2:1), and accent *text* darkens
-     on the light ground. Both rules are asserted in contrast.test.mjs. */
-  --ww-accent: #ff8204;
-  --ww-accent-hi: #ff8204; /* filled surfaces: buttons, switch tracks */
-  --ww-accent-ink: #1b1611; /* label/mark/knob on an accent surface */
-  --ww-accent-soft: rgba(255, 130, 4, 0.14);
-  --ww-accent-text: #ff8204;
+  /* Brand — #ffaf01 is the identity. White text on it is 1.8:1, so an accent
+     *surface* carries ink instead (9.4:1), and accent *text* darkens on the
+     light ground. Every rule here is asserted in contrast.test.mjs. */
+  --ww-accent: #ffaf01;
+  --ww-accent-hi: #ffaf01; /* filled surfaces: buttons, switch tracks */
+  --ww-accent-ink: #1a1a18; /* label/mark/knob on an accent surface */
+  --ww-accent-soft: rgba(255, 175, 1, 0.14);
+  --ww-accent-text: #ffaf01;
   --ww-jade: #5cb87a;
   --ww-jade-soft: rgba(92, 184, 122, 0.15);
   --ww-danger: #e27d79;
   --ww-danger-soft: rgba(217, 83, 79, 0.15);
   --ww-amber: #e0a33a;
-  --ww-focus: #ff8204; /* 7.4:1 on the dark ground */
+  --ww-focus: #ffaf01; /* 10:1 on the dark ground */
   /* the knob is ink once the track turns accent; the track carries the state */
-  --ww-switch-thumb: #1b1611;
+  --ww-switch-thumb: #1a1a18;
 
-  /* surfaces — dark */
-  --ww-bg: #0c0c0b;
-  --ww-surface: #141413;
-  --ww-surface-2: #1c1c1a;
-  --ww-surface-3: #24231f;
-  --ww-border: #262521;
-  --ww-border-2: #33322c;
-  --ww-tx: #f2ede6;
-  --ww-tx-2: #aeaaa3;
-  --ww-tx-3: #8c8882;
+  /* Surfaces — neutral on purpose. A warm-grey ground plus a warm accent reads
+     like someone else's brand; neutral lets the gold be the only voice. */
+  --ww-bg: #0a0a0a;
+  --ww-surface: #131313;
+  --ww-surface-2: #1b1b1b;
+  --ww-surface-3: #232323;
+  --ww-border: #262626;
+  --ww-border-2: #343434;
+  --ww-tx: #f2f2f0;
+  --ww-tx-2: #aeaeaa;
+  --ww-tx-3: #8d8d89;
 
   /* type */
   --ww-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -67,9 +68,9 @@
   --ww-control-h: 32px;
   --ww-touch-h: 36px;
 
-  /* depth + motion */
-  --ww-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
-  --ww-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  /* depth + motion — one depth, for the floating card only. Controls are flat:
+     a button that floats reads as a different material from the field it sits in. */
+  --ww-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), 0 1px 3px rgba(0, 0, 0, 0.24);
   --ww-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ww-dur: 140ms;
   --ww-dur-slow: 200ms;
@@ -80,65 +81,62 @@
 @media (prefers-color-scheme: light) {
   :root,
   .ww-tokens {
-    --ww-bg: #faf7f2;
+    --ww-bg: #f6f6f4;
     --ww-surface: #ffffff;
-    --ww-surface-2: #f4efe7;
-    --ww-surface-3: #e9e3d8;
-    --ww-border: #e8e2d9;
-    --ww-border-2: #d8d1c5;
-    --ww-tx: #1d1b18;
-    --ww-tx-2: #5c5852;
-    --ww-tx-3: #6f6a64;
+    --ww-surface-2: #f0f0ee;
+    --ww-surface-3: #e6e6e2;
+    --ww-border: #e5e5e1;
+    --ww-border-2: #d5d5d0;
+    --ww-tx: #1a1a18;
+    --ww-tx-2: #5a5a56;
+    --ww-tx-3: #6e6e69;
     --ww-jade: #2a7448;
     --ww-danger: #b3261e;
-    --ww-accent: #c25f00; /* graphics on white need ≥ 3:1 */
-    --ww-accent-soft: rgba(255, 130, 4, 0.12);
-    --ww-accent-text: #a95200; /* 5.4:1 on white, 5.0:1 on paper */
-    --ww-focus: #a95200;
-    --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
-    --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
+    --ww-accent: #b57a00; /* graphics on white need ≥ 3:1 */
+    --ww-accent-soft: rgba(255, 175, 1, 0.12);
+    --ww-accent-text: #8f5c00; /* 5.7:1 on white, 5.2:1 on the ground */
+    --ww-focus: #8f5c00;
+    --ww-shadow: 0 10px 28px rgba(24, 24, 22, 0.12), 0 1px 3px rgba(24, 24, 22, 0.06);
     color-scheme: light;
   }
 }
 
 :root[data-theme="dark"],
 .ww-tokens[data-theme="dark"] {
-  --ww-bg: #0c0c0b;
-  --ww-surface: #141413;
-  --ww-surface-2: #1c1c1a;
-  --ww-surface-3: #24231f;
-  --ww-border: #262521;
-  --ww-border-2: #33322c;
-  --ww-tx: #f2ede6;
-  --ww-tx-2: #aeaaa3;
-  --ww-tx-3: #8c8882;
-  --ww-accent: #ff8204;
-  --ww-accent-soft: rgba(255, 130, 4, 0.14);
-  --ww-accent-text: #ff8204;
-  --ww-focus: #ff8204;
-  --ww-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
-  --ww-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --ww-bg: #0a0a0a;
+  --ww-surface: #131313;
+  --ww-surface-2: #1b1b1b;
+  --ww-surface-3: #232323;
+  --ww-border: #262626;
+  --ww-border-2: #343434;
+  --ww-tx: #f2f2f0;
+  --ww-tx-2: #aeaeaa;
+  --ww-tx-3: #8d8d89;
+  --ww-accent: #ffaf01;
+  --ww-accent-soft: rgba(255, 175, 1, 0.14);
+  --ww-accent-text: #ffaf01;
+  --ww-focus: #ffaf01;
+  --ww-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), 0 1px 3px rgba(0, 0, 0, 0.24);
   color-scheme: dark;
 }
 
 :root[data-theme="light"],
 .ww-tokens[data-theme="light"] {
-  --ww-bg: #faf7f2;
+  --ww-bg: #f6f6f4;
   --ww-surface: #ffffff;
-  --ww-surface-2: #f4efe7;
-  --ww-surface-3: #e9e3d8;
-  --ww-border: #e8e2d9;
-  --ww-border-2: #d8d1c5;
-  --ww-tx: #1d1b18;
-  --ww-tx-2: #5c5852;
-  --ww-tx-3: #6f6a64;
+  --ww-surface-2: #f0f0ee;
+  --ww-surface-3: #e6e6e2;
+  --ww-border: #e5e5e1;
+  --ww-border-2: #d5d5d0;
+  --ww-tx: #1a1a18;
+  --ww-tx-2: #5a5a56;
+  --ww-tx-3: #6e6e69;
   --ww-jade: #2a7448;
   --ww-danger: #b3261e;
-  --ww-accent: #c25f00;
-  --ww-accent-soft: rgba(255, 130, 4, 0.12);
-  --ww-accent-text: #a95200;
-  --ww-focus: #a95200;
-  --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
-  --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
+  --ww-accent: #b57a00;
+  --ww-accent-soft: rgba(255, 175, 1, 0.12);
+  --ww-accent-text: #8f5c00;
+  --ww-focus: #8f5c00;
+  --ww-shadow: 0 10px 28px rgba(24, 24, 22, 0.12), 0 1px 3px rgba(24, 24, 22, 0.06);
   color-scheme: light;
 }

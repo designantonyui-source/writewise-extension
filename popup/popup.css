@@ -153,7 +153,6 @@ body.is-off .mark {
   height: 14px;
   background: var(--ww-tx-3);
   border-radius: 50%;
-  box-shadow: var(--ww-shadow-sm);
   pointer-events: none;
   transition:
     transform var(--ww-dur) var(--ww-ease),
@@ -274,7 +273,6 @@ body.is-off .mark {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border-color: var(--ww-border-2);
-  box-shadow: var(--ww-shadow-sm);
 }
 
 /* ── setup card ─────────────────────────────────────────────── */
@@ -580,7 +578,6 @@ body.is-off .mark {
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
   border-radius: 50%;
-  box-shadow: var(--ww-shadow-sm);
   appearance: none;
   transition: transform var(--ww-dur) var(--ww-ease);
 }
