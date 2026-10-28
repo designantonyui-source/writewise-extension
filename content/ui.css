@@ -408,3 +408,22 @@
     transition: none;
   }
 }
+
+/* ── translation result ───────────────────────────────────────────── */
+
+.ww-trans {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ww-tx);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.ww-src {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--ww-tx-2);
+}

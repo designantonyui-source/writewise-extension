@@ -6,7 +6,7 @@
  * quirks live in the config below, not in branches spread through the code.
  */
 
-import { buildMessages } from './prompt.js';
+import { buildMessages, buildTranslateMessages } from './prompt.js';
 
 export const PROVIDERS = {
   deepseek: {
@@ -360,4 +360,117 @@ export async function listModels({ providerId, apiKey }) {
     ? payload.data.map((m) => m?.id).filter(Boolean)
     : [];
   return ids;
+}
+
+// ── translation ────────────────────────────────────────────────────────────
+
+function parseTranslation(content) {
+  const raw = stripFences(content);
+  if (!raw) return null;
+  try {
+    const obj = JSON.parse(raw);
+    const translation = typeof obj?.translation === 'string' ? obj.translation
+      : typeof obj?.text === 'string' ? obj.text
+        : null;
+    if (!translation) return null;
+    const source = typeof obj?.source_language === 'string' ? obj.source_language
+      : typeof obj?.sourceLanguage === 'string' ? obj.sourceLanguage
+        : '';
+    return { translation, sourceLanguage: source };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Translate one fragment. Same transport and error taxonomy as analyze();
+ * only the prompt and the response shape differ.
+ * Returns { translation, sourceLanguage, usage, ms, model, providerId }.
+ */
+export async function translate({ providerId, apiKey, model, text, targetLabel, signal }) {
+  const meta = providerMeta(providerId);
+  const chosenModel = model || defaultModel(providerId);
+  const messages = buildTranslateMessages({ text, targetLabel });
+  // A translation is roughly as long as its source, plus JSON overhead.
+  const maxTokens = Math.min(2048, Math.ceil(text.length / 2) + 220);
+  const started = Date.now();
+
+  const attemptOnce = async (withJson) => {
+    const payload = await request({
+      providerId,
+      apiKey,
+      path: '/chat/completions',
+      body: bodyFor({ meta, model: chosenModel, messages, maxTokens, withJson }),
+      signal,
+    });
+    const choice = payload?.choices?.[0];
+    const finish = choice?.finish_reason || '';
+    if (finish === 'length') {
+      throw new ProviderError(
+        'TRUNCATED',
+        'The translation was cut off before it finished.',
+        'Select a shorter piece of text.',
+      );
+    }
+    return { content: choice?.message?.content, usage: usageOf(payload) };
+  };
+
+  const attempt = async (withJson) => {
+    try {
+      return await attemptOnce(withJson);
+    } catch (err) {
+      if ((err.code === 'RATE_LIMIT' || err.code === 'SERVER') && !signal?.aborted) {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        if (!signal?.aborted) return attemptOnce(withJson);
+      }
+      throw err;
+    }
+  };
+
+  let parsed = null;
+  let usage = { tokensIn: 0, tokensOut: 0 };
+
+  try {
+    const first = await attempt(true);
+    usage = first.usage;
+    parsed = parseTranslation(first.content);
+    if (!parsed && first.content && !first.content.trim().startsWith('{')) {
+      parsed = { translation: stripFences(first.content), sourceLanguage: '' };
+    }
+  } catch (err) {
+    if (err.code === 'REQUEST' || err.code === 'SERVER') {
+      parsed = null;
+    } else {
+      throw err;
+    }
+  }
+
+  if (!parsed) {
+    try {
+      const second = await attempt(false);
+      usage = second.usage;
+      parsed = parseTranslation(second.content) || {
+        translation: stripFences(second.content) || '',
+        sourceLanguage: '',
+      };
+    } catch (err) {
+      if (err.code === 'REQUEST') {
+        throw new ProviderError('PARSE', 'The model answered in an unexpected shape.');
+      }
+      throw err;
+    }
+  }
+
+  if (!parsed.translation) {
+    throw new ProviderError('PARSE', 'The model returned an empty translation.');
+  }
+
+  return {
+    translation: parsed.translation,
+    sourceLanguage: parsed.sourceLanguage,
+    usage,
+    ms: Date.now() - started,
+    model: chosenModel,
+    providerId,
+  };
 }

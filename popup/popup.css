@@ -736,3 +736,27 @@ body.is-off .mark {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ── translate row ──────────────────────────────────────────── */
+
+.row-translate {
+  gap: 8px;
+}
+
+.row-translate-select {
+  flex: 0 0 auto;
+  width: 124px;
+}
+
+.row-translate .select {
+  height: 28px;
+  font-size: var(--ww-fs-11);
+  padding: 0 24px 0 8px;
+}
+
+.adv-caption {
+  margin: 6px 0 2px;
+  font-size: var(--ww-fs-11);
+  font-weight: 600;
+  color: var(--ww-tx-2);
+}

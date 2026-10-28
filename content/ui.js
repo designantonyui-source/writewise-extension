@@ -355,7 +355,7 @@
     let foot = '';
 
     if (state === 'checking') {
-      head = headHTML({ title: 'Checking…', spinner: true, timer: true, chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: str(data.title) || 'Checking…', spinner: true, timer: true, chip: chip, chipTitle: chipTitle });
       body = '<div class="ww-body">' +
         '<div class="ww-skel" style="width:92%"></div>' +
         '<div class="ww-skel" style="width:76%"></div>' +
@@ -380,6 +380,29 @@
       foot = footHTML('',
         (data.canUndo === false ? '' : btnHTML('undo', 'Undo', false)) +
         btnHTML('dismiss', 'Dismiss', false));
+    } else if (state === 'translation') {
+      const translation = str(data.translation);
+      const source = str(data.sourceLanguage);
+      const target = str(data.targetLabel);
+      const ms = formatMs(data.ms);
+      const metaBits = [];
+      if (data.copied) metaBits.push('Copied');
+      if (target) metaBits.push(target);
+      if (ms) metaBits.push(ms);
+      head = headHTML({ title: 'Translation', chip: chip, chipTitle: chipTitle });
+      body = '<div class="ww-body">' +
+        '<p class="ww-trans" data-ww-trans>' + esc(translation) + '</p>' +
+        (source ? '<p class="ww-src">from ' + esc(source) + '</p>' : '') +
+        '</div>';
+      foot = footHTML(metaBits.join(' · '),
+        btnHTML('dismiss', 'Dismiss', false) +
+        (data.canReplace ? btnHTML('replace', 'Replace', true) : btnHTML('copy', 'Copy', true)));
+      if (data.canReplace) {
+        foot = footHTML(metaBits.join(' · '),
+          btnHTML('dismiss', 'Dismiss', false) +
+          btnHTML('copy', 'Copy', false) +
+          btnHTML('replace', 'Replace', true));
+      }
     } else if (state === 'error' || state === 'setup') {
       const title = str(data.title) || (state === 'setup' ? 'Add your API key' : 'Could not check');
       const message = str(data.body) ||
@@ -396,7 +419,7 @@
         esc(str(data.body) || 'Nothing to show.') + '</p></div>';
     }
 
-    const isDialog = state === 'suggestion' || state === 'applied';
+    const isDialog = state === 'suggestion' || state === 'applied' || state === 'translation';
     const role = isDialog ? 'dialog'
       : (state === 'error' || state === 'setup') ? 'alert'
         : 'status';
@@ -408,7 +431,8 @@
     const label = state === 'suggestion' ? 'WriteWise suggestion'
       : state === 'applied' ? 'WriteWise correction applied'
         : state === 'checking' ? 'WriteWise checking text'
-          : state === 'clean' ? 'WriteWise result'
+          : state === 'translation' ? 'WriteWise translation'
+            : state === 'clean' ? 'WriteWise result'
             : (str(data.title) || 'WriteWise');
     card.setAttribute('aria-label', label);
     card.setAttribute('data-state', state);
@@ -586,6 +610,10 @@
         e.preventDefault();
         e.stopPropagation();
         emit('apply');
+      } else if (curState === 'translation') {
+        e.preventDefault();
+        e.stopPropagation();
+        emit('copy');
       }
       // other states: let native button activation happen
     }
@@ -607,7 +635,9 @@
   function show(anchor, state, data) {
     if (!mounted) mount();
     if (!card) return;
-    if (anchor && anchor.nodeType === 1) anchorEl = anchor;
+    const isAnchor = anchor && (anchor.nodeType === 1 ||
+      (typeof anchor === 'object' && typeof anchor.getBoundingClientRect === 'function'));
+    if (isAnchor) anchorEl = anchor;
 
     const wasVisible = visible;
     curState = str(state) || 'checking';

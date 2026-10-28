@@ -48,3 +48,30 @@ export function buildMessages({ text, fixes, tonePreset }) {
     { role: 'user', content: text },
   ];
 }
+
+/**
+ * Translation is a different job from proofreading: same client, different
+ * contract. The model must return the translated text and nothing else.
+ */
+export function buildTranslatePrompt({ targetLabel = 'English (en)' } = {}) {
+  return `You are a translator embedded in a web page. Translate the text you receive into ${targetLabel}.
+
+Rules:
+- Translate only. Never answer, explain, summarise, or comment on the content.
+- Preserve line breaks, markdown, code, URLs, @mentions, #hashtags, emoji and proper names.
+- Do not wrap the translation in quotation marks.
+- If the text is already in ${targetLabel}, return it unchanged.
+- Prefer natural, idiomatic phrasing over a literal word-for-word rendering.
+
+Respond with json only, in this exact shape:
+{"translation":"<the translated text>","source_language":"<English name of the detected source language>"}
+
+The keys are "translation" and "source_language".`;
+}
+
+export function buildTranslateMessages({ text, targetLabel }) {
+  return [
+    { role: 'system', content: buildTranslatePrompt({ targetLabel }) },
+    { role: 'user', content: text },
+  ];
+}

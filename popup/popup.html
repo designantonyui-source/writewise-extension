@@ -128,12 +128,26 @@
       </label>
     </div>
 
-    <div class="pills" id="toneRow">
-      <button type="button" class="pill" id="tonePill-professional" aria-pressed="false">Professional</button>
-      <button type="button" class="pill" id="tonePill-casual" aria-pressed="false">Casual</button>
-      <button type="button" class="pill" id="tonePill-formal" aria-pressed="false">Formal</button>
-      <button type="button" class="pill" id="tonePill-friendly" aria-pressed="false">Friendly</button>
+    <div class="list">
+      <div class="row row-translate">
+        <span class="row-label" id="translateLabel">Translate</span>
+        <span class="select-wrap row-translate-select">
+          <select class="select" id="translateTarget" aria-labelledby="translateLabel"></select>
+          <span class="select-chev" aria-hidden="true">
+            <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2.5 4.5L6 8l3.5-3.5"/>
+            </svg>
+          </span>
+        </span>
+        <label class="switch">
+          <input type="checkbox" id="translateToggle" role="switch" aria-label="Translate selected text">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </label>
+      </div>
     </div>
+
   </section>
 
   <section class="sec">
@@ -155,6 +169,21 @@
       <span>Advanced</span>
     </summary>
     <div class="adv-body">
+      <div class="adv-caption">Tone preset</div>
+    <div class="pills" id="toneRow">
+      <button type="button" class="pill" id="tonePill-professional" aria-pressed="false">Professional</button>
+      <button type="button" class="pill" id="tonePill-casual" aria-pressed="false">Casual</button>
+      <button type="button" class="pill" id="tonePill-formal" aria-pressed="false">Formal</button>
+      <button type="button" class="pill" id="tonePill-friendly" aria-pressed="false">Friendly</button>
+    </div>
+      <label class="row">
+        <span class="row-label">Translate when I select text</span>
+        <span class="switch">
+          <input type="checkbox" id="translateOnSelect" role="switch" aria-label="Translate when I select text">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
       <div class="row">
         <label class="row-label" for="minChars">Minimum characters</label>
         <input class="input input-num" id="minChars" type="number" min="1" max="400" step="1"

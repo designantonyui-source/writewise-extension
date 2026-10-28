@@ -42,6 +42,13 @@
   let appliedEl = null;
   let appliedBefore = null;
 
+  // translation
+  let translateTimer = 0;
+  let translateToken = 0;
+  let lastTranslate = { text: '', at: 0 };
+  let lastTranslation = null; // { translation, sourceLanguage, targetLabel, ms, canReplace, anchor, range }
+  let translateField = null; // { el, start, end } when the selection lives in a field
+
   // ── settings ─────────────────────────────────────────────────────────────
 
   async function readSettings() {
@@ -64,6 +71,10 @@
         tone: fix.tone !== false,
       },
       tonePreset: s.tonePreset || '',
+      translate: {
+        enabled: s.translate?.enabled !== false,
+        onSelect: s.translate?.onSelect !== false,
+      },
       pausedSites: Array.isArray(s.pausedSites) ? s.pausedSites : [],
       theme: ['system', 'dark', 'light'].includes(s.theme) ? s.theme : 'system',
     };
@@ -443,6 +454,261 @@
     if (settings) onInput({ target: e.target, isComposing: false });
   }
 
+  // ── translation ──────────────────────────────────────────────────────────
+
+  const AUTO_TRANSLATE_CHARS = 240;
+
+  function closestEditable(node) {
+    let el = node && (node.nodeType === 1 ? node : node.parentElement);
+    while (el) {
+      if (el.isContentEditable) return el;
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  function isOurs(target) {
+    const host = document.getElementById('__ww-host');
+    return !!host && target === host;
+  }
+
+  /** What the user has selected right now, or null. */
+  function selectionContext() {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT') && isEligible(active)) {
+      const start = active.selectionStart ?? 0;
+      const end = active.selectionEnd ?? 0;
+      if (end - start > 0) {
+        return { text: active.value.slice(start, end), field: active, start, end };
+      }
+    }
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
+    const text = sel.toString();
+    if (!text.trim()) return null;
+    const range = sel.getRangeAt(0).cloneRange();
+    return { text, range, editable: closestEditable(range.commonAncestorContainer) };
+  }
+
+  function anchorFor(context) {
+    if (context.field) {
+      return {
+        getBoundingClientRect: () => {
+          try {
+            return context.field.getBoundingClientRect();
+          } catch {
+            return { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+          }
+        },
+        get isConnected() {
+          return !!(context.field && context.field.isConnected);
+        },
+      };
+    }
+    const range = context.range;
+    return {
+      getBoundingClientRect: () => {
+        try {
+          return range.getBoundingClientRect();
+        } catch {
+          return { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+        }
+      },
+      get isConnected() {
+        return !!(range && range.startContainer && range.startContainer.isConnected);
+      },
+    };
+  }
+
+  function renderTranslateError(anchor, error) {
+    const code = error?.code || 'ERROR';
+    const map = {
+      NO_KEY: {
+        title: 'Add a key to translate',
+        body: 'Translation uses the same DeepSeek or OpenAI key as fixes. It stays on this device.',
+        action: { id: 'open-settings', label: 'Add key' },
+      },
+      TOO_LONG: {
+        title: 'Selection too long',
+        body: error?.message || 'Select a shorter piece of text.',
+        action: null,
+      },
+      EMPTY: { title: 'Nothing selected', body: 'Select some text first.', action: null },
+      INVALID_KEY: {
+        title: 'Key rejected',
+        body: 'The provider refused that key. Check it in settings.',
+        action: { id: 'open-settings', label: 'Open settings' },
+      },
+      RATE_LIMIT: {
+        title: 'Rate limited',
+        body: 'You have hit the provider limit. Give it a moment.',
+        action: { id: 'retry', label: 'Try again' },
+      },
+      TIMEOUT: { title: 'Took too long', body: 'The model did not answer in time.', action: { id: 'retry', label: 'Try again' } },
+      NETWORK: { title: 'No connection', body: 'Could not reach the provider.', action: { id: 'retry', label: 'Try again' } },
+      TRUNCATED: {
+        title: 'Too long for one pass',
+        body: 'Select a shorter piece of text and try again.',
+        action: null,
+      },
+      CONTEXT: { title: 'Reload this page', body: 'WriteWise was reloaded while this page was open.', action: null },
+    };
+    const view = map[code] || {
+      title: 'Could not translate',
+      body: error?.message || 'Something went wrong.',
+      action: { id: 'retry', label: 'Try again' },
+    };
+    UI.show(anchor, view.state || 'error', {
+      title: view.title,
+      body: view.body,
+      action: view.action,
+    });
+  }
+
+  async function translateSelection({ force = false } = {}) {
+    if (!settings || !settings.enabled) return;
+    if (!settings.translate.enabled) return;
+
+    const context = selectionContext();
+    if (!context) return;
+
+    const text = context.text.trim();
+    if (!text) return;
+
+    if (!force && text.length > AUTO_TRANSLATE_CHARS) return;
+
+    const now = Date.now();
+    if (text === lastTranslate.text && now - lastTranslate.at < 3000) return;
+    lastTranslate = { text, at: now };
+
+    const token = ++translateToken;
+    const anchor = anchorFor(context);
+    translateField = context.field ? { el: context.field, start: context.start, end: context.end } : null;
+
+    UI.show(anchor, 'checking', {
+      title: 'Translating…',
+      provider: PROVIDER_LABEL[settings.provider] || 'AI',
+    });
+
+    const res = await send({ type: 'TRANSLATE', id: `wwtr:${now.toString(36)}`, text });
+    if (token !== translateToken) return;
+
+    if (!res?.ok) {
+      renderTranslateError(anchor, res?.error);
+      return;
+    }
+
+    const r = res.result;
+    const canReplace = !!(context.field || context.editable);
+    lastTranslation = {
+      translation: r.translation,
+      sourceLanguage: r.sourceLanguage,
+      targetLabel: r.targetLabel,
+      ms: r.ms,
+      provider: r.providerLabel,
+      model: shortModel(r.model),
+      canReplace,
+      anchor,
+      context,
+    };
+
+    UI.show(anchor, 'translation', {
+      translation: r.translation,
+      sourceLanguage: r.sourceLanguage,
+      targetLabel: r.targetLabel,
+      ms: r.ms,
+      provider: r.providerLabel,
+      model: shortModel(r.model),
+      canReplace,
+    });
+  }
+
+  async function copyTranslation() {
+    if (!lastTranslation) return;
+    const text = lastTranslation.translation;
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand('copy');
+        ta.remove();
+      } catch {
+        ok = false;
+      }
+    }
+    const t = lastTranslation;
+    UI.show(t.anchor, 'translation', {
+      translation: t.translation,
+      sourceLanguage: t.sourceLanguage,
+      targetLabel: t.targetLabel,
+      ms: t.ms,
+      provider: t.provider,
+      model: t.model,
+      canReplace: t.canReplace,
+      copied: ok,
+    });
+  }
+
+  function replaceWithTranslation() {
+    if (!lastTranslation) return;
+    const { context, translation } = lastTranslation;
+    try {
+      if (context.field && context.field.isConnected) {
+        const el = context.field;
+        withGuard(el, () => {
+          el.setRangeText(translation, context.start, context.end, 'end');
+          el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertReplacementText', data: translation }));
+        });
+      } else if (context.range && context.editable && context.editable.isConnected) {
+        const sel = window.getSelection();
+        if (sel) {
+          const range = context.range.cloneRange();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          const el = context.editable;
+          withGuard(el, () => {
+            try {
+              document.execCommand('insertText', false, translation);
+            } catch {
+              /* leave the text alone */
+            }
+          });
+        }
+      }
+    } catch {
+      /* selection disappeared — nothing to replace */
+    }
+    translateToken++;
+    UI.hide();
+  }
+
+  function onSelectionMouseUp(e) {
+    if (!settings || !settings.translate.enabled || !settings.translate.onSelect) return;
+    if (e.button !== 0 || isOurs(e.target)) return;
+    clearTimeout(translateTimer);
+    translateTimer = setTimeout(() => {
+      void translateSelection({ force: false });
+    }, 260);
+  }
+
+  function onSelectionDblClick(e) {
+    if (!settings || !settings.translate.enabled) return;
+    if (isOurs(e.target)) return;
+    clearTimeout(translateTimer);
+    void translateSelection({ force: false });
+  }
+
   // ── actions ──────────────────────────────────────────────────────────────
 
   function applySuggestion() {
@@ -596,7 +862,14 @@
         break;
       case 'recheck':
       case 'retry':
-        void recheck();
+        if (lastTranslation) void translateSelection({ force: true });
+        else void recheck();
+        break;
+      case 'copy':
+        void copyTranslation();
+        break;
+      case 'replace':
+        replaceWithTranslation();
         break;
       case 'open-settings':
         void send({ type: 'OPEN_SETTINGS' });
@@ -642,6 +915,11 @@
         respond({ ok: true });
         return false;
       }
+      if (msg?.type === 'TRANSLATE_SELECTION') {
+        void translateSelection({ force: true });
+        respond({ ok: true });
+        return false;
+      }
       return false;
     });
 
@@ -649,6 +927,8 @@
     document.addEventListener('focusin', onFocusIn, true);
     document.addEventListener('compositionstart', onCompositionStart, true);
     document.addEventListener('compositionend', onCompositionEnd, true);
+    document.addEventListener('mouseup', onSelectionMouseUp, true);
+    document.addEventListener('dblclick', onSelectionDblClick, true);
   }
 
   void boot();

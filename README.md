@@ -1,7 +1,8 @@
 # WriteWise
 
 A quiet proofreader for any text field on the web. It waits for you to pause,
-shows what it would change, and applies it in one click — or one key.
+shows what it would change, and applies it in one click — or one key. It also
+translates: double-click a word, or select a passage.
 
 Two providers, one key each: **DeepSeek** (default) or **OpenAI**.
 
@@ -42,6 +43,22 @@ Keyboard: `Enter` applies when the card is focused · `Esc` dismisses ·
 `⌥⇧W` (Alt+Shift+W) checks the focused field on demand · right-click a text
 selection → **Fix selection** checks only that fragment.
 
+## Translate
+
+- **Double-click a word** and it translates into your target language.
+- **Select a passage** (up to ~240 characters) and it translates when you let go
+  of the mouse.
+- For anything longer, right-click → **Translate selection** (up to 2,400
+  characters).
+- The card shows the translation, the detected source language, and gives you
+  **Copy** — or **Replace**, when the text came from a field you were editing.
+
+![Translate card](docs/card-translate.png)
+
+Pick the target language and switch translation on or off in the popup's
+**Translate** row; turn off *Translate when I select text* under **Advanced** if
+you only want double-click to translate.
+
 ## Settings
 
 | Setting | Meaning |
@@ -52,8 +69,9 @@ selection → **Fix selection** checks only that fragment.
 | Wait after typing | 0.4 s – 3 s pause before a check |
 | Spelling / Grammar / Clarity / Tone | What the model is allowed to touch |
 | Tone preset | Professional, Casual, Formal, Friendly |
+| Translate | Target language + on/off (double-click a word, or select text) |
 | On this site | Pause the current hostname |
-| Advanced | Minimum characters, maximum words |
+| Advanced | Minimum characters, maximum words, tone presets, translate-on-select |
 
 The popup also shows fixes today and an estimated spend.
 
@@ -65,6 +83,8 @@ The popup also shows fixes today and an estimated spend.
 - No telemetry, no analytics, no accounts.
 - Password, payment (`autocomplete=cc-*`) and one-time-code fields are never
   read.
+- Translation sends only the selected fragment, and only when you trigger it
+  (double-click, or selecting text while that setting is on).
 
 ## Cost
 
@@ -94,6 +114,7 @@ That is roughly **$0.40–0.50 per 1,000 checks** on the fast models.
 manifest.json          MV3, two API hosts, no broad host permissions
 background.js          message router, API calls, stats, context menu
 src/providers.js       one OpenAI-compatible client + error taxonomy
+src/languages.js       translation targets + browser-language fallback
 src/prompt.js          the guardrail prompt and JSON envelope
 src/storage.js         settings/stats shape, defaults, v1 key cleanup
 content/ui.js|css      in-page card (shadow DOM, six states)
@@ -119,6 +140,10 @@ intercepts provider calls in the service worker, and drives the UI with real
 mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
+
+## Differences from v1.1
+
+- Translation added: double-click / select / right-click, with a target language.
 
 ## Differences from v1
 

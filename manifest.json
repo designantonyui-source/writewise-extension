@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WriteWise",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Quiet writing fixes as you type — DeepSeek or OpenAI.",
   "minimum_chrome_version": "116",
   "permissions": [

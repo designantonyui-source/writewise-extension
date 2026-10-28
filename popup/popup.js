@@ -9,6 +9,7 @@
  */
 
 import { getSettings, setSettings } from '../src/storage.js';
+import { LANGUAGES, resolveTarget } from '../src/languages.js';
 import { PROVIDERS, providerMeta } from '../src/providers.js';
 
 const $ = (id) => document.getElementById(id);
@@ -30,6 +31,7 @@ const ELEMENT_IDS = [
   'modelSelect',
   'autoCheckToggle', 'delaySlider', 'delayValue', 'delayFill',
   'fixSpelling', 'fixGrammar', 'fixClarity', 'fixTone', 'toneRow',
+  'translateTarget', 'translateToggle', 'translateOnSelect',
   'siteHost', 'pauseSiteBtn',
   'minChars', 'maxWords',
   'statFixes', 'statCost',
@@ -64,6 +66,7 @@ async function loadSettings() {
     el.statusText.textContent = 'Settings unavailable';
     return;
   }
+  fillLanguages();
   renderAll();
   loadSite();
   loadStats();
@@ -77,6 +80,7 @@ function renderAll() {
   renderProvider();
   renderFix();
   renderTone();
+  renderTranslate();
   renderDelay();
   renderSite();
   renderStats();
@@ -153,6 +157,25 @@ function renderFix() {
   for (const [name, id] of Object.entries(FIX_IDS)) {
     el[id].checked = state.settings.fix[name] !== false;
   }
+}
+
+function renderTranslate() {
+  const t = state.settings.translate || {};
+  el.translateToggle.checked = t.enabled !== false;
+  el.translateOnSelect.checked = t.onSelect !== false;
+  el.translateTarget.value = resolveTarget(state.settings);
+}
+
+function fillLanguages() {
+  const current = state.settings?.translate?.target || '';
+  el.translateTarget.textContent = '';
+  for (const lang of LANGUAGES) {
+    const opt = document.createElement('option');
+    opt.value = lang.code;
+    opt.textContent = lang.label;
+    el.translateTarget.appendChild(opt);
+  }
+  el.translateTarget.value = resolveTarget({ translate: { target: current } });
 }
 
 function renderTone() {
@@ -269,6 +292,7 @@ function afterSave(patch) {
   if ('provider' in patch) renderProvider();
   if ('keys' in patch) renderKeyBox();
   if ('fix' in patch || 'tonePreset' in patch) renderTone();
+  if ('translate' in patch) renderTranslate();
   if ('pausedSites' in patch) renderSite();
   if ('delayMs' in patch) renderDelay();
   if ('minChars' in patch || 'maxWords' in patch) reflectNumbers();
@@ -280,6 +304,18 @@ function afterSave(patch) {
 function bind() {
   el.masterToggle.addEventListener('change', () => {
     save({ enabled: el.masterToggle.checked });
+  });
+
+  el.translateToggle.addEventListener('change', () => {
+    save({ translate: { enabled: el.translateToggle.checked } });
+  });
+
+  el.translateOnSelect.addEventListener('change', () => {
+    save({ translate: { onSelect: el.translateOnSelect.checked } });
+  });
+
+  el.translateTarget.addEventListener('change', () => {
+    save({ translate: { target: el.translateTarget.value } });
   });
 
   el.autoCheckToggle.addEventListener('change', () => {

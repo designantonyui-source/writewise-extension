@@ -6,8 +6,11 @@
  * messages: ANALYZE, CANCEL, BUMP_STATS, GET_ACTIVE_INFO, OPEN_SETTINGS.
  */
 
-import { analyze, listModels, providerMeta, estimateCost } from './src/providers.js';
+import { analyze, translate, listModels, providerMeta, estimateCost } from './src/providers.js';
 import { getSettings, bumpStats, migrateLegacy } from './src/storage.js';
+import { languagePromptLabel, resolveTarget } from './src/languages.js';
+
+const MAX_TRANSLATE_CHARS = 2400;
 
 /** id → { ctl: AbortController, tabId } */
 const inflight = new Map();
@@ -22,12 +25,21 @@ chrome.runtime.onInstalled.addListener(() => {
       title: 'Fix selection with WriteWise',
       contexts: ['editable'],
     });
+    chrome.contextMenus.create({
+      id: 'ww-translate-selection',
+      title: 'Translate selection with WriteWise',
+      contexts: ['selection', 'editable'],
+    });
   });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId !== 'ww-fix-selection' || !tab?.id) return;
-  chrome.tabs.sendMessage(tab.id, { type: 'FIX_SELECTION' }).catch(() => {});
+  if (!tab?.id) return;
+  const type = info.menuItemId === 'ww-fix-selection' ? 'FIX_SELECTION'
+    : info.menuItemId === 'ww-translate-selection' ? 'TRANSLATE_SELECTION'
+      : null;
+  if (!type) return;
+  chrome.tabs.sendMessage(tab.id, { type }).catch(() => {});
 });
 
 chrome.commands.onCommand.addListener((command, tab) => {
@@ -55,6 +67,9 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
       onCancel(msg, sender);
       respond({ ok: true });
       return false;
+    case 'TRANSLATE':
+      void onTranslate(msg, sender, respond);
+      return true;
     case 'MODELS':
       void onModels(msg, respond);
       return true;
@@ -150,6 +165,86 @@ function onCancel(msg, sender) {
   }
   entry.ctl.abort();
   inflight.delete(id);
+}
+
+async function onTranslate(msg, sender, respond) {
+  const settings = await getSettings();
+  const providerId = msg.provider || settings.provider;
+  const meta = providerMeta(providerId);
+  const apiKey = String(settings.keys[providerId] || '').trim();
+  const model = msg.model || settings.models[providerId];
+  const text = String(msg.text || '').trim();
+
+  if (!apiKey) {
+    respond({ ok: false, error: { code: 'NO_KEY', message: `No ${meta.label} API key set.` } });
+    return;
+  }
+  if (!text) {
+    respond({ ok: false, error: { code: 'EMPTY', message: 'Nothing selected.' } });
+    return;
+  }
+  if (text.length > MAX_TRANSLATE_CHARS) {
+    respond({
+      ok: false,
+      error: {
+        code: 'TOO_LONG',
+        message: `Select at most ${MAX_TRANSLATE_CHARS} characters to translate.`,
+        detail: `${text.length} characters selected`,
+      },
+    });
+    return;
+  }
+
+  const targetCode = resolveTarget(settings);
+  const targetLabel = languagePromptLabel(targetCode);
+  const id = String(msg.id || crypto.randomUUID());
+  const ctl = new AbortController();
+  inflight.set(id, { ctl, tabId: sender.tab?.id });
+
+  try {
+    const result = await translate({
+      providerId,
+      apiKey,
+      model,
+      text,
+      targetLabel,
+      signal: ctl.signal,
+    });
+
+    const { tokensIn, tokensOut } = result.usage;
+    if (tokensIn || tokensOut) {
+      await bumpStats({
+        tokensIn,
+        tokensOut,
+        costUsd: estimateCost(providerId, tokensIn, tokensOut),
+      });
+    }
+
+    respond({
+      ok: true,
+      result: {
+        translation: result.translation,
+        sourceLanguage: result.sourceLanguage,
+        targetCode,
+        targetLabel,
+        ms: result.ms,
+        model: result.model,
+        provider: providerId,
+        providerLabel: meta.label,
+      },
+    });
+  } catch (err) {
+    respond({
+      ok: false,
+      error: {
+        code: err?.code || 'ERROR',
+        message: err?.message || 'Translation failed.',
+        detail: err?.detail || null,
+      },
+    });
+  } finally {
+    inflight.delete(id);
+  }
 }
 
 async function onModels(msg, respond) {

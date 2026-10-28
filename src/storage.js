@@ -19,6 +19,11 @@ export const DEFAULTS = Object.freeze({
   maxWords: 250,
   fix: { spelling: true, grammar: true, clarity: true, tone: true },
   tonePreset: '', // '' | professional | casual | formal | friendly
+  translate: {
+    enabled: true,
+    onSelect: true, // auto-translate when text is selected (double-click always works)
+    target: '', // '' = follow the browser language
+  },
   pausedSites: [],
   theme: 'system', // 'system' | 'dark' | 'light'
 });
@@ -57,6 +62,11 @@ export function normalize(raw) {
     tonePreset: ['professional', 'casual', 'formal', 'friendly'].includes(s.tonePreset)
       ? s.tonePreset
       : '',
+    translate: {
+      enabled: s.translate?.enabled !== false,
+      onSelect: s.translate?.onSelect !== false,
+      target: typeof s.translate?.target === 'string' ? s.translate.target : '',
+    },
     pausedSites: Array.isArray(s.pausedSites)
       ? [...new Set(s.pausedSites.filter((h) => typeof h === 'string' && h))]
       : [],
@@ -77,6 +87,7 @@ export async function setSettings(patch) {
     keys: { ...current.keys, ...(patch?.keys || {}) },
     models: { ...current.models, ...(patch?.models || {}) },
     fix: { ...current.fix, ...(patch?.fix || {}) },
+    translate: { ...current.translate, ...(patch?.translate || {}) },
   });
   await chrome.storage.local.set({ [SETTINGS_KEY]: next });
   return next;
