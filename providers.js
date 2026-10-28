@@ -11,4 +11,5 @@ const WriteWiseProviders = Object.freeze({
     keyUrl:'https://platform.deepseek.com/api_keys', keyDomain:'platform.deepseek.com'
   }
 });
-const WriteWiseConsentVersion = 2;
+const WriteWiseConsentVersion = 3;
+const WriteWiseLanguages = Object.freeze({en:'English', pl:'Polish', ru:'Russian', uk:'Ukrainian'});

@@ -1,6 +1,6 @@
 # WriteWise — Chrome extension
 
-Check spelling, grammar, clarity, and tone with OpenAI or DeepSeek. Every correction requires your review.
+Check spelling, grammar, clarity, and tone, or translate selected text with OpenAI or DeepSeek. Every correction requires your review.
 
 ## Install or update (Chrome 114+)
 
@@ -9,7 +9,7 @@ Check spelling, grammar, clarity, and tone with OpenAI or DeepSeek. Every correc
 3. Open `chrome://extensions` and enable **Developer mode**.
 4. Choose **Load unpacked** and select the folder containing `manifest.json`.
 5. For an existing installation, replace the files in its folder, click **Reload**, and refresh open website tabs.
-6. Open WriteWise, read the updated privacy disclosure, and choose **Allow checks and continue** if you agree. Existing users must accept the new provider disclosure too.
+6. Open WriteWise, read the updated privacy disclosure, and choose **Allow checks and continue** if you agree. Existing users must accept the updated disclosure covering selected-text translation too.
 7. Choose OpenAI or DeepSeek and save your API key. OpenAI uses GPT-5.4 mini; DeepSeek uses DeepSeek Flash with thinking disabled. Keys are not validated until your first check; provider usage and pricing limits apply.
 
 ## Check your writing
@@ -21,11 +21,21 @@ Check spelling, grammar, clarity, and tone with OpenAI or DeepSeek. Every correc
 - Rich-text editors offer **Copy correction**, preserving editor formatting and state. Paste the correction yourself where needed.
 - Checks accept up to **500 words and 12,000 characters** per request. Incomplete or empty AI responses cannot be applied.
 
+## Translate selected text
+
+- **Double-click a word** on an ordinary webpage or in a supported text field to open its translation immediately.
+- **Select a phrase** to show a nearby **Translate** button, or use **Translate selection with WriteWise** from the right-click menu. Highlighting alone does not send text.
+- Choose **English, Polish, Russian, or Ukrainian** under **Translate to** in the toolbar popup or the translation panel. The choice is saved; changing it in the panel translates the same selection again. English is selected initially.
+- The source language is detected by the provider. Translation accepts short words, including selections shorter than the writing check's 10-character minimum.
+- Use **Copy translation** to copy the result. The extension leaves the original webpage or draft unchanged. Escape, closing the panel, or clicking elsewhere dismisses it.
+- Turn off **Selection translation** to disable both selection and double-click translation. The master toggle, paused sites, and privacy consent also apply to translation.
+- Translation uses your chosen OpenAI or DeepSeek key. Only the selected text and translation instructions are sent. It follows the same 500-word / 12,000-character limit and incomplete-response checks.
+
 ## Settings
 
-The compact popup shows provider and writing controls first. Expand **Manage** to edit your API key, or **More preferences** to choose tone, timing, or revoke consent.
+The compact popup shows the provider, selection translation, and writing controls. Expand **Manage** to edit your API key, or **More preferences** to choose tone, timing, or revoke consent.
 
-- **Master toggle** pauses all checks. **Pause here** pauses checks on the current hostname, including its context-menu checks.
+- **Master toggle** pauses all writing checks and translations. **Pause here** pauses checks on the current hostname, including its context-menu checks.
 - **Check automatically** is off by default. Turning it on sends eligible field text to your selected provider after you pause (0.5–4 seconds), with at least 8 seconds between checks per page. Switch it off for manual checks.
 - Turn individual fix categories on or off. Turning all categories off prevents checks.
 - **Stop sharing text** revokes consent and disables automatic checks. A request already sent to a provider cannot be recalled.

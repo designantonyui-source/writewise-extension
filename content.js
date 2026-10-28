@@ -22,12 +22,16 @@
   let settingsLoaded = false;
   let pendingInputEl = null;
   let composing = false;
+  let translationContext = null;
+  let translationResult = null;
+  let bubbleTarget = null;
 
   const MAX_WORDS = 500;
   const MIN_CHECK_INTERVAL = 8000; // ms — minimum gap between API calls
 
   const defaults = { spelling:true, grammar:true, clarity:true, tone:true, delay:2000,
-    enabled:true, pausedSites:[], autoCheckEnabled:false, dataSharingConsent:false, providerConsentVersion:0 };
+    enabled:true, pausedSites:[], autoCheckEnabled:false, dataSharingConsent:false, providerConsentVersion:0,
+    doubleClickTranslate:true, translationLanguage:'en' };
   let settings = { ...defaults };
   const settingKeys = [...Object.keys(defaults), 'provider', 'tonePreset'];
 
@@ -44,10 +48,14 @@
     });
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'sync' || !Object.keys(changes).some(k => settingKeys.includes(k))) return;
+      const previousTranslation = translationContext;
       for (const [key, {newValue}] of Object.entries(changes)) {
         if (settingKeys.includes(key)) settings[key] = newValue ?? defaults[key];
       }
       invalidate();
+      if (Object.keys(changes).length === 1 && changes.translationLanguage && previousTranslation && translationCurrent(previousTranslation)) {
+        startTranslation(previousTranslation);
+      }
     });
   } catch(e) {}
 
@@ -71,9 +79,13 @@
     return el.tagName === 'TEXTAREA' || el.isContentEditable;
   }
 
+  function siteAllowed() {
+    return settingsLoaded && settings.enabled && settings.dataSharingConsent === true &&
+      settings.providerConsentVersion === WriteWiseConsentVersion && !settings.pausedSites?.includes(location.hostname);
+  }
+
   function allowed(el) {
-    return settingsLoaded && settings.enabled && settings.dataSharingConsent === true && settings.providerConsentVersion === 2 &&
-      !settings.pausedSites?.includes(location.hostname) && isEditable(el) && el.isConnected &&
+    return siteAllowed() && isEditable(el) && el.isConnected &&
       ['spelling','grammar','clarity','tone'].some(k => settings[k]);
   }
 
@@ -85,6 +97,9 @@
     requestVersion++;
     clearTimeout(debounceTimer);
     suggestion = null;
+    translationContext = null;
+    translationResult = null;
+    bubbleTarget = null;
     correctedText = '';
     originalText = '';
     changeCount = 0;
@@ -93,6 +108,7 @@
     undoState = null;
     hideBubble();
     if (bubble) bubble.replaceChildren();
+    hideSelectionAction();
     hideAnchor();
     if (badge) badge.classList.remove('visible');
   }
@@ -230,13 +246,16 @@
     anchor.innerHTML = '<div class="__ww-anchor-fill"><div class="__ww-anchor-arc"></div><span class="__ww-anchor-icon"></span></div>';
     document.body.appendChild(anchor);
     anchor.addEventListener('click', onAnchorClick);
-    // Tab applies a validated plain-text suggestion; Enter keeps its native behavior.
-    document.addEventListener('keydown', onKeyDown, true);
+
   }
 
   function onKeyDown(e) {
     if (!e.isTrusted) return;
-    if (e.key === 'Escape') { hideBubble(); return; }
+    if (e.key === 'Escape') { if (translationContext) invalidate(); else hideBubble(); hideSelectionAction(); return; }
+    if (translationContext && !e.target.closest?.('[data-writewise="true"]') &&
+        (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a'))) {
+      invalidate(); return;
+    }
     if (!bubble || bubble.style.display === 'none' || !suggestion || suggestion.el.isContentEditable) return;
     if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey &&
         !e.isComposing && document.activeElement === suggestion.el && unchanged(suggestion)) {
@@ -297,16 +316,19 @@
   }
 
   window.addEventListener('scroll', () => {
+    if (selectionCheck) showSelectionAction(selectionCheck);
     if (anchor?.style.display !== 'none' && anchorEl) positionAnchor(anchorEl);
-    if (bubble?.style.display !== 'none' && activeElement) positionBubble(activeElement);
+    if (bubble?.style.display !== 'none' && bubbleTarget) positionBubble(bubbleTarget);
   }, true);
   window.addEventListener('resize', () => {
+    if (selectionCheck) showSelectionAction(selectionCheck);
     if (anchor?.style.display !== 'none' && anchorEl) positionAnchor(anchorEl);
-    if (bubble?.style.display !== 'none' && activeElement) positionBubble(activeElement);
+    if (bubble?.style.display !== 'none' && bubbleTarget) positionBubble(bubbleTarget);
   });
 
   // ── Input events ──────────────────────────────────────────────────────────
 
+  document.addEventListener('keydown', onKeyDown, true);
   document.addEventListener('input',    onInput,    true);
   document.addEventListener('focusin',  onFocus,    true);
   document.addEventListener('focusout', onFocusOut, true);
@@ -323,6 +345,7 @@
 
   function onFocusOut() {
     setTimeout(() => {
+      if (translationContext && translationCurrent(translationContext)) return;
       if (!isEditable(editableRoot(document.activeElement)) &&
           !document.activeElement?.closest?.('[data-writewise]')) {
         invalidate();
@@ -331,7 +354,7 @@
   }
 
   function onInput(e) {
-    if (e.isTrusted === false) return;
+    if (e.isTrusted === false || e.target.closest?.('[data-writewise="true"]')) return;
     const el = editableRoot(e.target);
     if (el?.__writewiseApplying) return;
     if (!settingsLoaded) { pendingInputEl = el; return; }
@@ -464,9 +487,182 @@
     }
   }
 
+  // ── Selected-text translation ────────────────────────────────────────────
+  let selectionAction = null;
+  let selectionCheck = null;
+
+  function translationAllowed(el) {
+    if (!siteAllowed() || settings.doubleClickTranslate === false || !el?.isConnected) return false;
+    if (el.closest('[data-writewise="off"], [data-sensitive="true"], [data-writewise="true"]')) return false;
+    if (el.matches('input, textarea')) return isEditable(el);
+    return true;
+  }
+
+  function selectedContext(target) {
+    const field = editableRoot(target);
+    if (field?.matches('input, textarea')) {
+      if (!translationAllowed(field)) return null;
+      const check = snapshot(field, true);
+      return check?.text ? {...check, field:true} : null;
+    }
+    const selection = window.getSelection();
+    if (!selection?.rangeCount || selection.isCollapsed) return null;
+    const range = selection.getRangeAt(0).cloneRange();
+    const node = range.commonAncestorContainer;
+    const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    const text = range.toString().trim();
+    if (!text || !translationAllowed(el)) return null;
+    for (const endpoint of [selection.anchorNode,selection.focusNode]) {
+      const parent = endpoint?.nodeType === Node.ELEMENT_NODE ? endpoint : endpoint?.parentElement;
+      if (parent?.closest('[data-writewise="off"], [data-sensitive="true"], [data-writewise="true"]')) return null;
+    }
+    return {el,range,text,field:false};
+  }
+
+  function translationCurrent(check) {
+    return translationAllowed(check.el) && (check.field
+      ? getText(check.el) === check.fullText
+      : check.range.commonAncestorContainer.isConnected && check.range.toString().trim() === check.text);
+  }
+
+  function translationTarget(check) {
+    return {getBoundingClientRect:() => check.field ? check.el.getBoundingClientRect() : check.range.getBoundingClientRect()};
+  }
+
+  function hideSelectionAction() {
+    if (selectionAction) selectionAction.hidden = true;
+    selectionCheck = null;
+  }
+
+  function showSelectionAction(check) {
+    if (check.text.length > 12000 || wordCount(check.text) > MAX_WORDS) return;
+    if (!selectionAction) {
+      selectionAction = document.createElement('button');
+      selectionAction.id = '__writewise-translate';
+      selectionAction.type = 'button';
+      selectionAction.textContent = 'Translate';
+      selectionAction.setAttribute('data-writewise','true');
+      selectionAction.setAttribute('aria-label','Translate selected text');
+      selectionAction.addEventListener('mousedown', e => e.preventDefault());
+      selectionAction.addEventListener('click', e => {
+        if (e.isTrusted && selectionCheck) startTranslation(selectionCheck);
+      });
+      document.body.appendChild(selectionAction);
+    }
+    selectionCheck = check;
+    const rect = translationTarget(check).getBoundingClientRect();
+    selectionAction.style.left = Math.max(8,Math.min(rect.left,window.innerWidth - 100)) + window.scrollX + 'px';
+    selectionAction.style.top = Math.max(8,Math.min(rect.bottom + 6,window.innerHeight - 36)) + window.scrollY + 'px';
+    selectionAction.hidden = false;
+  }
+
+  document.addEventListener('pointerdown', e => {
+    if (!e.isTrusted || e.target.closest?.('[data-writewise="true"]')) return;
+    if (translationContext) invalidate();
+    hideSelectionAction();
+  }, true);
+  document.addEventListener('mouseup', e => {
+    if (!e.isTrusted || e.detail > 1 || e.target.closest?.('[data-writewise="true"]')) return;
+    const check = selectedContext(e.target);
+    if (check) showSelectionAction(check);
+  }, true);
+  document.addEventListener('keyup', e => {
+    if (translationContext) return;
+    if (!e.isTrusted || e.target.closest?.('[data-writewise="true"]') || e.key === 'Escape') return;
+    const check = selectedContext(e.target);
+    if (check) showSelectionAction(check); else hideSelectionAction();
+  }, true);
+  document.addEventListener('dblclick', e => {
+    if (!e.isTrusted || e.target.closest?.('[data-writewise="true"]')) return;
+    const check = selectedContext(e.target);
+    if (check) startTranslation(check);
+  }, true);
+
+
+  function showTranslation(check, state, content = '') {
+    if (!bubble) bubble = createBubble();
+    const options = Object.entries(WriteWiseLanguages).map(([code,name]) =>
+      `<option value="${code}"${code === settings.translationLanguage ? ' selected' : ''}>${name}</option>`).join('');
+    bubble.innerHTML = `<div class="__ww-header"><span class="__ww-icon">${STARBURST_SVG}</span>
+      <label class="__ww-title" for="__ww-language">Translate to</label>
+      <select id="__ww-language" aria-label="Translate to">${options}</select>
+      <button class="__ww-close" data-action="close" aria-label="Close translation">✕</button></div>
+      <div class="__ww-source">${escHtml(check.text)}</div>
+      <div class="__ww-translation-text" role="status">${state === 'loading' ? 'Translating…' : escHtml(content)}</div>
+      ${state === 'ready' ? '<div class="__ww-actions"><span class="__ww-change-count">Translation</span><button class="__ww-btn __ww-btn-apply" data-action="copy-translation">Copy translation</button></div>' : ''}`;
+    bubble.querySelector('select').addEventListener('change', async e => {
+      if (!e.isTrusted) return;
+      try { await chrome.storage.sync.set({translationLanguage:e.target.value}); }
+      catch { if (translationContext === check) showTranslation(check,'error','Could not save the language. Try again.'); }
+    });
+    bubble.addEventListener('click',onBubbleClick);
+    const target = translationTarget(check);
+    bubbleTarget = target;
+    bubble.style.display = 'block';
+    requestAnimationFrame(() => { if (translationContext === check) positionBubble(target); });
+  }
+
+  async function startTranslation(check) {
+    if (!translationCurrent(check)) return;
+    invalidate();
+    translationContext = check;
+    const version = requestVersion;
+    if (check.text.length > 12000 || wordCount(check.text) > MAX_WORDS) {
+      showTranslation(check,'error','Select up to 500 words and 12,000 characters to translate.'); return;
+    }
+    showTranslation(check,'loading');
+    try {
+      const response = await chrome.runtime.sendMessage({type:'TRANSLATE_TEXT',text:check.text});
+      if (version !== requestVersion) return;
+      if (!translationCurrent(check)) { invalidate(); return; }
+      if (!response?.success) {
+        if (['PAUSED','CONSENT_REQUIRED','TRANSLATION_DISABLED'].includes(response?.error)) { invalidate(); return; }
+        const errors = {
+          NO_API_KEY:'Add your provider API key in WriteWise settings.',
+          INVALID_API_KEY:'Check your provider API key in WriteWise settings.',
+          INCOMPLETE_RESPONSE:'The translation was incomplete. Try a shorter selection.',
+          TIMEOUT:'The translation took too long. Double-click the word to try again.',
+          quota_exceeded:'Your provider reached a usage limit. Try again later.'
+        };
+        showTranslation(check,'error',errors[response?.error] || 'Could not translate. Check your connection and try again.');
+        return;
+      }
+      if (typeof response.result !== 'string' || !response.result.trim() || response.result.length > 24000) {
+        showTranslation(check,'error','The provider returned an invalid translation. Try again.'); return;
+      }
+      translationResult = response.result;
+      showTranslation(check,'ready',translationResult);
+    } catch {
+      if (version === requestVersion && translationCurrent(check)) showTranslation(check,'error','Could not translate. Reload the page and try again.');
+    }
+  }
+
+  async function copyTranslation() {
+    const version = requestVersion;
+    const check = translationContext;
+    const result = translationResult;
+    if (!check || !result || !translationCurrent(check)) { invalidate(); return; }
+    try {
+      await navigator.clipboard.writeText(result);
+      if (version === requestVersion && translationContext === check) {
+        const button = bubble.querySelector('[data-action="copy-translation"]');
+        if (button) button.textContent = 'Copied';
+      }
+    } catch {
+      if (version !== requestVersion || translationContext !== check || !translationCurrent(check)) return;
+      bubble.innerHTML = '<div class="__ww-row">Copy was blocked. Copy the translation below:</div><textarea class="__ww-copy-fallback" aria-label="Translation text" readonly></textarea>';
+      const fallback = bubble.querySelector('textarea');
+      fallback.value = result; fallback.focus(); fallback.select();
+    }
+  }
+
   // ── Context menu handler (#14) ────────────────────────────────────────────
   try {
     chrome.runtime.onMessage.addListener((msg) => {
+      if (msg.type === 'TRANSLATE_SELECTION') {
+        const check = selectedContext(document.activeElement);
+        if (check) startTranslation(check);
+      }
       if (msg.type === 'CHECK_SELECTION') {
         const el = editableRoot(document.activeElement);
         if (allowed(el)) {
@@ -519,6 +715,7 @@
   function showBubble(target, state, errorMsgOrEl, categories, rateLimitDetail) {
     if (!bubble) bubble = createBubble();
     bubble.style.position = '';
+    bubbleTarget = target;
 
     if (state === 'checking') {
       // #11 — loading skeleton
@@ -624,7 +821,8 @@
     if (action === 'apply')   applyCorrection();
     if (action === 'dismiss') invalidate();
     if (action === 'copy') copyCorrection();
-    if (action === 'close')   hideBubble();
+    if (action === 'copy-translation') copyTranslation();
+    if (action === 'close') { if (translationContext) invalidate(); else hideBubble(); }
     if (action === 'undo')    undoCorrection();
     if (action === 'recheck' && anchorEl) {
       const el = anchorEl;

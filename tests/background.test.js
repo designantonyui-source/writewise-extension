@@ -34,7 +34,7 @@ function harness({ sync = {}, local = {}, failWrite = false } = {}) {
     run:code => vm.runInContext(code, context) };
 }
 const sender = {id:'test-extension', url:'https://example.com/editor'};
-const base = {dataSharingConsent:true, providerConsentVersion:2, provider:'openai'};
+const base = {dataSharingConsent:true, providerConsentVersion:3, provider:'openai'};
 const input = 'This is corect text.';
 
 test('legacy keys migrate locally, synced copies are removed, and local storage is restricted', async () => {
@@ -117,4 +117,34 @@ test('unsupported provider names cannot send a request', async () => {
     await assert.rejects(h.context.handleCorrection(input,sender),/INVALID_PROVIDER/);
     assert.equal(h.calls.length,0);
   }
+});
+
+for (const provider of ['openai','deepseek']) {
+  for (const [language,name] of [['en','English'],['pl','Polish'],['ru','Russian'],['uk','Ukrainian']]) {
+    test(`${provider} translates short selections into ${name} without changing writing-check behavior`, async () => {
+      const h = harness({sync:{...base,provider,translationLanguage:language,spelling:false,grammar:false,clarity:false,tone:false},local:{[provider+'Key']:'fake-key'}});
+      const result = await h.context.handleCorrection('hi',sender,'translate');
+      assert.equal(result.language,language);
+      assert.match(h.calls[0].body.messages[0].content,new RegExp(`Translate the supplied text into ${name}`));
+      assert.equal(h.calls[0].body.messages[1].content,'hi');
+      await assert.rejects(h.context.handleCorrection('hi',sender),/TEXT_LIMIT/);
+    });
+  }
+}
+for (const [label,overrides,error] of [
+  ['translation disabled',{doubleClickTranslate:false},'TRANSLATION_DISABLED'],
+  ['globally paused',{enabled:false},'PAUSED'],
+  ['site paused',{pausedSites:['example.com']},'PAUSED'],
+  ['consent missing',{dataSharingConsent:false},'CONSENT_REQUIRED'],
+  ['old writing-only consent',{providerConsentVersion:2},'CONSENT_REQUIRED'],
+  ['invalid language',{translationLanguage:'constructor'},'INVALID_LANGUAGE']
+]) test(`translation is blocked when ${label}`, async () => {
+  const h = harness({sync:{...base,...overrides},local:{openaiKey:'fake-key'}});
+  await assert.rejects(h.context.handleCorrection('Bonjour',sender,'translate'),new RegExp(error));
+  assert.equal(h.calls.length,0);
+});
+test('incomplete translation cannot be offered as a successful result', async () => {
+  const h = harness({sync:base,local:{openaiKey:'fake-key'}});
+  h.context.fetch = async () => ({ok:true,json:async () => ({choices:[{finish_reason:'length',message:{content:'Partial'}}]})});
+  await assert.rejects(h.context.handleCorrection('Bonjour',sender,'translate'),/INCOMPLETE_RESPONSE/);
 });

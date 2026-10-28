@@ -6,7 +6,11 @@ const fs = require('node:fs/promises');
 // not exercise it. Use a headed browser and chrome.action.openPopup here.
 async function attachPopup(context, worker) {
   const browser = await context.browser().newBrowserCDPSession();
-  await worker.evaluate(async () => { await chrome.action.openPopup(); });
+  await worker.evaluate(async () => {
+    const [window] = await chrome.windows.getAll({windowTypes:['normal']});
+    await chrome.windows.update(window.id,{focused:true});
+    await chrome.action.openPopup({windowId:window.id});
+  });
   let target;
   await expect.poll(async () => {
     target = (await browser.send('Target.getTargets')).targetInfos.find(t => t.url.endsWith('/popup.html'));
@@ -59,7 +63,7 @@ for (const state of ['consent','missing-key','saved-key']) {
         await WriteWiseSecrets.ready;
         await chrome.storage.sync.clear(); await chrome.storage.local.clear();
         if (state !== 'consent') await chrome.storage.sync.set({
-          dataSharingConsent:true,providerConsentVersion:2,provider:'openai'
+          dataSharingConsent:true,providerConsentVersion:3,provider:'openai'
         });
         if (state === 'saved-key') await chrome.storage.local.set({openaiKey:'fake-toolbar-test-key'});
       }, state);

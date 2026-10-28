@@ -22,6 +22,8 @@ async function openApp() {
   $('masterToggle').checked = settings.enabled !== false;
   updateStatus();
   $('autoCheckToggle').checked = settings.autoCheckEnabled === true;
+  $('doubleClickTranslate').checked = settings.doubleClickTranslate !== false;
+  $('translationLanguage').value = Object.hasOwn(WriteWiseLanguages, settings.translationLanguage || '') ? settings.translationLanguage : 'en';
   $('checkDelay').value = [500,1500,2000,4000].includes(settings.delay) ? settings.delay : 2000;
   for (const name of ['spelling','grammar','clarity','tone']) {
     $('fix-' + name).querySelector('input').checked = settings[name] !== false;
@@ -116,6 +118,8 @@ bind('masterToggle','change',async e => {
   updateStatus();
 });
 bind('autoCheckToggle','change',e => chrome.storage.sync.set({autoCheckEnabled:e.target.checked}));
+bind('doubleClickTranslate','change',e => chrome.storage.sync.set({doubleClickTranslate:e.target.checked}));
+bind('translationLanguage','change',e => chrome.storage.sync.set({translationLanguage:e.target.value}));
 bind('checkDelay','change',e => chrome.storage.sync.set({delay:Number(e.target.value)}));
 bind('tonePreset','change',e => chrome.storage.sync.set({tonePreset:e.target.value}));
 for (const name of ['spelling','grammar','clarity','tone']) {

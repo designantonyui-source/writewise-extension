@@ -121,3 +121,7 @@ kbd { font: inherit; color: var(--text); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
 html { scrollbar-width: thin; scrollbar-color: #5a5c52 var(--bg); }
+
+.translation-section { padding-top: 10px; padding-bottom: 10px; border-top: 1px solid var(--line); }
+.translation-section > p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.translation-section .preference-row { margin-bottom: 0; }

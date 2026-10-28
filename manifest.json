@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "WriteWise",
-  "version": "1.0.3",
-  "description": "Check your writing with OpenAI or DeepSeek. Review spelling, grammar, clarity, and tone corrections before applying.",
+  "version": "1.0.4",
+  "description": "Check your writing and translate words with a double-click. Use OpenAI or DeepSeek and choose English, Polish, Russian, or Ukrainian.",
   "permissions": [
     "storage",
     "activeTab",
@@ -22,6 +22,7 @@
         "https://*/*"
       ],
       "js": [
+        "providers.js",
         "content.js"
       ],
       "css": [

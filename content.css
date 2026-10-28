@@ -60,3 +60,11 @@
 @media (prefers-reduced-motion: reduce) { #__writewise-anchor *, #__writewise-bubble * { animation: none !important; } }
 
 #__writewise-bubble .__ww-copy-fallback { display: block; width: calc(100% - 28px); min-height: 100px; margin: 0 14px 14px; padding: 10px; border: 1px solid #68695f; border-radius: 6px; background: #171814; color: var(--ww-text); font: inherit; resize: vertical; }
+
+#__writewise-translate { position: absolute; z-index: 2147483646; background: #222320; color: #e89a77; border: 1px solid #5a5c52; border-radius: 6px; padding: 5px 11px; font: 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; cursor: pointer; }
+#__writewise-translate[hidden] { display: none !important; }
+#__writewise-translate:hover { background: #36372f; }
+#__writewise-translate:focus-visible { outline: 2px solid #e89a77; outline-offset: 3px; }
+#__writewise-bubble #__ww-language { max-width: 130px; background: #30312b; color: var(--ww-text); border: 1px solid #66685d; border-radius: 5px; padding: 3px 5px; font: inherit; font-size: 12px; }
+#__writewise-bubble .__ww-source { margin: 12px 14px 0; color: var(--ww-muted); font-size: 12px; max-height: 72px; overflow: auto; overflow-wrap: anywhere; white-space: pre-wrap; }
+#__writewise-bubble .__ww-translation-text { padding: 10px 14px 14px; color: var(--ww-text); max-height: 200px; overflow: auto; overflow-wrap: anywhere; white-space: pre-wrap; }

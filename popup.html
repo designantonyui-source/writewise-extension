@@ -21,9 +21,9 @@
   <section id="privacyConsent" class="consent" hidden>
     <div class="brand-mark"><svg class="icon"><use href="#mark"/></svg></div>
     <h1>A little help.<br>Still your words.</h1>
-    <p>WriteWise checks your writing with OpenAI or DeepSeek, using your own API key.</p>
+    <p>WriteWise checks and translates text with OpenAI or DeepSeek, using your own API key.</p>
     <div class="consent-facts">
-      <p>Text you check goes directly to your chosen provider. Their data policies apply.</p>
+      <p>Text you check or choose to translate goes directly to your provider. Double-clicking a word sends it for translation. Their data policies apply.</p>
       <p>Automatic checks start off. Your key stays in local extension storage on this device.</p>
     </div>
     <a href="privacy.html" target="_blank" rel="noopener">Read the privacy policy <svg class="icon"><use href="#external"/></svg></a>
@@ -57,6 +57,12 @@
         </div>
       </details>
       <p id="saveFeedback" class="feedback" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="translation-section">
+      <label class="setting-row"><span>Selection translation</span><span class="small-switch"><input id="doubleClickTranslate" type="checkbox" checked aria-describedby="translationDescription"><span class="switch-track" aria-hidden="true"></span></span></label>
+      <p id="translationDescription">Double-click a word to translate it, or select text and choose Translate.</p>
+      <div class="preference-row"><label for="translationLanguage">Translate to</label><select id="translationLanguage"><option value="en">English</option><option value="pl">Polish</option><option value="ru">Russian</option><option value="uk">Ukrainian</option></select></div>
     </section>
 
     <section class="checks-section">

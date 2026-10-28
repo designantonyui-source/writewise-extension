@@ -6,7 +6,7 @@ const test = base.extend({
   app: async ({}, use) => {
     const server = http.createServer((req,res) => {
       res.setHeader('Content-Type','text/html');
-      res.end(`<!doctype html><html><body style="padding:30px"><h1>Writing fixture</h1>
+      res.end(`<!doctype html><html><body style="padding:30px"><h1>Writing fixture</h1><p><span id="translate-word">Bonjour</span></p><p><span id="translate-phrase">Bonjour le monde</span></p><p data-sensitive="true"><span id="private-word">Confidential</span></p>
         <label>First draft<textarea id="first" style="display:block;width:400px;height:80px"></textarea></label>
         <label>Second draft<textarea id="second" style="display:block;width:400px;height:80px"></textarea></label>
         <div id="rich" contenteditable="true" role="textbox" aria-label="Rich draft" style="width:400px;padding:20px;border:1px solid"><b>This is corect text.</b> <a href="/">Keep this link</a></div>
@@ -26,13 +26,16 @@ const test = base.extend({
     await worker.evaluate(async () => {
       await WriteWiseSecrets.ready;
       await chrome.storage.local.set({openaiKey:'fake-test-key'});
-      await chrome.storage.sync.set({dataSharingConsent:true, providerConsentVersion:2, enabled:true, provider:'openai', autoCheckEnabled:false});
+      await chrome.storage.sync.set({dataSharingConsent:true, providerConsentVersion:3, enabled:true, provider:'openai', autoCheckEnabled:false});
       globalThis.requests = [];
       globalThis.fixture = {text:'This is correct text.', finish:'stop', hold:false};
       globalThis.fetch = async (url, options) => {
         requests.push({url, body:JSON.parse(options.body)});
         if (fixture.hold) await new Promise(resolve => { globalThis.releaseRequest = resolve; });
-        return {ok:true,json:async () => ({choices:[{finish_reason:fixture.finish,message:{content:fixture.text}}]})};
+        const system = JSON.parse(options.body).messages[0].content;
+        const language = Object.entries(WriteWiseLanguages).find(([,name]) => system.includes(`into ${name}.`))?.[0];
+        const text = fixture.translations?.[language] || fixture.text;
+        return {ok:true,json:async () => ({choices:[{finish_reason:fixture.finish,message:{content:text}}]})};
       };
     });
     const page = await context.newPage();
@@ -301,4 +304,119 @@ test('a blocked clipboard offers selectable corrected text without changing the 
   await expect(fallback).toBeFocused();
   expect(await fallback.evaluate(el => el.selectionEnd - el.selectionStart)).toBe('This is correct text.'.length);
   expect(await rich.innerHTML()).toBe(html);
+});
+
+async function translationFixture(app) {
+  await app.worker.evaluate(() => {fixture.translations = {en:'Hello',pl:'Cześć',ru:'Привет',uk:'Привіт'};});
+}
+async function dragPhrase(page) {
+  const bounds = await page.locator('#translate-phrase').boundingBox();
+  await page.mouse.move(bounds.x+1,bounds.y+bounds.height/2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x+bounds.width+1,bounds.y+bounds.height/2,{steps:10});
+  await page.mouse.up();
+}
+
+test('double-clicking an ordinary page word immediately translates it', async ({app}) => {
+  await translationFixture(app);
+  await app.page.locator('#translate-word').dblclick();
+  await expect(app.page.locator('.__ww-translation-text')).toHaveText('Hello');
+  await expect(app.page.getByRole('button',{name:'Copy translation',exact:true})).toBeVisible();
+  expect(await app.worker.evaluate(() => requests[0].body.messages[1].content)).toBe('Bonjour');
+  await expect(app.page.locator('#translate-word')).toHaveText('Bonjour');
+});
+test('translation popup lets users switch between English, Polish, Russian, and Ukrainian', async ({app}) => {
+  await translationFixture(app); await app.page.locator('#translate-word').dblclick();
+  await expect(app.page.locator('.__ww-translation-text')).toHaveText('Hello');
+  for (const [language,text] of [['pl','Cześć'],['ru','Привет'],['uk','Привіт'],['en','Hello']]) {
+    const select = app.page.getByLabel('Translate to',{exact:true});
+    await select.focus();
+    // Native key input produces a trusted change event, unlike selectOption().
+    await select.press({pl:'p',ru:'r',uk:'u',en:'e'}[language]);
+    await expect(app.page.locator('.__ww-translation-text')).toHaveText(text);
+    await expect(app.page.getByLabel('Translate to',{exact:true})).toHaveValue(language);
+  }
+  const popup = await app.popup();
+  await expect(popup.getByLabel('Translate to',{exact:true})).toHaveValue('en');
+});
+test('selecting a phrase offers Translate and sends only that selection when clicked', async ({app}) => {
+  await translationFixture(app); await dragPhrase(app.page);
+  await expect(app.page.getByRole('button',{name:'Translate selected text',exact:true})).toBeVisible();
+  expect(await app.worker.evaluate(() => requests.length)).toBe(0);
+  await app.page.getByRole('button',{name:'Translate selected text',exact:true}).click();
+  await expect(app.page.locator('.__ww-translation-text')).toHaveText('Hello');
+  expect(await app.worker.evaluate(() => requests[0].body.messages[1].content)).toBe('Bonjour le monde');
+});
+test('the Translate selection context-menu command works on ordinary page text', async ({app}) => {
+  await translationFixture(app); await dragPhrase(app.page);
+  await app.worker.evaluate(async () => {
+    const [tab] = await chrome.tabs.query({active:true,currentWindow:true});
+    await chrome.tabs.sendMessage(tab.id,{type:'TRANSLATE_SELECTION'});
+  });
+  await expect(app.page.locator('.__ww-translation-text')).toHaveText('Hello');
+});
+test('selection translation can be disabled and the target language persists in settings', async ({app}) => {
+  const popup = await app.popup();
+  await popup.getByLabel('Translate to',{exact:true}).selectOption('uk');
+  await popup.getByLabel('Selection translation',{exact:true}).uncheck();
+  await expect.poll(() => app.worker.evaluate(async () => (await chrome.storage.sync.get('doubleClickTranslate')).doubleClickTranslate)).toBe(false);
+  await app.page.locator('#translate-word').dblclick();
+  await expect(app.page.locator('.__ww-translation-text')).toHaveCount(0);
+  expect(await app.worker.evaluate(() => requests.length)).toBe(0);
+  await popup.reload();
+  await expect(popup.getByLabel('Translate to',{exact:true})).toHaveValue('uk');
+});
+test('double-click never sends password, payment, or explicitly private text', async ({app}) => {
+  for (const name of ['Password','Card','Private draft']) {
+    await app.page.getByLabel(name,{exact:true}).fill('Confidential');
+    await app.page.getByLabel(name,{exact:true}).dblclick();
+  }
+  await app.page.locator('#private-word').dblclick();
+  expect(await app.worker.evaluate(() => requests.length)).toBe(0);
+});
+test('Escape dismisses a pending double-click translation without reopening it later', async ({app}) => {
+  await translationFixture(app); await app.worker.evaluate(() => {fixture.hold=true;});
+  await app.page.locator('#translate-word').dblclick();
+  await expect(app.page.getByText('Translating…',{exact:true})).toBeVisible();
+  await expect.poll(() => app.worker.evaluate(() => requests.length)).toBe(1);
+  await app.page.keyboard.press('Escape');
+  await app.worker.evaluate(() => releaseRequest());
+  await expect(app.page.locator('#__writewise-bubble')).toBeHidden();
+});
+test('synthetic website double-clicks cannot trigger translation requests', async ({app}) => {
+  await app.page.locator('#translate-word').evaluate(el => {
+    const range=document.createRange();range.selectNodeContents(el);
+    const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+    el.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
+  });
+  expect(await app.worker.evaluate(() => requests.length)).toBe(0);
+});
+
+test('double-click translation in a short text field leaves the original draft unchanged', async ({app}) => {
+  await translationFixture(app); await field(app.page).fill('Bonjour');
+  await field(app.page).dblclick();
+  await expect(app.page.locator('.__ww-translation-text')).toHaveText('Hello');
+  await expect(field(app.page)).toHaveValue('Bonjour');
+  await expect(apply(app.page)).toHaveCount(0);
+});
+test('blocked translation copying offers selectable text and preserves the source', async ({app}) => {
+  await translationFixture(app);
+  const session = await app.context.newCDPSession(app.page);
+  const worlds=[]; session.on('Runtime.executionContextCreated',({context}) => worlds.push(context));
+  await session.send('Runtime.enable');
+  const world=worlds.find(w => w.origin.startsWith('chrome-extension://'));
+  await session.send('Runtime.evaluate',{contextId:world.id,expression:'Object.defineProperty(navigator.clipboard,"writeText",{value:async()=>{throw new Error("blocked");}})'});
+  await app.page.locator('#translate-word').dblclick();
+  await app.page.getByRole('button',{name:'Copy translation',exact:true}).click();
+  const fallback = app.page.getByRole('textbox',{name:'Translation text',exact:true});
+  await expect(fallback).toHaveValue('Hello'); await expect(fallback).toBeFocused();
+  await expect(app.page.locator('#translate-word')).toHaveText('Bonjour');
+});
+test('a response for removed or changed source text is discarded', async ({app}) => {
+  await translationFixture(app); await app.worker.evaluate(() => {fixture.hold=true;});
+  await app.page.locator('#translate-word').dblclick();
+  await expect.poll(() => app.worker.evaluate(() => requests.length)).toBe(1);
+  await app.page.locator('#translate-word').evaluate(el => {el.textContent='A different word';});
+  await app.worker.evaluate(() => releaseRequest());
+  await expect(app.page.locator('#__writewise-bubble')).toBeHidden();
 });
