@@ -40,6 +40,8 @@ Get a key: [platform.deepseek.com](https://platform.deepseek.com/api_keys) ·
 - The field's own undo stack still works: textareas and inputs get a native
   value write + `input` event, contenteditable gets `execCommand('insertText')`.
 
+The card closes when you press `Esc` or click anywhere outside it.
+
 Keyboard: `Enter` applies when the card is focused · `Esc` dismisses ·
 `⌥⇧W` (Alt+Shift+W) checks the focused field on demand · right-click a text
 selection → **Fix selection** checks only that fragment.

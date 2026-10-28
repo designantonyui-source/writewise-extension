@@ -946,6 +946,13 @@
         applySuggestion();
         break;
       case 'dismiss':
+        // Cancel anything in flight: a late result must not re-open the card.
+        ++runId;
+        ++translateToken;
+        clearTimeout(debounceTimer);
+        cancelInflight();
+        lastResult = null;
+        pendingSelection = null;
         UI.hide();
         break;
       case 'undo':

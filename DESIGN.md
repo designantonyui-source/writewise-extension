@@ -70,6 +70,8 @@ removes the entrance and the spinner rotation.
   `aria-live` (checking/clean); errors are `role="alert"`.
 - Keyboard: `Esc` dismisses, `Enter` applies only when the card has focus.
   Tab is never intercepted.
+- Any press outside the card dismisses it (and cancels the request behind it),
+  so the close button is a convenience, not a requirement.
 - Focus: one warm ring (`--ww-focus`, accent-derived, 2px + 2px offset) on
   everything. No blue focus state anywhere — it read as a different product.
 

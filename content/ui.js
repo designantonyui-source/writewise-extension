@@ -599,6 +599,22 @@
     e.stopPropagation();
   }
 
+  function isInsideCard(e) {
+    if (typeof e.composedPath === 'function') {
+      const path = e.composedPath();
+      if (host && path && path.indexOf(host) !== -1) return true;
+    }
+    return !!host && e.target === host;
+  }
+
+  /** A press anywhere outside the card dismisses it. */
+  function onDocPointerDown(e) {
+    if (!visible) return;
+    if (isInsideCard(e)) return;
+    emit('dismiss');
+    hide();
+  }
+
   function onKeyDown(e) {
     if (!visible) return;
 
@@ -633,6 +649,7 @@
     mounted = true;
     build();
     document.addEventListener('keydown', onKeyDown, true);
+    document.addEventListener('pointerdown', onDocPointerDown, true);
     window.addEventListener('scroll', schedulePosition, { passive: true, capture: true });
     window.addEventListener('resize', schedulePosition, { passive: true });
     setTheme(themeMode);
