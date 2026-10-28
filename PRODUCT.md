@@ -28,6 +28,8 @@ third compatible provider means adding one object to `PROVIDERS`, nothing else.
    action to fix it.
 5. Let me do it by hand when I want: ⌥⇧W on the focused field, or right-click →
    "Fix selection".
+6. Translate a word I do not know, and keep it — with its sentence — in a local
+   vocabulary I can review later and export to my own tools.
 
 ## Principles
 
@@ -39,6 +41,8 @@ third compatible provider means adding one object to `PROVIDERS`, nothing else.
   cannot keep current.
 - **Keys are secrets.** `storage.local`, never `storage.sync`, never a server of
   ours. There is no backend.
+- **Learning is local.** The vocabulary is a file on this device; export is how
+  you take it with you.
 - **No build step.** Load unpacked, read the source, edit it, reload.
 
 ## Non-goals

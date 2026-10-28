@@ -9,6 +9,7 @@
 import { analyze, translate, listModels, providerMeta, estimateCost } from './src/providers.js';
 import { getSettings, bumpStats, migrateLegacy } from './src/storage.js';
 import { languagePromptLabel, resolveTarget } from './src/languages.js';
+import { saveWord as saveVocabWord } from './src/vocab.js';
 
 const MAX_TRANSLATE_CHARS = 2400;
 
@@ -75,6 +76,15 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
       return true;
     case 'GET_ACTIVE_INFO':
       void onActiveInfo(respond);
+      return true;
+    case 'SAVE_WORD':
+      void onSaveWord(msg, respond);
+      return true;
+    case 'OPEN_VOCAB':
+      chrome.tabs
+        .create({ url: chrome.runtime.getURL('vocab/vocab.html') })
+        .then(() => respond({ ok: true }))
+        .catch(() => respond({ ok: false }));
       return true;
     case 'BUMP_STATS':
       void bumpStats({ fixes: Number(msg.fixes) || 0 }).then(() => respond({ ok: true }));
@@ -244,6 +254,22 @@ async function onTranslate(msg, sender, respond) {
     });
   } finally {
     inflight.delete(id);
+  }
+}
+
+async function onSaveWord(msg, respond) {
+  try {
+    const result = await saveVocabWord({
+      word: msg.word,
+      translation: msg.translation,
+      source: msg.source,
+      target: msg.target,
+      context: msg.context,
+      host: msg.host,
+    });
+    respond(result);
+  } catch {
+    respond({ ok: false, error: 'SAVE_FAILED' });
   }
 }
 

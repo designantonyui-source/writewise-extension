@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saved words · WriteWise</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="vocab.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 16 16" focusable="false">
+        <path d="M8 1.2v13.6M1.2 8h13.6M3.2 3.2l9.6 9.6M12.8 3.2l-9.6 9.6"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span class="brand-name">WriteWise</span>
+    <span class="brand-div" aria-hidden="true"></span>
+    <span class="brand-page">Saved words</span>
+  </div>
+  <button type="button" class="text-btn" id="backBtn">Back to settings</button>
+</header>
+
+<main class="page" id="listView">
+  <h1 class="sr-only">Saved words</h1>
+
+  <div class="toolbar toolbar-main">
+    <label class="search">
+      <span class="search-icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" focusable="false">
+          <circle cx="6" cy="6" r="4.25" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9.2 9.2L12.4 12.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <input id="searchInput" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Search words, translations, context" aria-label="Search saved words">
+    </label>
+
+    <div class="seg" role="group" aria-label="Filter saved words">
+      <button type="button" class="seg-btn" id="filterAll" aria-pressed="true">All</button>
+      <button type="button" class="seg-btn" id="filterDue" aria-pressed="false">
+        Due today<span class="seg-count" id="dueCount" hidden>0</span>
+      </button>
+    </div>
+
+    <button type="button" class="btn btn-primary" id="reviewBtn">Review</button>
+  </div>
+
+  <div class="toolbar toolbar-sub">
+    <div class="exports">
+      <button type="button" class="text-btn" id="exportCsv">Export CSV</button>
+      <span class="dot" aria-hidden="true">·</span>
+      <button type="button" class="text-btn" id="exportAnki">Export Anki</button>
+      <span class="dot" aria-hidden="true">·</span>
+      <button type="button" class="text-btn" id="exportJson">Export JSON</button>
+    </div>
+    <button type="button" class="btn btn-ghost btn-add" id="addBtn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" focusable="false">
+        <path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      Add word
+    </button>
+  </div>
+
+  <form class="add-form" id="addForm" hidden>
+    <div class="add-grid">
+      <label class="field">
+        <span class="field-label">Word</span>
+        <input class="input" id="addWord" type="text" maxlength="80" autocomplete="off"
+               spellcheck="false" placeholder="e.g. threshold" aria-label="Word">
+      </label>
+      <label class="field">
+        <span class="field-label">Translation</span>
+        <input class="input" id="addTranslation" type="text" maxlength="200" autocomplete="off"
+               placeholder="e.g. próg" aria-label="Translation">
+      </label>
+      <label class="field">
+        <span class="field-label">Context <span class="field-opt">optional</span></span>
+        <input class="input" id="addContext" type="text" maxlength="280" autocomplete="off"
+               placeholder="The sentence you met it in" aria-label="Context">
+      </label>
+    </div>
+    <div class="add-actions">
+      <span class="add-error" id="addError" role="alert"></span>
+      <button type="button" class="btn btn-ghost" id="addCancel">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="addSave">Save word</button>
+    </div>
+  </form>
+
+  <section class="list-wrap" id="listWrap" aria-label="Saved words">
+    <div class="list" id="list"></div>
+  </section>
+
+  <div class="empty" id="emptyWords" hidden>
+    <span class="mark empty-mark" aria-hidden="true">
+      <svg width="40" height="40" viewBox="0 0 16 16" focusable="false">
+        <path d="M8 1.2v13.6M1.2 8h13.6M3.2 3.2l9.6 9.6M12.8 3.2l-9.6 9.6"
+              stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <h2>No saved words yet</h2>
+    <p>Double-click a word on any page and press Save in the card — or add one here.</p>
+    <button type="button" class="btn" id="emptyAddBtn">Add word</button>
+  </div>
+
+  <div class="empty" id="emptyMatch" hidden>
+    <h2 id="emptyMatchTitle">No matches</h2>
+    <p id="emptyMatchText">Nothing here matches that search.</p>
+    <button type="button" class="btn" id="clearSearchBtn">Clear search</button>
+  </div>
+
+  <footer class="foot" id="foot" hidden>
+    <span class="foot-stats" id="footStats"></span>
+    <span class="foot-right">
+      <span class="clear-confirm" id="clearConfirm" hidden>
+        <span class="clear-q">Clear all?</span>
+        <button type="button" class="text-btn" id="clearCancel">Cancel</button>
+        <button type="button" class="text-btn danger" id="clearYes">Clear</button>
+      </span>
+      <button type="button" class="text-btn danger" id="clearBtn">Clear all</button>
+    </span>
+  </footer>
+</main>
+
+<main class="review" id="reviewView" hidden>
+  <div class="review-inner">
+    <div class="review-top">
+      <span class="review-count" id="reviewCount">0 / 0</span>
+      <button type="button" class="text-btn" id="reviewExit">Exit</button>
+    </div>
+    <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+      <span id="progressFill"></span>
+    </div>
+
+    <div class="card" id="reviewCard">
+      <div class="card-question">
+        <p class="card-hint" id="reviewHint"></p>
+        <p class="card-word" id="reviewWord"></p>
+      </div>
+      <div class="card-reveal" id="revealWrap">
+        <button type="button" class="btn btn-primary" id="revealBtn">Show translation</button>
+      </div>
+      <div class="card-translation" id="translationWrap" hidden>
+        <p class="translation" id="translationText"></p>
+        <p class="context" id="reviewContext" hidden></p>
+      </div>
+    </div>
+
+    <div class="grades" id="grades" hidden>
+      <button type="button" class="btn grade" data-grade="again" aria-label="Again, key 1">
+        <span class="kbd">1</span>Again
+      </button>
+      <button type="button" class="btn grade" data-grade="good" aria-label="Good, key 2">
+        <span class="kbd">2</span>Good
+      </button>
+      <button type="button" class="btn grade" data-grade="easy" aria-label="Easy, key 3">
+        <span class="kbd">3</span>Easy
+      </button>
+    </div>
+
+    <div class="review-done" id="reviewDone" hidden>
+      <h2>Nothing due.</h2>
+      <p id="doneStats"></p>
+      <button type="button" class="btn" id="doneBack">Back to list</button>
+    </div>
+
+    <p class="review-keys">Space to reveal · 1–3 to grade · Esc to exit</p>
+  </div>
+</main>
+
+<output class="sr-only" id="live" aria-live="polite"></output>
+
+<script type="module" src="vocab.js"></script>
+</body>
+</html>

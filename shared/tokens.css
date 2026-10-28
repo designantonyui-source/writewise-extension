@@ -19,7 +19,7 @@
   --ww-danger: #e27d79;
   --ww-danger-soft: rgba(217, 83, 79, 0.15);
   --ww-amber: #e0a33a;
-  --ww-focus: #4a90e2;
+  --ww-focus: #e2673a; /* warm ring, AA against both grounds */
   /* switch knob is white in both themes; the track carries the state */
   --ww-switch-thumb: #ffffff;
 
@@ -90,6 +90,7 @@
     --ww-danger: #b3261e;
     --ww-accent-soft: rgba(226, 103, 58, 0.1);
     --ww-accent-text: #b8461f;
+    --ww-focus: #b8461f;
     --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
     --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
     color-scheme: light;
@@ -129,6 +130,7 @@
   --ww-danger: #b3261e;
   --ww-accent-soft: rgba(226, 103, 58, 0.1);
   --ww-accent-text: #b8461f;
+  --ww-focus: #b8461f;
   --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
   --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
   color-scheme: light;

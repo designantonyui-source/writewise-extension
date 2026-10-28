@@ -565,6 +565,57 @@
     });
   }
 
+  function isWordLike(text) {
+    const t = String(text || '').trim();
+    if (!t || t.length > 48) return false;
+    if (/[.!?…:]$/.test(t)) return false;
+    if (/\s/.test(t) && t.split(/\s+/).length > 3) return false;
+    if (/^https?:\/\//i.test(t)) return false;
+    if (!/[A-Za-zÀ-ÿ\u0400-\u04FF\u3040-\u30FF\u4E00-\u9FFF]/.test(t)) return false;
+    return true;
+  }
+
+  function sentenceAround(full, index, length) {
+    const text = String(full || '');
+    const at = Math.max(0, Math.min(index, text.length));
+    const before = text.slice(0, at);
+    const after = text.slice(at + length);
+    const starts = ['. ', '! ', '? ', '\n'].map((sep) => before.lastIndexOf(sep)).filter((i) => i >= 0);
+    const begin = starts.length ? Math.max(...starts) + 1 : Math.max(0, at - 120);
+    const ends = ['. ', '! ', '? ', '\n']
+      .map((sep) => after.indexOf(sep))
+      .filter((i) => i >= 0)
+      .map((i) => i + 1);
+    const end = ends.length ? Math.min(...ends) : Math.min(after.length, 120);
+    return (before.slice(begin) + text.slice(at, at + length) + after.slice(0, end))
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 280);
+  }
+
+  function contextAround(context) {
+    const raw = String(context.text || '').trim();
+    try {
+      if (context.field) {
+        const full = context.field.value || '';
+        return sentenceAround(full, context.start, raw.length);
+      }
+      let node = context.range ? context.range.startContainer : null;
+      let el = node && (node.nodeType === 1 ? node : node.parentElement);
+      const block = el && el.closest ? el.closest('p,li,blockquote,td,th,figcaption,article,section,div') : null;
+      const full = block ? block.innerText || block.textContent || '' : '';
+      if (!full) return raw;
+      const idx = full.indexOf(raw);
+      if (idx !== -1) return sentenceAround(full, idx, raw.length);
+      const flat = full.replace(/\s+/g, ' ');
+      const flatRaw = raw.replace(/\s+/g, ' ');
+      const idx2 = flat.indexOf(flatRaw);
+      return idx2 === -1 ? raw : sentenceAround(flat, idx2, flatRaw.length);
+    } catch {
+      return raw;
+    }
+  }
+
   async function translateSelection({ force = false } = {}) {
     if (!settings || !settings.enabled) return;
     if (!settings.translate.enabled) return;
@@ -600,6 +651,7 @@
 
     const r = res.result;
     const canReplace = !!(context.field || context.editable);
+    const canSave = isWordLike(text);
     lastTranslation = {
       translation: r.translation,
       sourceLanguage: r.sourceLanguage,
@@ -608,6 +660,11 @@
       provider: r.providerLabel,
       model: shortModel(r.model),
       canReplace,
+      canSave,
+      saved: false,
+      total: 0,
+      word: text,
+      contextText: canSave ? contextAround(context) : '',
       anchor,
       context,
     };
@@ -620,6 +677,8 @@
       provider: r.providerLabel,
       model: shortModel(r.model),
       canReplace,
+      canSave,
+      saved: false,
     });
   }
 
@@ -656,7 +715,39 @@
       provider: t.provider,
       model: t.model,
       canReplace: t.canReplace,
+      canSave: t.canSave,
+      saved: t.saved,
+      total: t.total,
       copied: ok,
+    });
+  }
+
+  async function saveTranslationWord() {
+    if (!lastTranslation || lastTranslation.saved || !lastTranslation.canSave) return;
+    const t = lastTranslation;
+    const res = await send({
+      type: 'SAVE_WORD',
+      word: t.word,
+      translation: t.translation,
+      source: t.sourceLanguage,
+      target: t.targetLabel,
+      context: t.contextText,
+      host: location.hostname,
+    });
+    if (!res?.ok) return;
+    t.saved = true;
+    t.total = res.total || 0;
+    UI.show(t.anchor, 'translation', {
+      translation: t.translation,
+      sourceLanguage: t.sourceLanguage,
+      targetLabel: t.targetLabel,
+      ms: t.ms,
+      provider: t.provider,
+      model: t.model,
+      canReplace: t.canReplace,
+      canSave: t.canSave,
+      saved: true,
+      total: t.total,
     });
   }
 
@@ -867,6 +958,9 @@
         break;
       case 'copy':
         void copyTranslation();
+        break;
+      case 'save':
+        void saveTranslationWord();
         break;
       case 'replace':
         replaceWithTranslation();

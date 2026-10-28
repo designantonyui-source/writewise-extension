@@ -70,3 +70,33 @@ removes the entrance and the spinner rotation.
   `aria-live` (checking/clean); errors are `role="alert"`.
 - Keyboard: `Esc` dismisses, `Enter` applies only when the card has focus.
   Tab is never intercepted.
+- Focus: one warm ring (`--ww-focus`, accent-derived, 2px + 2px offset) on
+  everything. No blue focus state anywhere — it read as a different product.
+
+## Vocabulary page
+
+The widest surface, and the one that has to feel like software rather than a
+settings pane. 1100px max content, centered, hairline-topped header bar with
+the mark and wordmark.
+
+- **Rows** are `article[tabindex]` with `aria-expanded` (not `role="button"` —
+  each row contains a delete button, and nesting interactive roles is invalid).
+  Word 15px/600, translation 13px, context 12px muted on a second line,
+  source→target and host right-aligned at 11px, due pill, quiet delete icon at
+  50% that resolves to full on hover or focus.
+- **Toolbar** is one row: search, All/Due segmented, Review on the right.
+  Exports are text buttons, not buttons-with-icons: they are rare, secondary
+  actions and shouldn't compete with Review.
+- **Review** is focus mode: centered 560px column, progress line, one card,
+  word at 32px, reveal, then grade buttons with `kbd` chips (1/2/3). The card
+  keeps a fixed height so revealing does not jump the layout.
+- **Empty states** are copy, not illustration: what happened, and the one action
+  that fixes it.
+- Destructive actions confirm inline (`Clear all? Cancel / Clear`), never with
+  `window.confirm`.
+
+## Icons
+
+`icons/icon.svg` is the source; `icon16/48/128.png` are rendered from it at each
+size with a size-dependent stroke so the mark survives a 16px toolbar slot:
+accent tile, white eight-ray mark, rounded caps.

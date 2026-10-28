@@ -760,3 +760,21 @@ body.is-off .mark {
   font-weight: 600;
   color: var(--ww-tx-2);
 }
+
+.foot-link {
+  margin-left: auto;
+  padding: 2px 0;
+  font-family: inherit;
+  font-size: var(--ww-fs-11);
+  color: var(--ww-tx-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--ww-dur) var(--ww-ease);
+}
+
+.foot-link:hover {
+  color: var(--ww-tx);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

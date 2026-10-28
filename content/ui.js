@@ -386,23 +386,30 @@
       const target = str(data.targetLabel);
       const ms = formatMs(data.ms);
       const metaBits = [];
-      if (data.copied) metaBits.push('Copied');
+      if (data.saved) metaBits.push('Saved');
       if (target) metaBits.push(target);
       if (ms) metaBits.push(ms);
+      const copyLabel = data.copied ? 'Copied' : 'Copy';
+
+      let buttons = btnHTML('dismiss', 'Dismiss', false);
+      let primaryUsed = false;
+      if (data.canReplace) {
+        buttons += btnHTML('copy', copyLabel, false);
+        if (data.canSave && !data.saved) buttons += btnHTML('save', 'Save', false);
+        buttons += btnHTML('replace', 'Replace', true);
+        primaryUsed = true;
+      } else if (data.canSave && !data.saved) {
+        buttons += btnHTML('copy', copyLabel, false) + btnHTML('save', 'Save word', true);
+        primaryUsed = true;
+      }
+      if (!primaryUsed) buttons += btnHTML('copy', copyLabel, true);
+
       head = headHTML({ title: 'Translation', chip: chip, chipTitle: chipTitle });
       body = '<div class="ww-body">' +
         '<p class="ww-trans" data-ww-trans>' + esc(translation) + '</p>' +
         (source ? '<p class="ww-src">from ' + esc(source) + '</p>' : '') +
         '</div>';
-      foot = footHTML(metaBits.join(' · '),
-        btnHTML('dismiss', 'Dismiss', false) +
-        (data.canReplace ? btnHTML('replace', 'Replace', true) : btnHTML('copy', 'Copy', true)));
-      if (data.canReplace) {
-        foot = footHTML(metaBits.join(' · '),
-          btnHTML('dismiss', 'Dismiss', false) +
-          btnHTML('copy', 'Copy', false) +
-          btnHTML('replace', 'Replace', true));
-      }
+      foot = footHTML(metaBits.join(' · '), buttons);
     } else if (state === 'error' || state === 'setup') {
       const title = str(data.title) || (state === 'setup' ? 'Add your API key' : 'Could not check');
       const message = str(data.body) ||

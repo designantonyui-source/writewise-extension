@@ -2,7 +2,8 @@
 
 A quiet proofreader for any text field on the web. It waits for you to pause,
 shows what it would change, and applies it in one click — or one key. It also
-translates: double-click a word, or select a passage.
+translates — double-click a word or select a passage — and keeps a local
+vocabulary of the words you want to remember.
 
 Two providers, one key each: **DeepSeek** (default) or **OpenAI**.
 
@@ -59,6 +60,30 @@ Pick the target language and switch translation on or off in the popup's
 **Translate** row; turn off *Translate when I select text* under **Advanced** if
 you only want double-click to translate.
 
+## Saved words
+
+When a translation is a single word, the card offers **Save** — it stores the
+word, its translation, the sentence you found it in, and the site. Saving is
+free: no API call, and nothing leaves the device.
+
+Open the list from the popup footer (**N saved words**) for a full page with:
+
+- search across words, translations and contexts;
+- *All* / *Due today* filters and a live count;
+- rows that expand to show the context, when it was added, review history and
+  progress;
+- **Review** — a spaced-repetition session over the due queue. Reveal with
+  `Space`, grade with `1` (again) / `2` (good) / `3` (easy), `Esc` to leave.
+  Intervals run 1 → 2 → 4 → 8 → 16 days;
+- **Add word** for words you meet away from the browser;
+- **Export CSV**, **Export Anki** (tab-separated, import straight into Anki) and
+  **Export JSON**.
+
+![Saved words](docs/vocab-dark.png)
+
+The vault holds up to 2,000 words in `chrome.storage.local`; saving the same
+word again updates its translation instead of duplicating it.
+
 ## Settings
 
 | Setting | Meaning |
@@ -70,6 +95,7 @@ you only want double-click to translate.
 | Spelling / Grammar / Clarity / Tone | What the model is allowed to touch |
 | Tone preset | Professional, Casual, Formal, Friendly |
 | Translate | Target language + on/off (double-click a word, or select text) |
+| Saved words | Footer link to the vocabulary page, with a live count |
 | On this site | Pause the current hostname |
 | Advanced | Minimum characters, maximum words, tone presets, translate-on-select |
 
@@ -85,6 +111,8 @@ The popup also shows fixes today and an estimated spend.
   read.
 - Translation sends only the selected fragment, and only when you trigger it
   (double-click, or selecting text while that setting is on).
+- Saved words never leave the device. The CSV/Anki/JSON exports are the only
+  way out, and you run them yourself.
 
 ## Cost
 
@@ -115,9 +143,12 @@ manifest.json          MV3, two API hosts, no broad host permissions
 background.js          message router, API calls, stats, context menu
 src/providers.js       one OpenAI-compatible client + error taxonomy
 src/languages.js       translation targets + browser-language fallback
+icons/                 generated from icon.svg (16/48/128)
 src/prompt.js          the guardrail prompt and JSON envelope
 src/storage.js         settings/stats shape, defaults, v1 key cleanup
-content/ui.js|css      in-page card (shadow DOM, six states)
+vocab/                 saved words: list, search, add, exports, review
+src/vocab.js           word entries, Leitner schedule, export encoders
+content/ui.js|css      in-page card (shadow DOM, seven states)
 content/content.js     debounce, field adapters, apply/undo, guards
 popup/                 settings surface (360 px, dark + light)
 shared/tokens.css      design tokens — the only source of colour/type/space
@@ -140,6 +171,12 @@ intercepts provider calls in the service worker, and drives the UI with real
 mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
+
+## Differences from v2.1
+
+- Saved words: a local vocabulary with spaced repetition, search, and exports.
+- Professional pass: regenerated icon set, warm focus rings, tighter type and
+  spacing, vocabulary page with keyboard-first review.
 
 ## Differences from v1.1
 

@@ -34,7 +34,7 @@ const ELEMENT_IDS = [
   'translateTarget', 'translateToggle', 'translateOnSelect',
   'siteHost', 'pauseSiteBtn',
   'minChars', 'maxWords',
-  'statFixes', 'statCost',
+  'statFixes', 'statCost', 'vocabLink', 'vocabCount',
 ];
 
 const el = {};
@@ -68,6 +68,7 @@ async function loadSettings() {
   }
   fillLanguages();
   renderAll();
+  loadVocabCount();
   loadSite();
   loadStats();
 }
@@ -157,6 +158,13 @@ function renderFix() {
   for (const [name, id] of Object.entries(FIX_IDS)) {
     el[id].checked = state.settings.fix[name] !== false;
   }
+}
+
+function loadVocabCount() {
+  chrome.storage.local.get('ww_vocab').then((got) => {
+    const list = Array.isArray(got.ww_vocab) ? got.ww_vocab : [];
+    el.vocabCount.textContent = String(list.length);
+  }).catch(() => {});
 }
 
 function renderTranslate() {
@@ -312,6 +320,10 @@ function bind() {
 
   el.translateOnSelect.addEventListener('change', () => {
     save({ translate: { onSelect: el.translateOnSelect.checked } });
+  });
+
+  el.vocabLink.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('vocab/vocab.html') });
   });
 
   el.translateTarget.addEventListener('change', () => {
