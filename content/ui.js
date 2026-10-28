@@ -33,23 +33,16 @@
     'stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 
   const SPEAK_SVG =
-    '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
-    '<path d="M2 5.4h2.2L7 3v8L4.2 8.6H2a.6.6 0 0 1-.6-.6V6a.6.6 0 0 1 .6-.6Z" ' +
-    'stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
-    '<path d="M9.1 5.1a2.6 2.6 0 0 1 0 3.8M10.9 3.4a5 5 0 0 1 0 7.2" ' +
-    'stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>';
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" vector-effect="non-scaling-stroke"/><path d="M17 9C17.6254 9.81968 18 10.8634 18 12C18 13.1366 17.6254 14.1803 17 15" vector-effect="non-scaling-stroke"/><path d="M20 7C21.2508 8.36613 22 10.1057 22 12C22 13.8943 21.2508 15.6339 20 17" vector-effect="non-scaling-stroke"/></svg>';
 
   const CLOSE_SVG =
-    '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false">' +
-    '<path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.6" ' +
-    'stroke-linecap="round"/></svg>';
+    '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.9991 19L5 5.00098" vector-effect="non-scaling-stroke"/><path d="M19 5L5.00092 18.999" vector-effect="non-scaling-stroke"/></svg>';
 
   const FALLBACK_CSS = [
     '.ww-tokens{position:absolute;top:0;left:0;display:block;color:#f2ede6;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:left;direction:ltr}',
     '.ww-card{display:flex;flex-direction:column;width:380px;max-width:calc(100vw - 16px);max-height:320px;padding:12px;background:#141413;color:#f2ede6;border:1px solid #262521;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.42);pointer-events:auto;overflow:hidden}',
     '.ww-head{display:flex;align-items:center;gap:8px}', '.ww-mark{color:#ff8204;display:inline-flex}',
     '.ww-title{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.ww-chip{font-size:10px;color:#aeaaa3;border:1px solid #33322c;border-radius:99px;padding:1px 7px}',
     '.ww-x{width:24px;height:24px;border:0;background:none;color:#8c8882;cursor:pointer}',
     '.ww-body{flex:1;min-height:0;overflow:auto;margin-top:10px}', '.ww-foot{display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #262521}',
     '.ww-meta{flex:1;min-width:0;font-size:11px;color:#aeaaa3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
@@ -272,17 +265,11 @@
   /* ── render ────────────────────────────────────────────────────────── */
 
   function headHTML(opts) {
-    const chip = str(opts.chip);
-    const chipTitle = str(opts.chipTitle);
     return '<div class="ww-head">' +
       '<span class="ww-mark">' + MARK_SVG + '</span>' +
       (opts.spinner ? '<span class="ww-spin" aria-hidden="true"></span>' : '') +
       '<span class="ww-title">' + esc(opts.title) + '</span>' +
       (opts.timer ? '<span class="ww-timer" data-ww-elapsed></span>' : '') +
-      (chip
-        ? '<span class="ww-chip"' + (chipTitle ? ' title="' + esc(chipTitle) + '"' : '') + '>' +
-          esc(chip) + '</span>'
-        : '') +
       (opts.speak
         ? '<button type="button" class="ww-x ww-speak" data-ww-action="speak"' +
           ' aria-label="Play pronunciation" aria-pressed="false" title="Play pronunciation">' +
@@ -357,17 +344,12 @@
 
   function render(state, data) {
     if (!card) return;
-    const provider = str(data.provider);
-    const model = str(data.model);
-    const chip = provider || model;
-    const chipTitle = (model && model !== chip) ? model : '';
-
     let head = '';
     let body = '';
     let foot = '';
 
     if (state === 'checking') {
-      head = headHTML({ title: str(data.title) || 'Checking…', spinner: true, timer: true, chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: str(data.title) || 'Checking…', spinner: true, timer: true });
       body = '<div class="ww-body">' +
         '<div class="ww-skel" style="width:92%"></div>' +
         '<div class="ww-skel" style="width:76%"></div>' +
@@ -378,16 +360,16 @@
       const reported = num(data.changes);
       const changes = reported !== null ? Math.max(0, Math.round(reported)) : countDiff(diff);
       const ms = formatMs(data.ms);
-      head = headHTML({ title: 'Suggested fix', chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: 'Suggested fix' });
       body = '<div class="ww-body"><div class="ww-diff" data-ww-diff></div></div>';
       foot = footHTML(ms ? changesLabel(changes) + ' · ' + ms : changesLabel(changes),
         btnHTML('apply', 'Apply', true));
     } else if (state === 'clean') {
-      head = headHTML({ title: 'Looks good', chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: 'Looks good' });
       body = '<div class="ww-body"><p class="ww-sub">No changes needed.</p></div>';
       if (data.canRecheck) foot = footHTML('', btnHTML('recheck', 'Recheck', false));
     } else if (state === 'applied') {
-      head = headHTML({ title: 'Applied', chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: 'Applied' });
       body = '<div class="ww-body"><p class="ww-sub">Your text has been updated.</p></div>';
       foot = footHTML('', data.canUndo === false ? '' : btnHTML('undo', 'Undo', false));
     } else if (state === 'translation') {
@@ -416,8 +398,6 @@
 
       head = headHTML({
         title: 'Translation',
-        chip: chip,
-        chipTitle: chipTitle,
         speak: speechAvailable() && !!translation,
       });
       body = '<div class="ww-body">' +
@@ -431,7 +411,7 @@
         (state === 'setup'
           ? 'Add a DeepSeek or OpenAI key to start fixing as you type.'
           : 'Something went wrong. Try again in a moment.');
-      head = headHTML({ title: title, chip: chip, chipTitle: chipTitle });
+      head = headHTML({ title: title });
       body = '<div class="ww-body"><p class="ww-msg">' + esc(message) + '</p></div>';
       foot = footHTML('', actionHTML(data.action, true));
     } else {

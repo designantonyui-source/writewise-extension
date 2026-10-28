@@ -124,3 +124,14 @@ the mark and wordmark.
 size with a size-dependent stroke so the mark survives a 16px toolbar slot:
 accent tile, ink eight-ray mark, rounded caps. Ink on accent is the same rule as
 the buttons — the only white-on-accent left in the product would fail contrast.
+
+Functional icons — search, close, chevrons, trash, volume, plus — are
+[Hugeicons](https://hugeicons.com/icons/stroke-rounded) stroke-rounded glyphs
+(MIT, see `LICENSES.md`), inlined as SVG on their native 24×24 grid and shown at
+10–18px. They carry `vector-effect="non-scaling-stroke"` with a 1.4px stroke, so
+the weight stays even whether the glyph sits in a 24px icon button or next to
+11px metadata. The ✳ mark is ours and is never replaced by a stock glyph.
+
+The card header carries no provider badge: the provider is chosen once in the
+popup, and repeating its name on every card was decoration that competed with
+the title.

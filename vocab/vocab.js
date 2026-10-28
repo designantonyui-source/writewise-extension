@@ -70,16 +70,10 @@ const state = {
 const el = {};
 
 const TRASH_SVG =
-  '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
-  '<path d="M2.5 3.5h9M5.5 3.5V2.3h3v1.2M4 3.5l.5 8h5l.5-8" stroke="currentColor" ' +
-  'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.8516 16.3743L19.5 6H4.5L5.14839 16.3743C5.315 19.0401 5.39831 20.373 6.26426 21.1865C7.13021 22 8.46571 22 11.1367 22H12.8633C15.5343 22 16.8698 22 17.7357 21.1865C18.6017 20.373 18.685 19.0401 18.8516 16.3743Z" vector-effect="non-scaling-stroke"/><path d="M15.5 6H21M15.5 6L15.3721 4.97683C15.1595 3.2762 13.7139 2 12 2C10.2861 2 8.84047 3.2762 8.6279 4.97683L8.5 6M15.5 6H8.5M3 6H8.5" vector-effect="non-scaling-stroke"/><path d="M9.5 11V17M14.5 11V17" vector-effect="non-scaling-stroke"/></svg>';
 
 const SPEAK_SVG =
-  '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">' +
-  '<path d="M2 5.4h2.2L7 3v8L4.2 8.6H2a.6.6 0 0 1-.6-.6V6a.6.6 0 0 1 .6-.6Z" ' +
-  'stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
-  '<path d="M9.1 5.1a2.6 2.6 0 0 1 0 3.8M10.9 3.4a5 5 0 0 1 0 7.2" ' +
-  'stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>';
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" vector-effect="non-scaling-stroke"/><path d="M17 9C17.6254 9.81968 18 10.8634 18 12C18 13.1366 17.6254 14.1803 17 15" vector-effect="non-scaling-stroke"/><path d="M20 7C21.2508 8.36613 22 10.1057 22 12C22 13.8943 21.2508 15.6339 20 17" vector-effect="non-scaling-stroke"/></svg>';
 
 /* ── pronunciation ──────────────────────────────────────────────────── */
 

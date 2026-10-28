@@ -178,7 +178,14 @@ content/content.js     debounce, field adapters, apply/undo, guards
 popup/                 settings surface (360 px, dark + light)
 shared/tokens.css      design tokens — the only source of colour/type/space
 PRODUCT.md, DESIGN.md  why it exists, how it should look
+LICENSES.md            third-party notices (Hugeicons, MIT)
 ```
+
+## Credits
+
+Functional icons are [Hugeicons](https://hugeicons.com/icons/stroke-rounded),
+stroke-rounded set, MIT — see [LICENSES.md](LICENSES.md). The ✳ mark is drawn
+for WriteWise.
 
 ## Tests
 

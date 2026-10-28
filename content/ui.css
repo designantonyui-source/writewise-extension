@@ -150,22 +150,6 @@
   white-space: nowrap;
 }
 
-.ww-chip {
-  flex: 0 0 auto;
-  max-width: 120px;
-  overflow: hidden;
-  padding: 1px 7px;
-  border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-pill);
-  color: var(--ww-tx-2);
-  font-size: var(--ww-fs-10);
-  font-weight: 500;
-  line-height: 16px;
-  letter-spacing: 0.02em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .ww-x {
   flex: 0 0 auto;
   display: inline-flex;
