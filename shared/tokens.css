@@ -9,19 +9,22 @@
 
 :root,
 .ww-tokens {
-  /* brand */
-  --ww-accent: #e2673a;
-  --ww-accent-hi: #c7502a; /* filled buttons: white text ≥ 4.5:1 */
-  --ww-accent-soft: rgba(226, 103, 58, 0.13);
-  --ww-accent-text: #e2673a;
+  /* brand — #ff8204 is the identity. White text on it is only 2.5:1, so an
+     accent *surface* carries ink instead (7.2:1), and accent *text* darkens
+     on the light ground. Both rules are asserted in contrast.test.mjs. */
+  --ww-accent: #ff8204;
+  --ww-accent-hi: #ff8204; /* filled surfaces: buttons, switch tracks */
+  --ww-accent-ink: #1b1611; /* label/mark/knob on an accent surface */
+  --ww-accent-soft: rgba(255, 130, 4, 0.14);
+  --ww-accent-text: #ff8204;
   --ww-jade: #5cb87a;
   --ww-jade-soft: rgba(92, 184, 122, 0.15);
   --ww-danger: #e27d79;
   --ww-danger-soft: rgba(217, 83, 79, 0.15);
   --ww-amber: #e0a33a;
-  --ww-focus: #e2673a; /* warm ring, AA against both grounds */
-  /* switch knob is white in both themes; the track carries the state */
-  --ww-switch-thumb: #ffffff;
+  --ww-focus: #ff8204; /* 7.4:1 on the dark ground */
+  /* the knob is ink once the track turns accent; the track carries the state */
+  --ww-switch-thumb: #1b1611;
 
   /* surfaces — dark */
   --ww-bg: #0c0c0b;
@@ -88,9 +91,10 @@
     --ww-tx-3: #6f6a64;
     --ww-jade: #2a7448;
     --ww-danger: #b3261e;
-    --ww-accent-soft: rgba(226, 103, 58, 0.1);
-    --ww-accent-text: #b8461f;
-    --ww-focus: #b8461f;
+    --ww-accent: #c25f00; /* graphics on white need ≥ 3:1 */
+    --ww-accent-soft: rgba(255, 130, 4, 0.12);
+    --ww-accent-text: #a95200; /* 5.4:1 on white, 5.0:1 on paper */
+    --ww-focus: #a95200;
     --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
     --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
     color-scheme: light;
@@ -108,8 +112,10 @@
   --ww-tx: #f2ede6;
   --ww-tx-2: #aeaaa3;
   --ww-tx-3: #8c8882;
-  --ww-accent-soft: rgba(226, 103, 58, 0.13);
-  --ww-accent-text: #e2673a;
+  --ww-accent: #ff8204;
+  --ww-accent-soft: rgba(255, 130, 4, 0.14);
+  --ww-accent-text: #ff8204;
+  --ww-focus: #ff8204;
   --ww-shadow: 0 12px 32px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
   --ww-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
   color-scheme: dark;
@@ -128,9 +134,10 @@
   --ww-tx-3: #6f6a64;
   --ww-jade: #2a7448;
   --ww-danger: #b3261e;
-  --ww-accent-soft: rgba(226, 103, 58, 0.1);
-  --ww-accent-text: #b8461f;
-  --ww-focus: #b8461f;
+  --ww-accent: #c25f00;
+  --ww-accent-soft: rgba(255, 130, 4, 0.12);
+  --ww-accent-text: #a95200;
+  --ww-focus: #a95200;
   --ww-shadow: 0 12px 32px rgba(35, 30, 22, 0.16), 0 2px 8px rgba(35, 30, 22, 0.08);
   --ww-shadow-sm: 0 1px 2px rgba(35, 30, 22, 0.08);
   color-scheme: light;

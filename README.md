@@ -199,6 +199,16 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.3
+
+- Palette: the accent is now `#ff8204`. Accent *surfaces* — primary buttons,
+  switch tracks, the toolbar icon — carry an ink label at 7.2:1 instead of white
+  at 2.5:1, and accent *text* darkens to `#a95200` on the light ground. Every
+  pair is asserted in `_wwtest/contrast.test.mjs`, so a palette tweak can't
+  quietly fall below AA.
+- The popup, the in-page card and the toolbar icon are re-rendered in the new
+  accent; the vocabulary page keeps its layout.
+
 ## Differences from v2.2
 
 - Pronunciation: a speaker in the translation card, on saved-word rows, and in

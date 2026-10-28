@@ -11,7 +11,10 @@ duration or font in a component file.
 
 | Token | Meaning |
 |---|---|
-| `--ww-accent` / `--ww-accent-hi` | ✳ mark and focus accents / filled buttons (white text ≥ 4.5:1) |
+| `--ww-accent` | the brand orange, `#ff8204`; marks, dots, focus, graphics. Darkens to `#c25f00` in light mode, where graphics sit on white |
+| `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the ink that goes on them. Ink on `#ff8204` is 7.2:1; white would be 2.5:1 |
+| `--ww-accent-text` | accent used *as text*: `#ff8204` on the dark ground (7.4:1), `#a95200` on white (5.4:1) |
+| `--ww-accent-soft` | 12–14% tint for selected pills, hint chips, hover washes |
 | `--ww-jade` / `--ww-danger` | insertions / deletions |
 | `--ww-bg`, `--ww-surface`, `--ww-surface-2`, `--ww-surface-3` | depth ladder |
 | `--ww-border`, `--ww-border-2` | hairlines |
@@ -26,6 +29,12 @@ duration or font in a component file.
 Dark is the default. Light follows `prefers-color-scheme` or an explicit
 `[data-theme]` on `:root` (extension pages) / `.ww-tokens` (shadow card).
 
+The accent is deliberately allowed to change *role* rather than get muddied:
+`#ff8204` is unchanged where it is a surface, ink is used where text sits on it,
+and the accent darkens only when it is text or a hairline on white. Every pair
+below is asserted in `_wwtest/contrast.test.mjs`, so a future palette tweak
+cannot quietly break AA.
+
 ## Type
 
 System UI stack. No webfonts — a popup that waits on a font download is a popup
@@ -37,7 +46,9 @@ instructions.
 
 - **Switch** — 36×20, real `<input type="checkbox">` + styled track. React to
   `change` only. Never re-toggle `.checked` in a click handler; that is the bug
-  that broke v1.
+  that broke v1. The off track is neutral with a muted knob; the on track is
+  the accent with an ink knob (`--ww-switch-thumb`), because the accent is
+  brighter than a white knob can survive on.
 - **Segmented control** — 2–3 equal segments, 32px tall, selected segment gets
   `--ww-surface-2` + 1px border, never a fill of the accent.
 - **Key row** — password input + `Test` button + status dot (jade = connected,
@@ -111,4 +122,5 @@ the mark and wordmark.
 
 `icons/icon.svg` is the source; `icon16/48/128.png` are rendered from it at each
 size with a size-dependent stroke so the mark survives a 16px toolbar slot:
-accent tile, white eight-ray mark, rounded caps.
+accent tile, ink eight-ray mark, rounded caps. Ink on accent is the same rule as
+the buttons — the only white-on-accent left in the product would fail contrast.

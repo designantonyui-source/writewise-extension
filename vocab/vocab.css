@@ -149,7 +149,7 @@ button {
 }
 
 .btn-primary {
-  color: #ffffff;
+  color: var(--ww-accent-ink);
   background: var(--ww-accent-hi);
   border-color: transparent;
 }
@@ -893,7 +893,7 @@ button {
 }
 
 .grade[data-grade="good"] {
-  color: #ffffff;
+  color: var(--ww-accent-ink);
   background: var(--ww-accent-hi);
   border-color: transparent;
 }
@@ -904,9 +904,9 @@ button {
 }
 
 .grade[data-grade="good"] .kbd {
-  color: rgba(255, 255, 255, 0.92);
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(27, 22, 17, 0.9);
+  background: rgba(27, 22, 17, 0.14);
+  border-color: rgba(27, 22, 17, 0.3);
 }
 
 .kbd {
