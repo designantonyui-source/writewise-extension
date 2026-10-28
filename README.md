@@ -51,6 +51,7 @@ npx playwright install chromium
 npm run build
 npm test
 npm run test:e2e
+npm run test:popup
 ```
 
 Use `HEADED=1 npm run test:e2e` to inspect the browser. Browser tests load the actual unpacked extension in a temporary Chromium profile and mock provider responses in the service worker. They use fake keys, make no paid AI requests, and cover the writing workflow, consent, pauses, selected ranges, rich-text preservation, stale responses, and popup settings. Unit tests cover credential migration, worker authorization, input limits, and completion handling for both providers.
@@ -58,3 +59,5 @@ Use `HEADED=1 npm run test:e2e` to inspect the browser. Browser tests load the a
 Before a Chrome Web Store submission, publish the privacy policy at an accessible URL, enter it in the developer dashboard, and complete the store data disclosures. Review the policy whenever providers or behavior change.
 
 Provider API references: [OpenAI Chat Completions](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create), [GPT-5.4 mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini), [DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/).
+
+Toolbar sizing regression tests use a headed Chrome for Testing window and `chrome.action.openPopup()` to open the real browser action surface. They cover consent, missing-key, and saved-key states without setting a viewport width. On Linux, run the headed tests under a display server such as Xvfb. Other workflow tests open the popup document as a tab and remain useful for settings and text-correction behavior, but do not prove toolbar sizing.

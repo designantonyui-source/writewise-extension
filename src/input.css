@@ -18,7 +18,8 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { width: 360px; margin: 0; background: var(--bg); color: var(--text); }
+html { width: 360px; min-width: 360px; overflow-x: hidden; }
+body { width: 360px; min-width: 360px; margin: 0; background: var(--bg); color: var(--text); }
 button, input, select { font: inherit; }
 button, summary, label:has(input[type="checkbox"]) { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
@@ -118,6 +119,5 @@ kbd { font: inherit; color: var(--text); }
 .consent .primary-button { width: 100%; margin-top: 24px; min-height: 42px; justify-content: space-between; }
 .consent .consent-note { text-align: center; margin-top: 12px; font-size: 12px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
-@media (max-width: 359px) { body { width: 100%; } .meta { max-width: 120px; text-align: right; } }
 
 html { scrollbar-width: thin; scrollbar-color: #5a5c52 var(--bg); }

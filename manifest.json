@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WriteWise",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Check your writing with OpenAI or DeepSeek. Review spelling, grammar, clarity, and tone corrections before applying.",
   "permissions": [
     "storage",

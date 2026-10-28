@@ -1,13 +1,14 @@
 {
   "name": "writewise-extension",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AI writing checks with explicit privacy controls and reviewed corrections.",
   "main": "background.js",
   "scripts": {
     "build": "tailwindcss -i ./src/input.css -o ./popup.css --minify",
     "watch": "tailwindcss -i ./src/input.css -o ./popup.css --watch",
     "test": "node --test tests/background.test.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:popup": "playwright test tests/toolbar-popup.spec.js"
   },
   "keywords": [],
   "author": "",

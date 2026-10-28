@@ -1,6 +1,6 @@
 # WriteWise privacy policy
 
-Effective date: 28 October 2026. Applies to WriteWise 1.0.2.
+Effective date: 28 October 2026. Applies to WriteWise 1.0.3.
 
 ## Writing checks
 
