@@ -123,7 +123,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  color: var(--ww-accent-text); /* accent is under AA as text; accent-text is the text-safe step */
+  color: var(--ww-brand); /* the logo keeps the button gold in both themes */
 }
 
 .ww-mark svg {

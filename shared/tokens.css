@@ -14,6 +14,7 @@
      light ground. Every rule here is asserted in contrast.test.mjs. */
   --ww-accent: #ffaf01;
   --ww-accent-hi: #ffaf01; /* filled surfaces: buttons, switch tracks */
+  --ww-brand: #ffaf01; /* the ✳ mark: always the button gold, both themes */
   --ww-accent-ink: #1a1a18; /* label/mark/knob on an accent surface */
   --ww-accent-soft: rgba(255, 175, 1, 0.14);
   --ww-accent-text: #ffaf01;

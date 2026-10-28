@@ -78,7 +78,7 @@ body {
 .mark {
   display: inline-flex;
   flex: none;
-  color: var(--ww-accent);
+  color: var(--ww-brand);
   transition: opacity var(--ww-dur) var(--ww-ease);
 }
 

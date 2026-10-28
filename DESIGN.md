@@ -14,6 +14,7 @@ duration or font in a component file.
 | `--ww-accent` | the brand gold, `#ffaf01`; marks, dots, focus, graphics. Darkens to `#b57a00` in light mode, where graphics sit on white (3.7:1) |
 | `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the ink that goes on them. Ink on `#ffaf01` is 9.4:1; white would be 1.8:1 |
 | `--ww-accent-text` | accent used *as text*: `#ffaf01` on the dark ground (10:1), `#8f5c00` on white (5.7:1) |
+| `--ww-brand` | the ✳ mark only. Always `#ffaf01`, i.e. the same gold as a filled button, in both themes — a logo is allowed the brand colour that text is not |
 | `--ww-accent-soft` | 12–14% tint for selected pills, hint chips, hover washes |
 | `--ww-jade` / `--ww-danger` | insertions / deletions |
 | `--ww-bg`, `--ww-surface`, `--ww-surface-2`, `--ww-surface-3` | depth ladder |

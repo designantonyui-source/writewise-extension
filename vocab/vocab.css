@@ -75,7 +75,7 @@ button {
 
 .mark {
   display: inline-flex;
-  color: var(--ww-accent-text);
+  color: var(--ww-brand);
 }
 
 .brand-name {
