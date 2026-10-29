@@ -18,9 +18,7 @@ You can inspect the diff and apply the result with one click, or dismiss it and
 keep writing. The in-page card, settings and saved-word page support light and
 dark themes.
 
-| Light | Dark |
-|:---|:---|
-| ![Correction card in light theme](docs/card-light.png) | ![Correction card in dark theme](docs/card-dark.png) |
+![WriteWise correction card in light and dark themes, without the surrounding webpage](docs/correction-themes.svg)
 
 ### Translate a selection
 
