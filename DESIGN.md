@@ -102,9 +102,11 @@ instructions.
 - **Speaker** — a quiet glyph at ~`--ww-tx-3` (50–65% opacity in the wordier
   vocabulary rows), resolving to accent-on-accent-soft on hover and while
   playing. It is a glyph button, not a labelled button: the word it belongs to
-  is the label, and `aria-label` spells the pair out for screen readers. In the
-  card it is 13px inside a 24px header button, last before the close button; in
-  the vocabulary list it leads the row's side cluster, before the due pill.
+  is the label, and `aria-label` spells the pair out for screen readers. It sits
+  on the line it reads: the card shows the original above `from English`, each
+  line with its own speaker, so the English word and the translation are
+  separately playable and the button never has to guess which one you meant.
+  In the vocabulary list it leads the row's side cluster, before the due pill.
 
 ## Motion
 

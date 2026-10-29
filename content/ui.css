@@ -189,21 +189,67 @@
 
 /* ── pronunciation ────────────────────────────────────────────────────── */
 
-.ww-speak {
+/* One speaker per line: the button sits on the words it reads aloud, so the
+   original and the translation are separately playable instead of the header
+   guessing which one you meant. */
+.ww-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ww-line > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ww-line-src {
+  margin-top: 4px;
+}
+
+.ww-og {
+  margin: 0;
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-13);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ww-say {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -1px -3px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
+  background: transparent;
   color: var(--ww-tx-3);
+  cursor: pointer;
+  transition: background-color var(--ww-dur) var(--ww-ease),
+    color var(--ww-dur) var(--ww-ease);
 }
 
-.ww-speak:hover {
+.ww-say:hover {
   color: var(--ww-accent-text);
   background: var(--ww-accent-soft);
 }
 
-.ww-speak.ww-playing {
+.ww-say:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+}
+
+.ww-say.ww-playing {
   color: var(--ww-accent-text);
   background: var(--ww-accent-soft);
 }
 
-.ww-speak.ww-playing svg {
+.ww-say.ww-playing svg {
   animation: ww-speak-pulse 1.1s var(--ww-ease) infinite;
 }
 
@@ -490,7 +536,7 @@
 }
 
 .ww-src {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 11px;
   color: var(--ww-tx-2);
 }

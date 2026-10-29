@@ -52,7 +52,10 @@
     '.ww-card{display:flex;flex-direction:column;width:380px;max-width:calc(100vw - 16px);max-height:320px;padding:14px;background:#131313;color:#f2f2f0;border-radius:20px;corner-shape:squircle;box-shadow:0 10px 28px rgba(0,0,0,.38),0 1px 3px rgba(0,0,0,.24);pointer-events:auto;overflow:hidden}',
     '.ww-head{display:flex;align-items:center;gap:8px}', '.ww-mark{color:#d6adf2;display:inline-flex}',
     '.ww-title{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.ww-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:0;border-radius:999px;corner-shape:squircle;background:none;color:#8d8d89;cursor:pointer}', '.ww-tools{display:flex;align-items:center;gap:2px;margin:-4px -6px -4px 0}', '.ww-speak{color:#8d8d89}',
+    '.ww-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:0;border-radius:999px;corner-shape:squircle;background:none;color:#8d8d89;cursor:pointer}', '.ww-tools{display:flex;align-items:center;gap:2px;margin:-4px -6px -4px 0}',
+    '.ww-line{display:flex;align-items:flex-start;gap:8px}', '.ww-line-src{margin-top:4px}',
+    '.ww-og{margin:0;color:#aeaeaa;font-size:13px;line-height:1.5;overflow-wrap:anywhere}',
+    '.ww-say{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;margin:-1px -3px 0 0;padding:0;border:0;border-radius:999px;background:none;color:#8d8d89;cursor:pointer}',
     '.ww-body{flex:1;min-height:0;overflow:auto;margin-top:12px}', '.ww-foot{display:flex;gap:8px;align-items:center;margin-top:14px}',
     '.ww-meta{flex:1;min-width:0;font-size:11px;color:#aeaeaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.ww-btn{height:30px;padding:0 14px;border-radius:999px;corner-shape:squircle;font:600 12px/1 inherit;cursor:pointer;border:1px solid transparent;background:none;color:#f2f2f0}',
@@ -280,11 +283,6 @@
       '<span class="ww-title">' + esc(opts.title) + '</span>' +
       (opts.timer ? '<span class="ww-timer" data-ww-elapsed></span>' : '') +
       '<span class="ww-tools">' +
-        (opts.speak
-          ? '<button type="button" class="ww-x ww-speak" data-ww-action="speak"' +
-            ' aria-label="Play pronunciation" aria-pressed="false" title="Play pronunciation">' +
-            '<span class="ww-sr">Play pronunciation</span>' + SPEAK_SVG + '</button>'
-          : '') +
         '<button type="button" class="ww-x" data-ww-action="dismiss" aria-label="Dismiss">' +
           '<span class="ww-sr">Dismiss</span>' + CLOSE_SVG + '</button>' +
       '</span>' +
@@ -294,6 +292,16 @@
   function btnHTML(action, label, primary) {
     return '<button type="button" class="ww-btn ' + (primary ? 'ww-btn-primary' : 'ww-btn-ghost') + '"' +
       ' data-ww-action="' + esc(action) + '">' + esc(label) + '</button>';
+  }
+
+  /* A line's own speaker: the card can pronounce the original and the
+     translation, so the button lives on the line it reads aloud instead of in
+     the header where it could only mean one of them. */
+  function sayHTML(voice, label, title) {
+    return '<button type="button" class="ww-say" data-ww-action="speak"' +
+      ' data-ww-voice="' + esc(voice) + '"' +
+      ' aria-label="' + esc(label) + '" aria-pressed="false" title="' + esc(title || label) + '">' +
+      '<span class="ww-sr">' + esc(label) + '</span>' + SPEAK_SVG + '</button>';
   }
 
   /* Secondary actions in the card's footer are glyph buttons: the word the
@@ -422,12 +430,22 @@
       }
       if (!primaryUsed) buttons += btnHTML('copy', copyLabel, true);
 
-      head = headHTML({
-        title: 'Translation',
-        speak: speechAvailable() && !!translation,
-      });
+      const spoken = speechAvailable();
+      const original = str(data.source);
+      head = headHTML({ title: 'Translation' });
       body = '<div class="ww-body">' +
-        '<p class="ww-trans" data-ww-trans>' + esc(translation) + '</p>' +
+        '<div class="ww-line">' +
+          '<p class="ww-trans" data-ww-trans>' + esc(translation) + '</p>' +
+          (spoken && translation
+            ? sayHTML('target', 'Play translation pronunciation', 'Play the translation')
+            : '') +
+        '</div>' +
+        (original
+          ? '<div class="ww-line ww-line-src">' +
+              '<p class="ww-og" data-ww-source>' + esc(original) + '</p>' +
+              (spoken ? sayHTML('source', 'Play original pronunciation', 'Play the original word') : '') +
+            '</div>'
+          : '') +
         (source ? '<p class="ww-src">from ' + esc(source) + '</p>' : '') +
         '</div>';
       foot = footHTML(metaBits.join(' · '), buttons);
@@ -608,12 +626,16 @@
     return !!(api && api.available());
   }
 
-  /** Speak the translation on screen; the header button owns the state. */
+  /** Speak the line that owns the button — the original or the translation. */
   function speakCurrent(btn) {
     const api = speech();
-    const text = str(curData.translation);
-    if (!api || !btn || !text) return;
-    const lang = str(curData.targetCode) || str(curData.targetLabel) || 'en';
+    if (!api || !btn) return;
+    const voice = btn.getAttribute('data-ww-voice') === 'source' ? 'source' : 'target';
+    const text = voice === 'source' ? str(curData.source) : str(curData.translation);
+    if (!text) return;
+    const lang = voice === 'source'
+      ? (str(curData.sourceCode) || str(curData.sourceLanguage) || 'en')
+      : (str(curData.targetCode) || str(curData.targetLabel) || 'en');
     btn.classList.add('ww-playing');
     btn.setAttribute('aria-pressed', 'true');
     const done = () => {

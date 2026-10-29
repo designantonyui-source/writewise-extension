@@ -206,6 +206,14 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.7.0
+
+- The translation card now shows the original alongside the translation, and
+  each line has its own speaker: the original plays in the source language
+  (`en`), the translation in the target (`pl`). The header no longer carries a
+  lone speaker that could only mean one of them. The sentence `from English`
+  stays under the original.
+
 ## Differences from v2.6.2
 
 - The accent is orchid: `#d6adf2`. It is a light surface, so filled buttons,

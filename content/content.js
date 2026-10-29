@@ -673,6 +673,7 @@
 
     UI.show(anchor, 'translation', {
       translation: r.translation,
+      source: text,
       sourceLanguage: r.sourceLanguage,
       sourceCode: r.sourceCode || '',
       targetCode: r.targetCode || '',
@@ -713,6 +714,7 @@
     const t = lastTranslation;
     UI.show(t.anchor, 'translation', {
       translation: t.translation,
+      source: t.word,
       sourceLanguage: t.sourceLanguage,
       sourceCode: t.sourceCode,
       targetCode: t.targetCode,
@@ -747,6 +749,7 @@
     t.total = res.total || 0;
     UI.show(t.anchor, 'translation', {
       translation: t.translation,
+      source: t.word,
       sourceLanguage: t.sourceLanguage,
       targetLabel: t.targetLabel,
       ms: t.ms,
