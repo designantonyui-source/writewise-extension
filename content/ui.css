@@ -366,6 +366,47 @@
 
 /* ── buttons ──────────────────────────────────────────────────────────── */
 
+/* Glyph actions: the secondary verbs in the footer (copy, save word). They sit
+   on the same 30px line as the primary but hold only a 13px glyph, so the
+   labelled primary stays the loudest thing in the row. */
+.ww-icon-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
+  background: transparent;
+  color: var(--ww-tx-2);
+  cursor: pointer;
+  transition: background-color var(--ww-dur) var(--ww-ease),
+    color var(--ww-dur) var(--ww-ease);
+}
+
+.ww-icon-btn:hover {
+  background: var(--ww-surface-2);
+  color: var(--ww-tx);
+}
+
+.ww-icon-btn:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+}
+
+.ww-icon-btn.ww-copied,
+.ww-icon-btn.ww-copied:hover {
+  color: var(--ww-jade);
+}
+
+.ww-icon-btn svg {
+  display: block;
+}
+
+
 .ww-btn {
   flex: 0 0 auto;
   display: inline-flex;

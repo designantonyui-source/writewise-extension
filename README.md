@@ -208,6 +208,16 @@ per-site pause, word-limit guard, shortcut and selection paths.
 
 ## Differences from v2.6.0
 
+- The card's footer has one labelled action. Copy and Save are now glyph
+  buttons (a copy glyph and a bookmark, 30px discs, 13px icons) instead of light
+  pills with dark text: the primary — Replace, Apply, Undo, Add key — is the
+  only thing in the row with a word on it, and it stays the loudest object.
+  Copy turns into a jade tick when it lands. Screen readers and the keyboard
+  path are unchanged: each glyph button keeps `aria-label`, `title` and a
+  visually hidden name.
+
+## Differences from v2.5.2
+
 - Shape: everything is rounder and more iOS. Glyph buttons are discs, actions
   are capsules (the card's Copy/Save/Replace/Apply, the popup's Test/Pause, the
   vocabulary page's buttons), fields sit at 14px, containers at 20px, and the

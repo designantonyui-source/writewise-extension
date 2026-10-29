@@ -35,6 +35,15 @@
   const SPEAK_SVG =
     '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" vector-effect="non-scaling-stroke"/><path d="M17 9C17.6254 9.81968 18 10.8634 18 12C18 13.1366 17.6254 14.1803 17 15" vector-effect="non-scaling-stroke"/><path d="M20 7C21.2508 8.36613 22 10.1057 22 12C22 13.8943 21.2508 15.6339 20 17" vector-effect="non-scaling-stroke"/></svg>';
 
+  const COPY_SVG =
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7.5 14.5C7.5 11.2002 7.5 9.55025 8.52513 8.52513C9.55025 7.5 11.2002 7.5 14.5 7.5C17.7998 7.5 19.4497 7.5 20.4749 8.52513C21.5 9.55025 21.5 11.2002 21.5 14.5C21.5 17.7998 21.5 19.4497 20.4749 20.4749C19.4497 21.5 17.7998 21.5 14.5 21.5C11.2002 21.5 9.55025 21.5 8.52513 20.4749C7.5 19.4497 7.5 17.7998 7.5 14.5Z" vector-effect="non-scaling-stroke"/><path d="M7.5 16.5C6.10355 16.5 5.40533 16.5 4.84402 16.3036C3.83866 15.9518 3.0482 15.1613 2.69641 14.156C2.5 13.5947 2.5 12.8964 2.5 11.5V9.5C2.5 6.20017 2.5 4.55025 3.52513 3.52513C4.55025 2.5 6.20017 2.5 9.5 2.5H11.5C12.8964 2.5 13.5947 2.5 14.156 2.69641C15.1613 3.0482 15.9518 3.83866 16.3036 4.84402C16.5 5.40533 16.5 6.10355 16.5 7.5" vector-effect="non-scaling-stroke"/></svg>';
+
+  const CHECK_SVG =
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 14L8.5 17.5L19 6.5" vector-effect="non-scaling-stroke"/></svg>';
+
+  const BOOKMARK_SVG =
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 18.212V8.23515C4.5 5.53157 4.5 4.17979 5.32376 3.33989C6.14752 2.5 7.47335 2.5 10.125 2.5H13.875C16.5267 2.5 17.8525 2.5 18.6762 3.33989C19.5 4.17979 19.5 5.53158 19.5 8.23515V18.212C19.5 20.1274 19.5 21.0852 18.8987 21.4076C18.2975 21.7301 17.5234 21.1875 15.9753 20.1024L14.1245 18.805C13.0964 18.0843 12.5824 17.724 12 17.724C11.4176 17.724 10.9036 18.0843 9.87552 18.805L8.02469 20.1024C6.47657 21.1875 5.70252 21.7301 5.10126 21.4076C4.5 21.0852 4.5 20.1274 4.5 18.212Z" vector-effect="non-scaling-stroke"/></svg>';
+
   const CLOSE_SVG =
     '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.9991 19L5 5.00098" vector-effect="non-scaling-stroke"/><path d="M19 5L5.00092 18.999" vector-effect="non-scaling-stroke"/></svg>';
 
@@ -47,6 +56,7 @@
     '.ww-body{flex:1;min-height:0;overflow:auto;margin-top:12px}', '.ww-foot{display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #262626}',
     '.ww-meta{flex:1;min-width:0;font-size:11px;color:#aeaeaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.ww-btn{height:30px;padding:0 14px;border-radius:999px;corner-shape:squircle;font:600 12px/1 inherit;cursor:pointer;border:1px solid transparent;background:none;color:#f2f2f0}',
+    '.ww-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;border-radius:999px;corner-shape:squircle;background:none;color:#aeaeaa;cursor:pointer}', '.ww-icon-btn.ww-copied{color:#5cb87a}',
     '.ww-btn-ghost{color:#aeaeaa;border-color:#343434}', '.ww-btn-primary{background:#ffaf01;color:#1a1a18}',
     '.ww-ins{background:rgba(92,184,122,.15);color:#5cb87a;text-decoration:underline;text-decoration-color:#5cb87a;border-radius:6px}', '.ww-ins + .ww-del,.ww-del + .ww-ins{margin-left:3px}', '.ww-del{background:rgba(217,83,79,.15);color:#e27d79;text-decoration:line-through;text-decoration-color:#e27d79;border-radius:6px}',
     '.ww-sub,.ww-msg{margin:0;color:#aeaeaa}', '.ww-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}', '.ww-skel{height:8px;border-radius:4px;background:#232323;margin:0 0 8px}',
@@ -286,6 +296,17 @@
       ' data-ww-action="' + esc(action) + '">' + esc(label) + '</button>';
   }
 
+  /* Secondary actions in the card's footer are glyph buttons: the word the
+     action produces is not the label, so a 13px icon plus a screen-reader
+     string is quieter than a light pill with dark text in it. The primary
+     action always keeps its label. */
+  function iconBtnHTML(action, label, title, svg, extraClass) {
+    return '<button type="button" class="ww-icon-btn' + (extraClass ? ' ' + extraClass : '') + '"' +
+      ' data-ww-action="' + esc(action) + '"' +
+      ' aria-label="' + esc(label) + '" title="' + esc(title || label) + '">' +
+      '<span class="ww-sr">' + esc(label) + '</span>' + svg + '</button>';
+  }
+
   function actionHTML(action, primary) {
     if (!action || typeof action !== 'object' || !action.id) return '';
     const fallback = action.id === 'retry' ? 'Try again'
@@ -383,16 +404,20 @@
       if (target) metaBits.push(target);
       if (ms) metaBits.push(ms);
       const copyLabel = data.copied ? 'Copied' : 'Copy';
+      const copyIcon = iconBtnHTML('copy', copyLabel, copyLabel,
+        data.copied ? CHECK_SVG : COPY_SVG, data.copied ? 'ww-copied' : '');
 
       let buttons = '';
       let primaryUsed = false;
       if (data.canReplace) {
-        buttons += btnHTML('copy', copyLabel, false);
-        if (data.canSave && !data.saved) buttons += btnHTML('save', 'Save', false);
+        buttons += copyIcon;
+        if (data.canSave && !data.saved) {
+          buttons += iconBtnHTML('save', 'Save', 'Save word', BOOKMARK_SVG);
+        }
         buttons += btnHTML('replace', 'Replace', true);
         primaryUsed = true;
       } else if (data.canSave && !data.saved) {
-        buttons += btnHTML('copy', copyLabel, false) + btnHTML('save', 'Save word', true);
+        buttons += copyIcon + btnHTML('save', 'Save word', true);
         primaryUsed = true;
       }
       if (!primaryUsed) buttons += btnHTML('copy', copyLabel, true);

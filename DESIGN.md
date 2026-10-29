@@ -83,6 +83,14 @@ instructions.
   24px. Head to body is 12px; the body's answer type is 15px/1.45, and the
   source label sits 4px under it at 11px, because it is a caption on the
   answer, not a second paragraph.
+- **Card footer** — one labelled action per state (Apply, Replace, Undo, Add
+  key). Secondary verbs are glyph buttons: copy and save-word sit on the same
+  30px line as a 30px disc holding a 13px glyph, because the word "Copy" is not
+  the thing the action produces and a light pill with dark text in it was the
+  loudest object in a quiet card. They carry `aria-label` + `title` and a
+  visually hidden name, so keyboard and screen-reader paths are unchanged; copy
+  swaps its glyph for a jade tick, and the labelled primary keeps its label so
+  the row still has a clear first action.
 - **Diff** — inline `<ins>` jade with underline, `<del>` danger with strike.
   Never colour alone: the underline/strike carries the meaning too. A
   replacement is two chips in one slot, so `ins + del` and `del + ins` get 3px
