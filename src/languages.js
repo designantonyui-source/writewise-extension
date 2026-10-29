@@ -31,6 +31,13 @@ export function languageLabel(code) {
 }
 
 /** Label used inside the prompt: "Polish (pl)". */
+/** The label a person reads: "Polski", not "Polski (pl)" — the code is for the
+ *  model and for speech, never for the card. */
+export function languageDisplayLabel(code) {
+  const found = LANGUAGES.find((l) => l.code === code);
+  return found ? found.label : 'English';
+}
+
 export function languagePromptLabel(code) {
   const found = LANGUAGES.find((l) => l.code === code);
   return found ? `${found.label} (${found.code})` : 'English (en)';

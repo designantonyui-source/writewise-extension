@@ -46,7 +46,9 @@ function fmtDate(iso) {
 
 const byNewest = (a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
 
-const pairOf = (w) => [w.source, w.target].filter(Boolean).join(' → ');
+/* Older entries stored "Polski (pl)"; the code is for speech, not for reading. */
+const plainLabel = (v) => String(v == null ? '' : v).replace(/\s*\([a-z]{2}(?:-[a-z]{2})?\)\s*$/i, '');
+const pairOf = (w) => [plainLabel(w.source), plainLabel(w.target)].filter(Boolean).join(' → ');
 
 function progressLabel(w) {
   const box = Math.min(Math.max(Number(w.box) || 0, 0), INTERVALS.length - 1);

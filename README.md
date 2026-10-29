@@ -206,11 +206,19 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.8.3
+
+- The card and the saved-words list read the language by name: `English →
+  Polski`, no `(pl)`. The code is only for machines — the translation prompt
+  still says "Polski (pl)" so the model cannot confuse Polish with anything
+  else, and speech still speaks in `pl`. Old saved entries that stored
+  `Polski (pl)` are cleaned at display time, so nothing needs migrating.
+
 ## Differences from v2.8.2
 
 - The card stopped reporting how long the model took: the suggestion footer is
   `2 changes` instead of `2 changes · 1.1 s`, and the translation meta is
-  `English → Polski (pl)` instead of `English → Polski (pl) · 936 ms`. The live
+  `English → Polski` instead of `English → Polski (pl) · 936 ms`. The live
   clock in the checking state stays — that one is a waiting signal, not a
   performance claim.
 
@@ -227,7 +235,7 @@ per-site pause, word-limit guard, shortcut and selection paths.
 - The translation card is one dictionary row again: `sentance → zdanie`, both
   words 15px on one baseline, each with its own speaker centred on the line.
   The "from English" line is gone — the language pair moved into the footer
-  meta as `English → Polski (pl)` — which takes the card from three text lines
+  meta as `English → Polski` — which takes the card from three text lines
   to one and makes it ~45px shorter. The original is clipped at 18ch with an
   ellipsis and keeps the full text in its `title`.
 

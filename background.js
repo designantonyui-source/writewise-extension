@@ -11,6 +11,7 @@ import { getSettings, bumpStats, migrateLegacy } from './src/storage.js';
 import {
   codeForLanguageName,
   codeFromLabel,
+  languageDisplayLabel,
   languagePromptLabel,
   resolveTarget,
 } from './src/languages.js';
@@ -296,7 +297,8 @@ async function onTranslate(msg, sender, respond) {
   }
 
   const targetCode = resolveTarget(settings);
-  const targetLabel = languagePromptLabel(targetCode);
+  const targetLabel = languageDisplayLabel(targetCode); // what the card shows
+  const promptTarget = languagePromptLabel(targetCode); // "Polski (pl)" for the model
   const id = String(msg.id || crypto.randomUUID());
   const ctl = new AbortController();
   inflight.set(id, { ctl, tabId: sender.tab?.id });
@@ -307,7 +309,7 @@ async function onTranslate(msg, sender, respond) {
       apiKey,
       model,
       text,
-      targetLabel,
+      targetLabel: promptTarget,
       signal: ctl.signal,
     });
 

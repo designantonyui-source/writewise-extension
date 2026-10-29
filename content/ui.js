@@ -117,6 +117,12 @@
 
   /* Only the live "checking" clock uses this now; results no longer report
      how long the model took. */
+  /* Old saved entries and older payloads can still carry "Polski (pl)"; the
+     code is not information the reader needs. */
+  function plainLabel(value) {
+    return String(value == null ? '' : value).replace(/\s*\([a-z]{2}(?:-[a-z]{2})?\)\s*$/i, '');
+  }
+
   function formatMs(ms) {
     const n = num(ms);
     if (n === null || n < 0) return '';
@@ -406,8 +412,8 @@
       foot = footHTML('', data.canUndo === false ? '' : btnHTML('undo', 'Undo', false));
     } else if (state === 'translation') {
       const translation = str(data.translation);
-      const source = str(data.sourceLanguage);
-      const target = str(data.targetLabel);
+      const source = plainLabel(str(data.sourceLanguage));
+      const target = plainLabel(str(data.targetLabel));
       const metaBits = [];
       if (data.saved) metaBits.push('Saved');
       if (source && target) metaBits.push(source + ' → ' + target);

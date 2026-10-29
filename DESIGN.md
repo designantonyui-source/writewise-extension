@@ -85,7 +85,8 @@ instructions.
   dictionary row — `original → translation`, both words 15px/1.45 on the same
   baseline (the original muted at 400, the answer at 500, capped at 18ch with an
   ellipsis), each followed by its own 20px speaker centred on the line — and the
-  language pair lives in the footer meta (`English → Polski (pl) · 16 ms`). Stacking the original, the translation and a "from English"
+  language pair lives in the footer meta (`English → Polski`): the card reads in
+  names, the model prompt keeps the `(pl)` code, speech uses the code. Stacking the original, the translation and a "from English"
   caption cost three lines and ~45px of height for three short strings; the row
   says the same thing in one, and the speakers stay attached to their word.
 - **Card footer** — no rule above it: the 14px gap does the separating, and a
