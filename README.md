@@ -206,13 +206,12 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
-## Differences from v2.10.0
+## Differences from v2.10.1
 
-- Auto-translate is for words, not paragraphs. A selection of one or two words
-  translates as before; a longer selection stops translating and asks for a
-  correction instead (that is what selecting your own sentence means). The
-  right-click "Translate selection" still translates anything on demand, and
-  typing is checked as before.
+- Two gestures, two verbs, no guessing: **typing is corrected, selecting is
+  translated** — a word, a sentence or a paragraph, up to the provider's
+  2 400-character ceiling. Selecting a long sentence no longer silently does
+  nothing.
 - Four target languages only: English, Polski, Українська, Русский. The other
   thirteen were a promise the product could not keep well — every language here
   needs a voice, a label and a prompt that names it — and it made the picker

@@ -128,11 +128,12 @@ the entrance, the spinner rotation and the pulse.
 
 ## Selection
 
-- One or two words on selection: translate. That is the reading-help case.
-- More than that, inside a field: check it. Selecting your own sentence means
-  "fix this", and auto-translate had been answering a question nobody asked.
-- The context menu is the escape hatch: "Translate selection" translates any
-  length on demand, "Fix selection" checks any length.
+- Two gestures, two verbs: **typing gets corrected, selecting gets translated.**
+  No length heuristics, no guessing which one you meant — a word, a sentence or
+  a paragraph, the selection translates (the service worker stops at 2 400
+  characters and says so).
+- The context menu adds the explicit paths: "Fix selection" checks text that is
+  not being typed into, "Translate selection" forces a translation.
 
 ## Copy
 
