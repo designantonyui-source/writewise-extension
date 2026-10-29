@@ -343,14 +343,15 @@
 
 /* ── footer ───────────────────────────────────────────────────────────── */
 
+/* No rule above the footer: the card already has one horizontal line's worth
+   of separation from the body, and a hairline through the quietest part of the
+   card was the last piece of furniture left in it. */
 .ww-foot {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--ww-border);
+  margin-top: 14px;
 }
 
 .ww-meta {

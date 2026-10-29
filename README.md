@@ -206,6 +206,12 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.6.1
+
+- The card's footer lost its hairline. Separation above it is a 14px gap; the
+  card is now one uninterrupted surface from its top edge to its bottom, with
+  the shadow as its only boundary.
+
 ## Differences from v2.6.0
 
 - The card's footer has one labelled action. Copy and Save are now glyph

@@ -51,9 +51,11 @@ with `corner-shape: squircle` — the continuous curve starts earlier and meets
 the edge without a tangent break, which is what the eye reads as "iOS" rather
 than "rounded rectangle". It is set through the `--ww-corner` token so an engine
 without `corner-shape` simply ignores the declaration and keeps the circular
-arc; every radius is chosen to read well both ways. Hairline borders stay only
-where they separate two surfaces of the same colour; the card lost its border
-and is defined by its shadow alone.
+arc; every radius is chosen to read well both ways. Inside the card there are no
+rules at all — not around it, not between its body and its footer; separation
+comes from spacing and from the shadow, and the hairlines that remain live in
+the popup and the vocabulary page, where they separate rows rather than parts
+of one object.
 
 ## Type
 
@@ -83,7 +85,9 @@ instructions.
   24px. Head to body is 12px; the body's answer type is 15px/1.45, and the
   source label sits 4px under it at 11px, because it is a caption on the
   answer, not a second paragraph.
-- **Card footer** — one labelled action per state (Apply, Replace, Undo, Add
+- **Card footer** — no rule above it: the 14px gap does the separating, and a
+  hairline through the quietest part of the card was the last piece of
+  furniture in it. One labelled action per state (Apply, Replace, Undo, Add
   key). Secondary verbs are glyph buttons: copy and save-word sit on the same
   30px line as a 30px disc holding a 13px glyph, because the word "Copy" is not
   the thing the action produces and a light pill with dark text in it was the
