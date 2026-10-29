@@ -115,6 +115,8 @@
     ));
   }
 
+  /* Only the live "checking" clock uses this now; results no longer report
+     how long the model took. */
   function formatMs(ms) {
     const n = num(ms);
     if (n === null || n < 0) return '';
@@ -391,11 +393,9 @@
       const diff = Array.isArray(data.diff) ? data.diff : null;
       const reported = num(data.changes);
       const changes = reported !== null ? Math.max(0, Math.round(reported)) : countDiff(diff);
-      const ms = formatMs(data.ms);
       head = headHTML({ title: 'Suggested fix' });
       body = '<div class="ww-body"><div class="ww-diff" data-ww-diff></div></div>';
-      foot = footHTML(ms ? changesLabel(changes) + ' · ' + ms : changesLabel(changes),
-        btnHTML('apply', 'Apply', true));
+      foot = footHTML(changesLabel(changes), btnHTML('apply', 'Apply', true));
     } else if (state === 'clean') {
       head = headHTML({ title: 'Looks good' });
       body = '<div class="ww-body"><p class="ww-sub">No changes needed.</p></div>';
@@ -408,12 +408,10 @@
       const translation = str(data.translation);
       const source = str(data.sourceLanguage);
       const target = str(data.targetLabel);
-      const ms = formatMs(data.ms);
       const metaBits = [];
       if (data.saved) metaBits.push('Saved');
       if (source && target) metaBits.push(source + ' → ' + target);
       else if (target) metaBits.push(target);
-      if (ms) metaBits.push(ms);
       const copyLabel = data.copied ? 'Copied' : 'Copy';
       const copyIcon = iconBtnHTML('copy', copyLabel, copyLabel,
         data.copied ? CHECK_SVG : COPY_SVG, data.copied ? 'ww-copied' : '');

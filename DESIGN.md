@@ -130,7 +130,8 @@ the entrance, the spinner rotation and the pulse.
 - Say what happened and what to do: “Key rejected — check it in settings.”
 - No exclamation marks, no “Oops!”, no “AI magic”.
 - The card speaks in the product's voice, not the model's.
-- Numbers are specific: “8 changes · 1.1 s”, not “some changes”.
+- Numbers are specific: “8 changes”, not “some changes”. Latency is not a
+  number the user asked for — the card reports what it found, not how fast.
 
 ## Accessibility floor
 
