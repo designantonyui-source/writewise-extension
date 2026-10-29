@@ -82,10 +82,10 @@ instructions.
   The header is a 20px row: 16px mark, title, then a 24px close button pulled
   in 4px vertically and 6px horizontally so the glyph aligns with the padding
   while the hit area stays 24px. Head to body is 12px. The body is one
-  dictionary row — `original → translation`, original 13px muted and capped at
-  18ch with an ellipsis, translation 15px/1.45, each followed by its own 20px
-  speaker — and the language pair lives in the footer meta (`English → Polski
-  (pl) · 16 ms`). Stacking the original, the translation and a "from English"
+  dictionary row — `original → translation`, both words 15px/1.45 on the same
+  baseline (the original muted at 400, the answer at 500, capped at 18ch with an
+  ellipsis), each followed by its own 20px speaker centred on the line — and the
+  language pair lives in the footer meta (`English → Polski (pl) · 16 ms`). Stacking the original, the translation and a "from English"
   caption cost three lines and ~45px of height for three short strings; the row
   says the same thing in one, and the speakers stay attached to their word.
 - **Card footer** — no rule above it: the 14px gap does the separating, and a

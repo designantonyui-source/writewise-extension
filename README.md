@@ -208,8 +208,9 @@ per-site pause, word-limit guard, shortcut and selection paths.
 
 ## Differences from v2.8.0
 
-- The translation card is one dictionary row again: `sentance → zdanie`, the
-  original muted at 13px, the translation at 15px, each with its own speaker.
+- The translation card is one dictionary row again: `sentance → zdanie`, both
+  words 15px on one baseline (original muted at 400, answer at 500), each with
+  its own speaker centred on the line.
   The "from English" line is gone — the language pair moved into the footer
   meta as `English → Polski (pl) · 16 ms` — which takes the card from three
   text lines to one and makes it ~45px shorter. The original is clipped at

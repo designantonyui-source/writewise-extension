@@ -196,15 +196,17 @@
 .ww-pair {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 2px 6px;
+  align-items: baseline;
+  gap: 2px 7px;
   min-width: 0;
 }
 
+/* one type size for both words, so the two baselines and the two speakers sit
+   on the same optical line; the answer is carried by colour and weight */
 .ww-unit {
   display: inline-flex;
-  align-items: flex-start;
-  gap: 3px;
+  align-items: baseline;
+  gap: 4px;
   min-width: 0;
   max-width: 100%;
 }
@@ -215,17 +217,19 @@
 
 .ww-arrow {
   flex: 0 0 auto;
+  align-self: center;
   color: var(--ww-tx-3);
   font-size: var(--ww-fs-12);
-  line-height: 1.45;
+  line-height: 1;
 }
 
 .ww-og {
   margin: 0;
   max-width: 18ch;
   color: var(--ww-tx-2);
-  font-size: var(--ww-fs-13);
-  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.45;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -233,6 +237,7 @@
 
 .ww-say {
   flex: 0 0 auto;
+  align-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -543,6 +548,7 @@
 .ww-trans {
   margin: 0;
   font-size: 15px;
+  font-weight: 500;
   line-height: 1.45;
   color: var(--ww-tx);
   white-space: pre-wrap;
