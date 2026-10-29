@@ -12,8 +12,9 @@ remains an archive; this build includes the changes through source version
 
 - Improve spelling, grammar, clarity and tone while typing, with a reviewable
   diff before applying a correction.
-- Translate selected text with DeepSeek or OpenAI, and save words with context
-  for local spaced-repetition review.
+- Check selected writing in editable fields; translate selected page text with
+  DeepSeek or OpenAI. Explicit translation remains available inside editors.
+- Save translated words with context for local spaced-repetition review.
 - Use the in-page card, settings and saved-word page in light or dark theme.
 - Keep API keys in local extension storage; no WriteWise account or server.
 

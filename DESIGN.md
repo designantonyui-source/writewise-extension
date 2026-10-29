@@ -134,12 +134,12 @@ the entrance, the spinner rotation and the pulse.
 
 ## Selection
 
-- Two gestures, two verbs: **typing gets corrected, selecting gets translated.**
-  No length heuristics, no guessing which one you meant — a word, a sentence or
-  a paragraph, the selection translates (the service worker stops at 2 400
-  characters and says so).
-- The context menu adds the explicit paths: "Fix selection" checks text that is
-  not being typed into, "Translate selection" forces a translation.
+- Context decides the default: **writing in an editable field gets corrected;
+  selecting page content gets translated.** Selecting text in an editor checks
+  that fragment when automatic checks are on. Selecting page text translates
+  it (the service worker stops at 2 400 characters and says so).
+- The context menu keeps explicit paths: "Fix selection" checks the selected
+  writing, and "Translate selection" also works inside an editable field.
 
 ## Copy
 

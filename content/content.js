@@ -43,7 +43,7 @@
   let appliedBefore = null;
 
   // translation
-  let translateTimer = 0;
+  let selectionTimer = 0;
   let translateToken = 0;
   let lastTranslate = { text: '', at: 0 };
   let lastTranslation = null; // { translation, sourceLanguage, targetLabel, ms, canReplace, anchor, range }
@@ -413,8 +413,11 @@
     pendingSelection = null;
     lastResult = null;
     ++runId;
+    ++translateToken;
+    lastTranslation = null;
     cancelInflight();
     clearTimeout(debounceTimer);
+    clearTimeout(selectionTimer);
     clearTimeout(autoHideTimer);
     UI.hide();
 
@@ -456,10 +459,9 @@
 
   // ── translation ──────────────────────────────────────────────────────────
 
-  /* Two verbs, two gestures: typing gets corrected, selecting gets translated.
-     A word, a sentence, a paragraph — if you selected it, you asked for it in
-     another language. The service worker owns the hard ceiling and answers
-     TOO_LONG with a card, so there is exactly one limit in the product. */
+  /* Editable selections are writing: check them. Selections in page content
+     translate. The explicit Translate selection command still works in an
+     editor. The service worker owns the translation length ceiling. */
   const AUTO_TRANSLATE_CHARS = 2400;
 
   function closestEditable(node) {
@@ -641,6 +643,11 @@
     if (text === lastTranslate.text && now - lastTranslate.at < 3000) return;
     lastTranslate = { text, at: now };
 
+    ++runId;
+    clearTimeout(debounceTimer);
+    cancelInflight();
+    lastResult = null;
+    pendingSelection = null;
     const token = ++translateToken;
     const anchor = anchorFor(context);
     translateField = context.field ? { el: context.field, start: context.start, end: context.end } : null;
@@ -804,20 +811,41 @@
     UI.hide();
   }
 
+  const selectedEditable = (context) => {
+    const el = context?.field || context?.editable;
+    return isEligible(el) ? el : null;
+  };
+
   function onSelectionMouseUp(e) {
-    if (!settings || !settings.translate.enabled || !settings.translate.onSelect) return;
+    if (!settings || !settings.enabled || isPausedSite()) return;
     if (e.button !== 0 || isOurs(e.target)) return;
-    clearTimeout(translateTimer);
-    translateTimer = setTimeout(() => {
-      void translateSelection({ force: false });
-    }, 260);
+    const context = selectionContext();
+    if (!context) return;
+    clearTimeout(selectionTimer);
+    const editable = selectedEditable(context);
+    if (editable) {
+      if (e.target !== editable && !editable.contains(e.target)) return;
+      if (!settings.autoCheck || context.text.trim().length < MIN_SELECTION_CHARS) return;
+      selectionTimer = setTimeout(() => void fixSelection(context), 260);
+    } else if (settings.translate.enabled && settings.translate.onSelect) {
+      selectionTimer = setTimeout(() => void translateSelection({ force: false }), 260);
+    }
   }
 
   function onSelectionDblClick(e) {
-    if (!settings || !settings.translate.enabled) return;
-    if (isOurs(e.target)) return;
-    clearTimeout(translateTimer);
-    void translateSelection({ force: false });
+    if (!settings || !settings.enabled || isPausedSite() || isOurs(e.target)) return;
+    const context = selectionContext();
+    if (!context) return;
+    clearTimeout(selectionTimer);
+    const editable = selectedEditable(context);
+    if (editable) {
+      if (e.target !== editable && !editable.contains(e.target)) return;
+      if (settings.autoCheck && context.text.trim().length >= MIN_SELECTION_CHARS) {
+        void fixSelection(context);
+      }
+    } else if (settings.translate.enabled) {
+      void translateSelection({ force: false });
+    }
   }
 
   // ── actions ──────────────────────────────────────────────────────────────
@@ -906,10 +934,10 @@
   }
 
   /** "Fix selection" — checks just the selected text when there is one. */
-  async function fixSelection() {
+  async function fixSelection(context = selectionContext()) {
     if (!settings) return;
     if (!settings.enabled || isPausedSite()) return;
-    const el = pickField();
+    const el = selectedEditable(context) || pickField();
     if (!el) return;
 
     settings.hasKey = !!(await readSettings()).hasKey;
@@ -923,18 +951,25 @@
     current = { el, adapter };
     pendingSelection = null;
     lastResult = null;
+    lastTranslation = null;
+    ++translateToken;
+    clearTimeout(selectionTimer);
 
     let text = '';
     if (adapter.kind === 'value') {
-      const start = el.selectionStart ?? 0;
-      const end = el.selectionEnd ?? 0;
+      const start = context?.field === el ? context.start : el.selectionStart ?? 0;
+      const end = context?.field === el ? context.end : el.selectionEnd ?? 0;
       if (end - start >= MIN_SELECTION_CHARS) {
         text = el.value.slice(start, end);
         pendingSelection = { kind: 'value', start, end };
       }
     } else {
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount && el.contains(sel.anchorNode) && sel.toString().trim().length >= MIN_SELECTION_CHARS) {
+      const range = context?.editable === el ? context.range : null;
+      const sel = range ? null : window.getSelection();
+      if (range && context.text.trim().length >= MIN_SELECTION_CHARS) {
+        text = context.text;
+        pendingSelection = { kind: 'range', range };
+      } else if (sel && sel.rangeCount && el.contains(sel.anchorNode) && sel.toString().trim().length >= MIN_SELECTION_CHARS) {
         text = sel.toString();
         pendingSelection = { kind: 'range', range: sel.getRangeAt(0).cloneRange() };
       }
