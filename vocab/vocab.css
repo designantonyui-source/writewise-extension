@@ -481,8 +481,17 @@ button {
   cursor: pointer;
 }
 
-.wr-word {
+/* The speaker sits with the word it reads, not with the translation. */
+.wr-wordline {
   grid-area: word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wr-word {
+  flex: 0 1 auto;
   min-width: 0;
   font-size: var(--ww-fs-15);
   font-weight: 600;

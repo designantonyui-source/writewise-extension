@@ -4,6 +4,16 @@ All notable changes to WriteWise. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] — 2026-10-29
+
+### Removed
+- Playback of the translation. The card's dictionary row keeps one speaker, on
+  the original; the translation line is text to copy or to replace. The
+  saved-words list and the review card follow the same rule: the word is
+  spoken, the translation is not.
+- Settings → Pronunciation no longer predicts a voice for the target language,
+  because nothing reads that language any more.
+
 ## [2.10.2] — 2026-10-29
 
 ### Fixed

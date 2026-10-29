@@ -451,9 +451,6 @@
             : '') +
           '<span class="ww-unit ww-unit-trans">' +
             '<span class="ww-trans" data-ww-trans>' + esc(translation) + '</span>' +
-            (spoken && translation
-              ? sayHTML('target', 'Play translation pronunciation', 'Play the translation')
-              : '') +
           '</span>' +
         '</div>' +
         '</div>';
@@ -635,19 +632,14 @@
     return !!(api && api.available());
   }
 
-  /** Speak the line that owns the button — the original or the translation. */
+  /* The card pronounces the original only: a translation is read, not heard. */
   function speakCurrent(btn) {
     const api = speech();
     if (!api || !btn) return;
-    const voice = btn.getAttribute('data-ww-voice') === 'source' ? 'source' : 'target';
-    const text = voice === 'source' ? str(curData.source) : str(curData.translation);
+    const text = str(curData.source);
     if (!text) return;
-    const lang = voice === 'source'
-      ? (str(curData.sourceCode) || str(curData.sourceLanguage) || 'en')
-      : (str(curData.targetCode) || str(curData.targetLabel) || 'en');
-    const label = voice === 'source'
-      ? (plainLabel(str(curData.sourceLanguage)) || 'this language')
-      : (plainLabel(str(curData.targetLabel)) || 'this language');
+    const lang = str(curData.sourceCode) || str(curData.sourceLanguage) || 'en';
+    const label = plainLabel(str(curData.sourceLanguage)) || 'this language';
     btn.classList.add('ww-playing');
     btn.setAttribute('aria-pressed', 'true');
     clearVoiceNote();
@@ -655,25 +647,22 @@
       btn.classList.remove('ww-playing');
       btn.setAttribute('aria-pressed', 'false');
     };
-    const spoke = api.speak(text, { lang: lang, onend: done, onmissing: () => showVoiceNote(label, voice) });
+    const spoke = api.speak(text, { lang: lang, onend: done, onmissing: () => showVoiceNote(label) });
     if (!spoke) done();
   }
 
-  /* No local voice for the language on this line: say so once and offer the
-     one thing that fixes it — the neural voice — instead of letting the OS read
-     Ukrainian with an English voice. */
-  let voiceGap = 'target';
-
+  /* No voice for the original's language: say so once and offer the one thing
+     that fixes it — the neural voice — instead of letting the OS read Ukrainian
+     with an English voice. */
   function clearVoiceNote() {
     const note = card && card.querySelector('[data-ww-note]');
     if (note && note.parentNode) note.parentNode.removeChild(note);
   }
 
-  function showVoiceNote(label, voice) {
+  function showVoiceNote(label) {
     if (!card) return;
     const body = card.querySelector('.ww-body');
     if (!body) return;
-    voiceGap = voice === 'source' ? 'source' : 'target';
     let note = card.querySelector('[data-ww-note]');
     if (!note) {
       note = document.createElement('div');
@@ -685,11 +674,10 @@
       '<button type="button" class="ww-note-btn" data-ww-action="neural">Use neural voice</button>';
   }
 
-  /** Re-run the speaker a line already carries — used after a voice is enabled. */
-  function replay(which) {
+  /** Re-run the card's speaker — used after the neural voice is switched on. */
+  function replay() {
     if (!card) return false;
-    const line = (which === 'source' || which === 'target') ? which : voiceGap;
-    const btn = card.querySelector('[data-ww-voice="' + line + '"]');
+    const btn = card.querySelector('[data-ww-voice="source"]');
     if (!btn) return false;
     speakCurrent(btn);
     return true;

@@ -75,8 +75,8 @@ on the card restores the original.
 
 - Target languages: **English, Polski, Українська, Русский**, chosen in the
   popup. The language pair is shown in the card footer.
-- Each side of the card has its own speaker: the original plays in the source
-  language, the translation in the target — so a word can be heard in both.
+- The card speaks the original, in the original's language. The translation is
+  read, never spoken: it is there to be copied or written into the field.
 - **Copy** takes the translation; **Replace** writes it into the field when the
   text came from something you were editing.
 - Selections up to 2 400 characters are accepted; beyond that the card says so

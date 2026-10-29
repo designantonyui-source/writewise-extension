@@ -33,7 +33,7 @@ const ELEMENT_IDS = [
   'fixSpelling', 'fixGrammar', 'fixClarity', 'fixTone', 'toneRow',
   'translateTarget', 'translateToggle', 'translateOnSelect',
   'siteHost', 'pauseSiteBtn',
-  'minChars', 'maxWords', 'premiumVoice', 'voiceSelect', 'voiceHint', 'voiceStatus',
+  'minChars', 'maxWords', 'premiumVoice', 'voiceSelect', 'voiceHint',
   'statFixes', 'statCost', 'vocabLink', 'vocabCount',
 ];
 
@@ -69,7 +69,6 @@ async function loadSettings() {
   }
   fillLanguages();
   renderAll();
-  watchVoices();
   void syncModels(state.settings.provider);
   loadVocabCount();
   loadSite();
@@ -212,52 +211,6 @@ function renderSpeech() {
     : sp.premium === true
       ? 'English and languages without a system voice · about 1¢ a minute.'
       : 'Use your OpenAI key for a natural voice. The OS voice is free and offline.';
-  renderVoiceStatus();
-}
-
-/* getVoices() is usually empty on the first tick of a page; the list arrives
-   later with an event. The status line is only useful when it is right. */
-function watchVoices() {
-  renderVoiceStatus();
-  try {
-    window.speechSynthesis?.addEventListener('voiceschanged', renderVoiceStatus);
-  } catch {
-    /* no engine, no event — the line stays as computed */
-  }
-}
-
-/* What this computer can actually pronounce for the chosen target language.
-   The card used to answer that question by reading Ukrainian with an English
-   voice; saying it here is cheaper than listening to it. */
-function renderVoiceStatus() {
-  const target = resolveTarget(state.settings);
-  const lang = LANGUAGES.find((l) => l.code === target);
-  const label = lang ? lang.label : 'The target language';
-  const hasOpenAiKey = !!String(state.settings.keys?.openai || '').trim();
-  const premium = state.settings.speech?.premium === true && hasOpenAiKey;
-  const api = window.WriteWiseSpeech;
-  const english = target === 'en';
-  const native = api && typeof api.pick === 'function' ? api.pick(target) : null;
-  const usesNeural = premium && (english || !native);
-  let text = '';
-  let warn = false;
-
-  if (usesNeural) {
-    text = english
-      ? 'English — the neural voice reads it.'
-      : `${label} — no system voice here, so the neural voice reads it.`;
-  } else if (native) {
-    text = `${label} — ${native.name} on this computer.`;
-  } else {
-    text = hasOpenAiKey
-      ? `${label} has no system voice here — turn on Neural voice to hear it.`
-      : `${label} has no system voice here — the neural voice needs an OpenAI key.`;
-    warn = true;
-  }
-
-  el.voiceStatus.hidden = !text;
-  el.voiceStatus.textContent = text;
-  el.voiceStatus.classList.toggle('is-warn', warn);
 }
 
 function renderTranslate() {
@@ -393,10 +346,7 @@ function afterSave(patch) {
   if ('provider' in patch) renderProvider();
   if ('keys' in patch) renderKeyBox();
   if ('fix' in patch || 'tonePreset' in patch) renderTone();
-  if ('translate' in patch) {
-    renderTranslate();
-    renderVoiceStatus();
-  }
+  if ('translate' in patch) renderTranslate();
   if ('speech' in patch || 'keys' in patch) renderSpeech();
   if ('pausedSites' in patch) renderSite();
   if ('delayMs' in patch) renderDelay();

@@ -84,11 +84,13 @@ instructions.
   while the hit area stays 24px. Head to body is 12px. The body is one
   dictionary row — `original → translation`, both words 15px/1.45 on the same
   baseline (the original muted at 400, the answer at 500, capped at 18ch with an
-  ellipsis), each followed by its own 20px speaker centred on the line — and the
-  language pair lives in the footer meta (`English → Polski`): the card reads in
-  names, the model prompt keeps the `(pl)` code, speech uses the code. Stacking the original, the translation and a "from English"
-  caption cost three lines and ~45px of height for three short strings; the row
-  says the same thing in one, and the speakers stay attached to their word.
+  ellipsis), the original followed by its 20px speaker centred on the line — and
+  the language pair lives in the footer meta (`English → Polski`): the card reads
+  in names, the model prompt keeps the `(pl)` code, speech uses the code.
+  Stacking the original, the translation and a "from English" caption cost three
+  lines and ~45px of height for three short strings; the row says the same thing
+  in one, and the speaker stays attached to the word it reads. Only the original
+  is spoken: a translation is text to copy or to write, not audio to hear.
 - **Card footer** — no rule above it: the 14px gap does the separating, and a
   hairline through the quietest part of the card was the last piece of
   furniture in it. One labelled action per state (Apply, Replace, Undo, Add
@@ -116,12 +118,11 @@ instructions.
   neural voice — told which language it is reading — covers English and the
   languages the machine cannot speak. A language with no voice anywhere is
   reported in the card rather than read with the wrong one, which is the only
-  case where the button stays silent. It is a glyph button, not a labelled button: the word it belongs to
-  is the label, and `aria-label` spells the pair out for screen readers. It sits
-  on the line it reads: the card shows the original above `from English`, each
-  line with its own speaker, so the English word and the translation are
-  separately playable and the button never has to guess which one you meant.
-  In the vocabulary list it leads the row's side cluster, before the due pill.
+  case where the button stays silent. It is a glyph button, not a labelled
+  button: the word it belongs to is the label, and `aria-label` spells the word
+  out for screen readers. It sits on the line it reads — in the card, after the
+  original; in the vocabulary list, beside the saved word — so it never has to
+  guess which of the two strings you meant, because only one of them is spoken.
 
 ## Motion
 
@@ -178,9 +179,9 @@ the mark and wordmark.
   actions and shouldn't compete with Review.
 - **Review** is focus mode: centered 560px column, progress line, one card,
   word at 32px, reveal, then grade buttons with `kbd` chips (1/2/3). The card
-  keeps a fixed height so revealing does not jump the layout. Both sides of a
-  card carry a speaker in the target/source language, and `P` plays the visible
-  one — hearing a word is part of learning it, not a separate screen.
+  keeps a fixed height so revealing does not jump the layout. The word carries a
+  speaker in its own language and `P` plays it — hearing the word is part of
+  learning it, not a separate screen. The translation is not spoken.
 - **Empty states** are copy, not illustration: what happened, and the one action
   that fixes it.
 - Destructive actions confirm inline (`Clear all? Cancel / Clear`), never with

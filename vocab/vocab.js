@@ -211,11 +211,13 @@ function rowHtml(w) {
 
   return `<article class="word-row" data-id="${esc(w.id)}" tabindex="0" aria-expanded="${open}">
   <div class="wr-top">
-    <div class="wr-word" title="${esc(w.word)}">${esc(w.word)}</div>
+    <div class="wr-wordline">
+      <div class="wr-word" title="${esc(w.word)}">${esc(w.word)}</div>
+      ${speakButton(w)}
+    </div>
     <div class="wr-context" title="${esc(context)}">${context ? esc(context) : 'No context'}</div>
     <div class="wr-trans-line">
       <div class="wr-translation" title="${esc(w.translation)}">${esc(w.translation)}</div>
-      ${speakButton(w)}
     </div>
     <div class="wr-meta">
       ${pair ? `<span class="wr-pair">${esc(pair)}</span>` : ''}
@@ -241,11 +243,11 @@ function rowHtml(w) {
 }
 
 function speakButton(w) {
-  if (!canSpeak() || !w.translation) return '';
-  const lang = entryLang(w, 'target') || entryLang(w, 'source');
+  if (!canSpeak() || !w.word) return '';
+  const lang = entryLang(w, 'source') || entryLang(w, 'target');
   return `<button type="button" class="icon-btn speak-btn" data-action="speak"
-    data-text="${esc(w.translation)}" data-lang="${esc(lang)}"
-    aria-label="Play pronunciation of ${esc(w.translation)}" title="Play pronunciation">
+    data-text="${esc(w.word)}" data-lang="${esc(lang)}"
+    aria-label="Play pronunciation of ${esc(w.word)}" title="Play pronunciation">
     ${SPEAK_SVG}
   </button>`;
 }
@@ -392,7 +394,6 @@ function renderReview() {
   el.reviewWord.textContent = w.word;
 
   const wordLang = entryLang(w, 'source');
-  const targetLang = entryLang(w, 'target');
   el.wordSpeak.hidden = !(canSpeak() && w.word && wordLang);
   el.wordSpeak.dataset.text = w.word;
   el.wordSpeak.dataset.lang = wordLang;
@@ -409,10 +410,6 @@ function renderReview() {
   el.revealWrap.hidden = true;
   el.translationWrap.hidden = false;
   el.translationText.textContent = w.translation;
-  el.translationSpeak.hidden = !(canSpeak() && w.translation && targetLang);
-  el.translationSpeak.dataset.text = w.translation;
-  el.translationSpeak.dataset.lang = targetLang;
-  el.translationSpeak.setAttribute('aria-label', `Play pronunciation of ${w.translation}`);
   el.reviewContext.textContent = w.context || '';
   el.reviewContext.hidden = !w.context;
   el.grades.hidden = false;
@@ -606,10 +603,6 @@ function bind() {
     const w = currentCard();
     if (w) play(el.wordSpeak, w.word, entryLang(w, 'source'));
   });
-  el.translationSpeak.addEventListener('click', () => {
-    const w = currentCard();
-    if (w) play(el.translationSpeak, w.translation, entryLang(w, 'target'));
-  });
   el.revealBtn.addEventListener('click', reveal);
   el.reviewExit.addEventListener('click', exitReview);
   el.doneBack.addEventListener('click', exitReview);
@@ -652,8 +645,7 @@ function bind() {
       const w = currentCard();
       if (!w) return;
       e.preventDefault();
-      if (state.revealed) play(el.translationSpeak, w.translation, entryLang(w, 'target'));
-      else play(el.wordSpeak, w.word, entryLang(w, 'source'));
+      play(el.wordSpeak, w.word, entryLang(w, 'source'));
       return;
     }
 
@@ -706,7 +698,7 @@ function cache() {
     'foot', 'footStats', 'clearBtn', 'clearConfirm', 'clearCancel', 'clearYes',
     'listView', 'reviewView', 'reviewCount', 'progress', 'progressFill',
     'reviewCard', 'reviewHint', 'reviewWord', 'wordSpeak', 'revealWrap', 'revealBtn',
-    'translationWrap', 'translationText', 'translationSpeak', 'reviewContext', 'grades',
+    'translationWrap', 'translationText', 'reviewContext', 'grades',
     'reviewDone', 'doneStats', 'doneBack', 'reviewExit', 'live',
   ];
   for (const id of ids) el[id] = $(id);
