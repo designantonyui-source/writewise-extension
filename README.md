@@ -1,15 +1,40 @@
 # WriteWise
 
-**A quiet proofreader for any text field on the web.** It waits for you to stop
-typing, shows exactly what it would change, and applies it in one click. Select
-text instead and it translates. Everything else — a saved-word vault, spaced
-repetition, pronunciation — stays on your device.
+**Improve your writing without leaving the text field.** WriteWise checks
+spelling, grammar, clarity and tone after you pause. It highlights each change
+before you apply it. Select text to translate it, then save useful words to
+review later.
 
 MV3 · no build step · DeepSeek or OpenAI · MIT
 
-![The in-page card](docs/card-dark.png)
-
 ---
+
+## See it in action
+
+### Improve a sentence
+
+WriteWise waits until you pause, then shows the suggested edits in the page.
+You can inspect the diff and apply the result with one click, or dismiss it and
+keep writing. The in-page card, settings and saved-word page support light and
+dark themes.
+
+![WriteWise correction card in light and dark themes, without the surrounding webpage](docs/correction-themes.svg)
+
+### Translate a selection
+
+Select a word or sentence to see the translation beside your work. Copy it,
+replace selected text in an editable field, or save a word for later.
+
+![Translation card with copy, save and replace actions](docs/card-translate.png)
+
+### Keep and review useful words
+
+Saved words keep their translation and the sentence where you found them.
+Search the list, export it, or review words due today.
+
+![Saved words list with context, review and export controls](docs/vocab-light.png)
+
+![Spaced-repetition review card with Again, Good and Easy actions](docs/vocab-review.png)
 
 ## What it does
 
@@ -25,15 +50,12 @@ MV3 · no build step · DeepSeek or OpenAI · MIT
 - **Says words out loud.** The system voice by default; an optional neural
   voice through your OpenAI key when the OS voice isn't good enough.
 
-| | |
-|---|---|
-| ![Popup](docs/popup-dark.png) | ![Saved words](docs/vocab-dark.png) |
-
 ## Install
 
 WriteWise is not on the Chrome Web Store. It loads as an unpacked extension:
 
-1. Download `writewise-2.10.2.zip` from [Releases](../../releases) and unzip it.
+1. Download the ZIP from the [latest published release](../../releases/latest)
+   and unzip it.
 2. Open `chrome://extensions` and turn on **Developer mode**.
 3. **Load unpacked** → choose the unzipped folder.
 4. Pin the ✳ icon to the toolbar.
