@@ -53,6 +53,20 @@ export function codeForLanguageName(name) {
   return partial ? NAME_TO_CODE[partial] : '';
 }
 
+/** English name a text-to-speech model understands: "Ukrainian", not
+ *  "Українська" — the neural voices are steered in instructions, in English. */
+const ENGLISH_NAMES = {
+  en: 'English', pl: 'Polish', uk: 'Ukrainian', ru: 'Russian', de: 'German',
+  fr: 'French', es: 'Spanish', it: 'Italian', pt: 'Portuguese', nl: 'Dutch',
+  sv: 'Swedish', cs: 'Czech', tr: 'Turkish', ja: 'Japanese', zh: 'Chinese',
+  ar: 'Arabic', hi: 'Hindi',
+};
+
+export function languageEnglishName(code) {
+  const key = String(code || '').toLowerCase().replace(/_/g, '-').split('-')[0];
+  return ENGLISH_NAMES[key] || '';
+}
+
 /** Code from a stored label: "Polski (pl)" or "English". */
 export function codeFromLabel(label) {
   const match = String(label || '').match(/\(([a-z]{2})\)/i);

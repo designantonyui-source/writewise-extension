@@ -432,6 +432,23 @@ button {
   display: none;
 }
 
+/* Spoken-word gap: this machine has no voice for that language, so the row's
+   speaker stays silent and says why instead of reading it in another voice. */
+.speak-notice {
+  margin: 14px 0 0;
+  padding: 9px 12px;
+  border-radius: var(--ww-r-sm);
+  corner-shape: var(--ww-corner);
+  background: var(--ww-accent-soft);
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-12);
+  line-height: 1.4;
+}
+
+.speak-notice[hidden] {
+  display: none;
+}
+
 .word-row {
   border-bottom: 1px solid var(--ww-border);
   transition: background-color var(--ww-dur) var(--ww-ease);

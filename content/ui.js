@@ -645,13 +645,54 @@
     const lang = voice === 'source'
       ? (str(curData.sourceCode) || str(curData.sourceLanguage) || 'en')
       : (str(curData.targetCode) || str(curData.targetLabel) || 'en');
+    const label = voice === 'source'
+      ? (plainLabel(str(curData.sourceLanguage)) || 'this language')
+      : (plainLabel(str(curData.targetLabel)) || 'this language');
     btn.classList.add('ww-playing');
     btn.setAttribute('aria-pressed', 'true');
+    clearVoiceNote();
     const done = () => {
       btn.classList.remove('ww-playing');
       btn.setAttribute('aria-pressed', 'false');
     };
-    if (!api.speak(text, { lang: lang, onend: done })) done();
+    const spoke = api.speak(text, { lang: lang, onend: done, onmissing: () => showVoiceNote(label, voice) });
+    if (!spoke) done();
+  }
+
+  /* No local voice for the language on this line: say so once and offer the
+     one thing that fixes it — the neural voice — instead of letting the OS read
+     Ukrainian with an English voice. */
+  let voiceGap = 'target';
+
+  function clearVoiceNote() {
+    const note = card && card.querySelector('[data-ww-note]');
+    if (note && note.parentNode) note.parentNode.removeChild(note);
+  }
+
+  function showVoiceNote(label, voice) {
+    if (!card) return;
+    const body = card.querySelector('.ww-body');
+    if (!body) return;
+    voiceGap = voice === 'source' ? 'source' : 'target';
+    let note = card.querySelector('[data-ww-note]');
+    if (!note) {
+      note = document.createElement('div');
+      note.className = 'ww-note';
+      note.setAttribute('data-ww-note', '');
+      body.appendChild(note);
+    }
+    note.innerHTML = '<span class="ww-note-text">No voice for ' + esc(label) + ' on this computer.</span>' +
+      '<button type="button" class="ww-note-btn" data-ww-action="neural">Use neural voice</button>';
+  }
+
+  /** Re-run the speaker a line already carries — used after a voice is enabled. */
+  function replay(which) {
+    if (!card) return false;
+    const line = (which === 'source' || which === 'target') ? which : voiceGap;
+    const btn = card.querySelector('[data-ww-voice="' + line + '"]');
+    if (!btn) return false;
+    speakCurrent(btn);
+    return true;
   }
 
   function emit(action) {
@@ -813,5 +854,6 @@
     isVisible: isVisible,
     setTheme: setTheme,
     onAction: onAction,
+    replay: replay,
   };
 })();

@@ -20,7 +20,7 @@ import {
   toJson,
   INTERVALS,
 } from '../src/vocab.js';
-import { codeForLanguageName, codeFromLabel } from '../src/languages.js';
+import { codeForLanguageName, codeFromLabel, languageDisplayLabel } from '../src/languages.js';
 
 /* ── small helpers ───────────────────────────────────────────────────── */
 
@@ -70,6 +70,7 @@ const state = {
 };
 
 const el = {};
+let notices = [];
 
 const TRASH_SVG =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.8516 16.3743L19.5 6H4.5L5.14839 16.3743C5.315 19.0401 5.39831 20.373 6.26426 21.1865C7.13021 22 8.46571 22 11.1367 22H12.8633C15.5343 22 16.8698 22 17.7357 21.1865C18.6017 20.373 18.685 19.0401 18.8516 16.3743Z" vector-effect="non-scaling-stroke"/><path d="M15.5 6H21M15.5 6L15.3721 4.97683C15.1595 3.2762 13.7139 2 12 2C10.2861 2 8.84047 3.2762 8.6279 4.97683L8.5 6M15.5 6H8.5M3 6H8.5" vector-effect="non-scaling-stroke"/><path d="M9.5 11V17M14.5 11V17" vector-effect="non-scaling-stroke"/></svg>';
@@ -94,6 +95,7 @@ const entryLang = (w, which) => {
 function play(btn, text, lang, done) {
   const api = speech();
   if (!api || !btn || !text) return;
+  hideNotice();
   btn.classList.add('is-playing');
   btn.setAttribute('aria-pressed', 'true');
   const reset = () => {
@@ -101,7 +103,31 @@ function play(btn, text, lang, done) {
     btn.setAttribute('aria-pressed', 'false');
     if (typeof done === 'function') done();
   };
-  if (!api.speak(text, { lang: lang || 'en', onend: reset })) reset();
+  if (!api.speak(text, { lang: lang || 'en', onend: reset, onmissing: showNotice })) reset();
+}
+
+/* The machine has no voice for this language. Speaking it with another
+   language's voice is what this notice exists to replace. */
+let noticeTimer = 0;
+
+function showNotice(locale) {
+  if (!notices.length) return;
+  const code = String(locale || '').split('-')[0].toLowerCase();
+  const name = languageDisplayLabel(code) || 'this language';
+  const message =
+    `No voice for ${name} on this computer. Turn on the neural voice in settings to hear it.`;
+  for (const note of notices) {
+    note.textContent = message;
+    note.hidden = false;
+  }
+  announce(message);
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(hideNotice, 6000);
+}
+
+function hideNotice() {
+  clearTimeout(noticeTimer);
+  for (const note of notices) note.hidden = true;
 }
 
 function stopSpeech() {
@@ -684,6 +710,7 @@ function cache() {
     'reviewDone', 'doneStats', 'doneBack', 'reviewExit', 'live',
   ];
   for (const id of ids) el[id] = $(id);
+  notices = [...document.querySelectorAll('.speak-notice')];
 }
 
 async function boot() {

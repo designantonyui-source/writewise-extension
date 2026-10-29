@@ -53,6 +53,9 @@ function makeWindow({ voices = [], strictThrow = false } = {}) {
   ok('explicit locale is kept', api.normalizeLang('en-GB') === 'en-GB', api.normalizeLang('en-GB'));
   ok('underscores are normalised', api.normalizeLang('pt_BR') === 'pt-BR', api.normalizeLang('pt_BR'));
   ok('empty falls back to en-US', api.normalizeLang('') === 'en-US', api.normalizeLang(''));
+  ok('a language name becomes its locale', api.normalizeLang('\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430') === 'uk-UA', api.normalizeLang('\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430'));
+  ok('a name with a code in brackets still resolves', api.normalizeLang('Polski (pl)') === 'pl-PL', api.normalizeLang('Polski (pl)'));
+  ok('an unknown name never reaches the engine raw', api.normalizeLang('Klingon') === 'en-US', api.normalizeLang('Klingon'));
 }
 
 // ── voice selection ────────────────────────────────────────────────────────
@@ -70,6 +73,9 @@ function makeWindow({ voices = [], strictThrow = false } = {}) {
   const en = api.pick('en');
   ok('prefers the local voice on a tie', en && en.name === 'English US local', en && en.name);
   ok('counts installed voices', api.voiceCount() === 4, api.voiceCount());
+  ok('hasVoice sees an installed language', api.hasVoice('pl') === true);
+  ok('hasVoice sees a missing language', api.hasVoice('uk') === false);
+  ok('English rides the platform default', api.hasVoice('en') === true);
 }
 
 // ── speak ──────────────────────────────────────────────────────────────────
@@ -118,7 +124,23 @@ function makeWindow({ voices = [], strictThrow = false } = {}) {
   ok('engine failure returns false', broken.api.speak('hi', { lang: 'en' }) === false);
 
   const { api: noVoiceApi, calls: c2 } = makeWindow({ voices: [] });
-  ok('speaks without a voice when none is installed', noVoiceApi.voiceCount() === 0 && noVoiceApi.speak('x', { lang: 'de' }) === true && c2.spoken.length === 1);
+  ok('English still speaks when nothing is listed', noVoiceApi.voiceCount() === 0 && noVoiceApi.speak('hi', { lang: 'en' }) === true && c2.spoken.length === 1);
+
+  /* The bug: no Ukrainian voice on the machine meant the platform's default
+     English voice read the text. Report the gap instead. */
+  const { api: gapApi, calls: c3 } = makeWindow({
+    voices: [{ lang: 'en-US', name: 'Samantha', default: true, localService: true }],
+  });
+  let missing = null;
+  let gapEnded = 0;
+  const gapSpeak = gapApi.speak('\u043f\u0440\u0438\u0432\u0456\u0442', {
+    lang: 'uk',
+    onmissing: (lang) => { missing = lang; },
+    onend: () => { gapEnded += 1; },
+  });
+  ok('a missing voice is reported, not faked', gapSpeak === false && missing === 'uk-UA', [gapSpeak, missing]);
+  ok('no utterance goes to the engine without a matching voice', c3.spoken.length === 0, c3.spoken.length);
+  ok('the report releases the playing state', gapEnded === 1, gapEnded);
 }
 
 // ── cancel ─────────────────────────────────────────────────────────────────
@@ -131,7 +153,7 @@ function makeWindow({ voices = [], strictThrow = false } = {}) {
 // ── remote engine (neural voice fetched by the service worker) ────────────
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function makeRemoteWindow(sender) {
+function makeRemoteWindow(sender, opts = {}) {
   const played = [];
   class FakeCtx {
     constructor() { this.state = 'running'; this.destination = {}; this.buffer = null; }
@@ -155,7 +177,7 @@ function makeRemoteWindow(sender) {
     SpeechSynthesisUtterance: Utterance,
     speechSynthesis: {
       speaking: false,
-      getVoices: () => [],
+      getVoices: () => opts.voices || [],
       speak(u) { win.__localSpoken.push(u); },
       cancel() {},
     },
@@ -173,27 +195,70 @@ function makeRemoteWindow(sender) {
   const { api, win, played } = makeRemoteWindow(async (text, lang) => {
     asked.push({ text, lang });
     return { audio: Buffer.from('fake-mp3').toString('base64'), mime: 'audio/mpeg' };
-  });
+  }, { voices: [{ lang: 'en-US', name: 'Samantha', default: true, localService: true }] });
   let ended = 0;
-  const okSpeak = api.speak('zdanie', { lang: 'pl', onend: () => { ended += 1; } });
+  const okSpeak = api.speak('zdanie', { lang: 'en', onend: () => { ended += 1; } });
   await sleep(40);
   ok('remote: speak returns true', okSpeak === true);
-  ok('remote: asks for the text and language', asked.length === 1 && asked[0].text === 'zdanie' && asked[0].lang === 'pl-PL', asked);
+  ok('remote: asks for the text and language', asked.length === 1 && asked[0].text === 'zdanie' && asked[0].lang === 'en-US', asked);
   ok('remote: plays through Web Audio', played.includes('start'), played);
   ok('remote: does not use the OS voice', win.__localSpoken.length === 0, win.__localSpoken.length);
   ok('remote: onend fires once', ended === 1, ended);
 }
 
+/* A neural voice trained on English reads Ukrainian with an English accent, so
+   a native voice on the machine wins; without one, neural is the only option. */
 {
-  const { api, win } = makeRemoteWindow(async () => null);
+  const asked = [];
+  const { api, win } = makeRemoteWindow(async (text, lang) => {
+    asked.push({ text, lang });
+    return { audio: Buffer.from('fake-mp3').toString('base64'), mime: 'audio/mpeg' };
+  }, { voices: [{ lang: 'uk-UA', name: 'Lesya', default: true, localService: true }] });
+  api.speak('\u043f\u0440\u0438\u0432\u0456\u0442', { lang: 'uk' });
+  await sleep(40);
+  ok('native voice beats the neural one', asked.length === 0 && win.__localSpoken.length === 1, { asked: asked.length, local: win.__localSpoken.length });
+  ok('the native voice is the right language', win.__localSpoken[0] && win.__localSpoken[0].lang === 'uk-UA', win.__localSpoken[0] && win.__localSpoken[0].lang);
+}
+
+{
+  const asked = [];
+  const { api, win } = makeRemoteWindow(async (text, lang) => {
+    asked.push({ text, lang });
+    return { audio: Buffer.from('fake-mp3').toString('base64'), mime: 'audio/mpeg' };
+  }, { voices: [{ lang: 'en-US', name: 'Samantha', default: true, localService: true }] });
+  api.speak('\u043f\u0440\u0438\u0432\u0456\u0442', { lang: 'uk' });
+  await sleep(40);
+  ok('neural covers a language with no native voice', asked.length === 1 && asked[0].lang === 'uk-UA', asked);
+}
+
+{
+  const { api, win } = makeRemoteWindow(async () => null, {
+    voices: [{ lang: 'en-US', name: 'Samantha', default: true, localService: true }],
+  });
   let ended = 0;
-  api.speak('zdanie', { lang: 'pl', onend: () => { ended += 1; } });
+  api.speak('zdanie', { lang: 'en', onend: () => { ended += 1; } });
   await sleep(30);
   ok('remote failure falls back to the OS voice', win.__localSpoken.length === 1, win.__localSpoken.length);
   const u = win.__localSpoken[0];
   ok('fallback still has a done callback', typeof u.onend === 'function' && ended === 0);
   u.onend();
   ok('fallback reports onend once', ended === 1, ended);
+}
+
+{
+  const { api, win } = makeRemoteWindow(async () => null, {
+    voices: [{ lang: 'en-US', name: 'Samantha', default: true, localService: true }],
+  });
+  let missing = null;
+  let ended = 0;
+  api.speak('\u043f\u0440\u0438\u0432\u0456\u0442', {
+    lang: 'uk',
+    onmissing: (lang) => { missing = lang; },
+    onend: () => { ended += 1; },
+  });
+  await sleep(40);
+  ok('remote failure with no local voice reports the gap', missing === 'uk-UA' && win.__localSpoken.length === 0, [missing, win.__localSpoken.length]);
+  ok('the reported gap still ends exactly once', ended === 1, ended);
 }
 
 {

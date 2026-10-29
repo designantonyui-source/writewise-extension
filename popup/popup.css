@@ -477,6 +477,24 @@ body.is-off .mark {
   display: none;
 }
 
+/* A quiet second line under a hint: says what this computer can pronounce for
+   the chosen language, so "no voice here" shows up before the card says it. */
+.hint-line {
+  display: block;
+  margin: 6px 0 0;
+  font-size: var(--ww-fs-11);
+  line-height: 1.4;
+  color: var(--ww-tx-2);
+}
+
+.hint-line.is-warn {
+  color: var(--ww-tx);
+}
+
+.hint-line[hidden] {
+  display: none;
+}
+
 /* ── model select ───────────────────────────────────────────── */
 
 .field {

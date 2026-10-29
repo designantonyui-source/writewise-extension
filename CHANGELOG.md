@@ -4,6 +4,34 @@ All notable changes to WriteWise. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.2] — 2026-10-29
+
+### Fixed
+- The translation's speaker could read another language with an English voice.
+  Two causes, both closed:
+  - with the neural voice on, Ukrainian and Polish went to the OpenAI voice
+    with no language instruction, so they came back with an English accent;
+  - with the neural voice off and no system voice for the language, the OS
+    borrowed its default (English) voice.
+- The neural voice is now told which language it is reading (`Read this
+  Ukrainian text aloud…`), and it stays on the cached path per voice+language.
+- For any language that is not English, an installed native voice wins over the
+  neural one: good accent beats good timbre. The neural voice is used for
+  English and for languages the machine cannot speak.
+- A language with no voice at all is reported instead of guessed — the card says
+  so and offers the neural voice.
+- Language names reaching the speech engine (`Українська`, `Polski (pl)`) are
+  mapped to real locales instead of being passed through as an invalid `lang`,
+  which was a third way to end up on the default voice.
+
+### Added
+- The card offers **Use neural voice** when the OS has no voice for the
+  language: one click turns the neural voice on (with an OpenAI key) and reads
+  the line again. Without a key it opens settings.
+- Settings → Pronunciation reports what this computer can pronounce for the
+  chosen target language, and what to turn on when it cannot.
+- The saved-words page says the same thing, once, instead of staying silent.
+
 ## [2.10.1] — 2026-10-29
 
 ### Changed

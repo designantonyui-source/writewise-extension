@@ -1,5 +1,5 @@
 // Exercises src/providers.js in plain Node with a stubbed fetch.
-import { analyze, translate, listModels, estimateCost, PROVIDERS, defaultModel, pickModel, isChatModel, modelLabel } from '../src/providers.js';
+import { analyze, translate, listModels, estimateCost, PROVIDERS, defaultModel, pickModel, isChatModel, modelLabel, ttsInstructions } from '../src/providers.js';
 
 let failures = 0;
 const ok = (name, cond, detail) => {
@@ -202,6 +202,16 @@ const base = { providerId: 'deepseek', apiKey: 'sk-test', text: 'helo wrld this 
   ok('pickModel handles an empty list', pickModel('openai', []) === '');
   ok('isChatModel classifies ids', isChatModel('gpt-4o-mini') === true && isChatModel('whisper-1') === false && isChatModel('dall-e-3') === false);
   ok('modelLabel formats unknown ids', modelLabel('gpt-4o-mini') === 'GPT-4o mini' && modelLabel('gpt-5') === 'GPT-5' && modelLabel('deepseek-chat') === 'DeepSeek Chat', modelLabel('gpt-4o-mini'));
+}
+
+// ── neural voice instructions ──────────────────────────────────────────────
+{
+  const uk = ttsInstructions('Ukrainian');
+  ok('tts: names the language it must speak', uk.includes('Read this Ukrainian text aloud in Ukrainian'), uk.slice(0, 60));
+  ok('tts: forbids translating', uk.includes('Do not translate'));
+  ok('tts: Polish is asked for in Polish', ttsInstructions('Polish').includes('Read this Polish text aloud in Polish'));
+  const plain = ttsInstructions('');
+  ok('tts: falls back to a plain instruction without a language', plain.includes('Pronounce this clearly') && !plain.includes('text aloud in'), plain.slice(0, 40));
 }
 
 console.log(failures === 0 ? '\nALL PROVIDER TESTS PASS' : `\n${failures} FAILURE(S)`);

@@ -30,6 +30,20 @@
     ar: 'ar-SA', hi: 'hi-IN',
   };
 
+  /* Callers occasionally hand over a language name ("Українська",
+     "Polski (pl)") instead of a code. An unrecognised string lands in
+     SpeechSynthesisUtterance.lang, where the platform ignores it and reads the
+     text with its default voice — Ukrainian in English phonetics. Map the
+     names this product can produce; anything else that is not a code becomes
+     English, which is still the right language for English text. */
+  var NAMES = {
+    english: 'en', polish: 'pl', ukrainian: 'uk', russian: 'ru',
+    polski: 'pl', 'українська': 'uk', 'русский': 'ru',
+  };
+
+  /* A code, optionally with a region: en, en-GB, zh-Hans. */
+  var CODE = /^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i;
+
   var cachedVoices = [];
 
   function synth() {
@@ -109,10 +123,13 @@
   }
 
   function normalizeLang(lang) {
-    var raw = String(lang || '').replace(/_/g, '-').trim();
+    var raw = String(lang == null ? '' : lang).replace(/_/g, '-').trim();
     if (!raw) return 'en-US';
-    var base = raw.toLowerCase().split('-')[0];
+    var name = raw.toLowerCase().replace(/\([^)]*\)/g, '').trim();
+    if (NAMES[name]) raw = NAMES[name];
+    else if (!CODE.test(raw)) raw = 'en';
     if (raw.indexOf('-') !== -1) return raw;
+    var base = raw.toLowerCase().split('-')[0];
     return LOCALES[base] || raw;
   }
 
@@ -164,12 +181,74 @@
     return matches[0];
   }
 
+  /* ── engine readiness ─────────────────────────────────────────────────
+     getVoices() is empty until the platform has finished enumerating, and
+     nothing announces that unless you listen. Prime the list once, keep it
+     fresh, and let a first click wait a beat instead of concluding that the
+     language is missing. */
+  var primed = false;
+
+  function prime() {
+    var s = synth();
+    if (!s || primed) return;
+    primed = true;
+    refresh();
+    try {
+      if (typeof s.addEventListener === 'function') s.addEventListener('voiceschanged', refresh);
+      else s.onvoiceschanged = refresh;
+    } catch (err) {
+      /* engine without the event */
+    }
+  }
+
+  var voiceWait = 0;
+
+  function whenVoices(fn) {
+    var s = synth();
+    var settled = false;
+    function settle() {
+      if (settled) return;
+      settled = true;
+      if (voiceWait) { clearTimeout(voiceWait); voiceWait = 0; }
+      fn();
+    }
+    refresh();
+    if (cachedVoices.length) { settle(); return; }
+    try {
+      if (s && typeof s.addEventListener === 'function') s.addEventListener('voiceschanged', settle, { once: true });
+      else if (s) s.onvoiceschanged = settle;
+    } catch (err) {
+      settle();
+      return;
+    }
+    voiceWait = setTimeout(settle, 600);
+  }
+
+  /** Can this platform pronounce `lang` at all? English rides on the default
+      voice, every other language needs one of its own installed. */
+  function hasVoice(lang) {
+    var want = normalizeLang(lang);
+    if (baseOf(want) === 'en') return true;
+    return !!pick(want);
+  }
+
   function cancel() {
     playToken += 1;
     stopAudio();
     var s = synth();
     if (!s) return;
     try { s.cancel(); } catch (err) { /* nothing playing */ }
+  }
+
+  /* The neural voices are English-trained identities: handed Ukrainian text
+     without being told the language, they read it with an English accent. An
+     installed native voice pronounces the same text correctly, so for any
+     language that is not English the native voice wins and the neural one is
+     kept for English and for languages this computer cannot speak. */
+  function nativeVoice(lang) {
+    var want = normalizeLang(lang);
+    if (baseOf(want) === 'en') return null;
+    return pick(want);
   }
 
   /**
@@ -181,11 +260,32 @@
     var clean = String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, MAX_CHARS);
     if (!clean || !available()) return false;
 
-    if (remote && options.remote !== false) {
-      speakRemote(clean, options);
+    function decide() {
+      if (remote && options.remote !== false && !nativeVoice(options.lang)) {
+        speakRemote(clean, options);
+        return true;
+      }
+      return speakLocal(clean, options);
+    }
+
+    var want = normalizeLang(options.lang);
+    if (remote && options.remote !== false && baseOf(want) !== 'en' && !cachedVoices.length) {
+      /* The voice list decides between native and neural, and it may still be
+         loading: wait for it rather than defaulting to an accented reading. */
+      var token = playToken;
+      whenVoices(function () {
+        if (token !== playToken) { // dismissed while we waited: stay quiet
+          var done = options.onend;
+          if (typeof done === 'function') {
+            try { done(); } catch (err) { /* the caller's problem */ }
+          }
+          return;
+        }
+        decide();
+      });
       return true;
     }
-    return speakLocal(clean, options);
+    return decide();
   }
 
   function speakRemote(clean, options) {
@@ -226,6 +326,23 @@
     });
   }
 
+  /**
+   * The language has no installed voice. Reporting beats reading: the platform
+   * would silently borrow its default (English) voice and turn Ukrainian into
+   * phonetic nonsense. `onmissing` lets the caller offer the neural voice;
+   * `onend` still fires exactly once so the "playing" state is released.
+   */
+  function miss(lang, options, doneOverride) {
+    if (typeof options.onmissing === 'function') {
+      try { options.onmissing(lang); } catch (err) { /* the caller's problem */ }
+    }
+    var done = doneOverride || options.onend;
+    if (typeof done === 'function') {
+      try { done(); } catch (err) { /* the caller's problem */ }
+    }
+    return false;
+  }
+
   function speakLocal(clean, options, doneOverride) {
     var s = synth();
     if (!s) { if (doneOverride) doneOverride(); return false; }
@@ -236,6 +353,27 @@
     u.rate = Math.max(0.5, Math.min(2, Number(options.rate) || 0.95));
     u.pitch = 1;
     var voice = pick(u.lang);
+
+    /* A voice from another language is worse than no sound at all. English is
+       the exception: when nothing is installed, the platform's default voice
+       is already the right language. */
+    if (!voice && baseOf(u.lang) !== 'en') {
+      if (!cachedVoices.length) {
+        var token = playToken;
+        whenVoices(function () {
+          if (token !== playToken) { // dismissed while we waited: stay quiet
+            var done = doneOverride || options.onend;
+            if (typeof done === 'function') {
+              try { done(); } catch (err) { /* the caller's problem */ }
+            }
+            return;
+          }
+          speakLocal(clean, options, doneOverride);
+        });
+        return true; // the retry reports back, so the caller keeps its state
+      }
+      return miss(u.lang, options, doneOverride);
+    }
     if (voice) u.voice = voice;
 
     if (typeof options.onstart === 'function') u.onstart = options.onstart;
@@ -282,10 +420,15 @@
     connectRemote: connectRemote,
     pick: pick,
     refresh: refresh,
+    prime: prime,
+    hasVoice: hasVoice,
     normalizeLang: normalizeLang,
     isSpeaking: isSpeaking,
     voiceCount: function () { return refresh().length; },
   };
 
-  if (root) root.WriteWiseSpeech = api;
+  if (root) {
+    root.WriteWiseSpeech = api;
+    prime();
+  }
 })(typeof window !== 'undefined' ? window : null);

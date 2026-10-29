@@ -363,6 +363,50 @@
   line-height: var(--ww-lh-body);
 }
 
+/* pronunciation gap -----------------------------------------------------
+   Shown only when the OS has no voice for the language being read. A quiet
+   line, not a panel: the card already carries one surface and one primary
+   action, and this is a footnote to a click that stayed silent. */
+
+.ww-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin-top: 10px;
+}
+
+.ww-note-text {
+  color: var(--ww-tx-2);
+  font-size: var(--ww-fs-11);
+  line-height: 1.4;
+}
+
+.ww-note-btn {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ww-accent-text);
+  font-family: inherit;
+  font-size: var(--ww-fs-11);
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ww-note-btn:hover {
+  color: var(--ww-tx);
+}
+
+.ww-note-btn:focus-visible {
+  outline: 2px solid var(--ww-focus);
+  outline-offset: 2px;
+  border-radius: var(--ww-r-xs);
+}
+
 /* loading skeleton ------------------------------------------------------ */
 
 .ww-skel {

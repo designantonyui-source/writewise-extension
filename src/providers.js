@@ -111,6 +111,17 @@ export function estimateCost(providerId, tokensIn = 0, tokensOut = 0) {
   return (tokensIn / 1e6) * p.price.in + (tokensOut / 1e6) * p.price.out;
 }
 
+/**
+ * What the neural voice is told to do. The speech endpoint has no `language`
+ * field, so the instruction is the only thing keeping a text-to-speech model
+ * trained on English from reading Ukrainian with an English accent.
+ */
+export function ttsInstructions(language) {
+  const base = 'Read the text exactly as written. Do not translate it, explain it or add words of your own.';
+  if (!language) return `Pronounce this clearly and naturally, like a patient language teacher. ${base}`;
+  return `Read this ${language} text aloud in ${language}, with a native ${language} speaker's pronunciation and accent. ${base}`;
+}
+
 export class ProviderError extends Error {
   constructor(code, message, detail) {
     super(message || code);

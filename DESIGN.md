@@ -110,8 +110,13 @@ instructions.
   fetched by the service worker (OpenAI audio/speech, Web Audio playback,
   cached per word). The OS voice is ranked by quality, not availability —
   premium/neural/enhanced/Siri/Google/Microsoft names beat “compact”, exact
-  locale beats same language, novelty voices are excluded — and either engine
-  falls back to the other, so the button always makes a sound. It is a glyph button, not a labelled button: the word it belongs to
+  locale beats same language, novelty voices are excluded. Which engine runs is
+  decided per language: the neural voices are English-trained, so a non-English
+  language the machine can already speak natively is read natively, and the
+  neural voice — told which language it is reading — covers English and the
+  languages the machine cannot speak. A language with no voice anywhere is
+  reported in the card rather than read with the wrong one, which is the only
+  case where the button stays silent. It is a glyph button, not a labelled button: the word it belongs to
   is the label, and `aria-label` spells the pair out for screen readers. It sits
   on the line it reads: the card shows the original above `from English`, each
   line with its own speaker, so the English word and the translation are

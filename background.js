@@ -13,6 +13,7 @@ import {
   providerMeta,
   estimateCost,
   isChatModel,
+  ttsInstructions,
   modelLabel,
   pickModel,
 } from './src/providers.js';
@@ -21,6 +22,7 @@ import {
   codeForLanguageName,
   codeFromLabel,
   languageDisplayLabel,
+  languageEnglishName,
   languagePromptLabel,
   resolveTarget,
 } from './src/languages.js';
@@ -159,7 +161,11 @@ async function onSpeak(msg, respond) {
   }
 
   const voice = TTS_VOICES.has(settings.speech.voice) ? settings.speech.voice : 'nova';
-  const cacheKey = voice + '\u0000' + text;
+  /* The neural voices are English-trained identities. Handing them text in
+     another language without saying which one is how Ukrainian comes back with
+     an English accent; the instruction is the only lever the API gives us. */
+  const language = languageEnglishName(msg?.lang);
+  const cacheKey = voice + '\u0000' + language + '\u0000' + text;
   const cached = ttsCache.get(cacheKey);
   if (cached) {
     respond({ ok: true, audio: cached, mime: 'audio/mpeg', cached: true });
@@ -175,7 +181,7 @@ async function onSpeak(msg, respond) {
         voice,
         input: text,
         response_format: 'mp3',
-        instructions: 'Pronounce this clearly and naturally, like a patient language teacher. Do not add words of your own.',
+        instructions: ttsInstructions(language),
       }),
     });
 

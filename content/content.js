@@ -996,10 +996,37 @@
         void send({ type: 'OPEN_SETTINGS' });
         UI.hide();
         break;
+      case 'neural':
+        void enableNeuralVoice();
+        break;
       default:
         break;
     }
   });
+
+  /* The card offers this when the OS has no voice for the language it is
+     reading (Ukrainian on a machine without one, typically). Turning the neural
+     voice on is the fix that stays on for next time; without an OpenAI key the
+     only useful destination is the settings window. */
+  async function enableNeuralVoice() {
+    try {
+      const got = await chrome.storage.local.get('ww_settings');
+      const saved = got.ww_settings || {};
+      const hasOpenAiKey = !!(saved.keys && String(saved.keys.openai || '').trim());
+      if (!hasOpenAiKey) {
+        void send({ type: 'OPEN_SETTINGS' });
+        return;
+      }
+      if (!saved.speech || saved.speech.premium !== true) {
+        saved.speech = Object.assign({}, saved.speech, { premium: true });
+        await chrome.storage.local.set({ ww_settings: saved });
+        settings = await readSettings();
+      }
+    } catch {
+      /* storage unavailable — the retry below still uses what is configured */
+    }
+    UI.replay();
+  }
 
   // ── boot ─────────────────────────────────────────────────────────────────
 

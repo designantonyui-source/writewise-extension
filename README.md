@@ -33,7 +33,7 @@ MV3 · no build step · DeepSeek or OpenAI · MIT
 
 WriteWise is not on the Chrome Web Store. It loads as an unpacked extension:
 
-1. Download `writewise-2.10.1.zip` from [Releases](../../releases) and unzip it.
+1. Download `writewise-2.10.2.zip` from [Releases](../../releases) and unzip it.
 2. Open `chrome://extensions` and turn on **Developer mode**.
 3. **Load unpacked** → choose the unzipped folder.
 4. Pin the ✳ icon to the toolbar.
@@ -104,8 +104,20 @@ by the service worker through your OpenAI key and played with Web Audio. Six
 voices, about 1¢ a minute, cached per word so a repeat click is free. Off by
 default: it is the one feature that sends text to a second place.
 
+Where each engine runs is decided per language, not by the toggle alone. The
+neural voices are English-trained, so a language that this computer already
+speaks natively (Polish, Ukrainian, Russian on a Mac with those voices) is read
+by the native voice — correct accent beats better timbre. The neural voice reads
+English, and any language the system has no voice for, where it is given the
+language in its instructions so it does not answer in English phonetics.
+
 Either engine fails soft — no key, no network or an unplayable clip falls back to
 the other one.
+
+One case is not a fallback but a refusal: with the neural voice off and no
+system voice for the language being read, the card does not borrow the English
+voice — it says so and offers **Use neural voice**. Settings → Pronunciation
+reports what this computer can pronounce for the chosen language.
 
 ## Models and cost
 
