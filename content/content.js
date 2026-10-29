@@ -18,6 +18,7 @@
 
   const PROVIDER_LABEL = { deepseek: 'DeepSeek', openai: 'OpenAI' };
   const MIN_SELECTION_CHARS = 4;
+  const MAX_TRANSLATE_WORDS = 2;
   const MAX_DIFF_CELLS = 400000;
   const CLEAN_HIDE_MS = 2200;
 
@@ -456,7 +457,17 @@
 
   // ── translation ──────────────────────────────────────────────────────────
 
-  const AUTO_TRANSLATE_CHARS = 240;
+  const AUTO_TRANSLATE_CHARS = 40;
+  /* Auto-translate is for words and two-word phrases, not for paragraphs: a
+     long selection is writing to be corrected, not text to be translated. */
+  function isTranslatableSelection(text) {
+    const t = String(text || '').trim();
+    if (!t || t.length > AUTO_TRANSLATE_CHARS) return false;
+    if (/[.!?…;:]$/.test(t)) return false;
+    if (/^https?:\/\//i.test(t)) return false;
+    if (t.split(/\s+/).length > MAX_TRANSLATE_WORDS) return false;
+    return /[A-Za-z\u0400-\u04FF]/.test(t);
+  }
 
   function closestEditable(node) {
     let el = node && (node.nodeType === 1 ? node : node.parentElement);
@@ -631,7 +642,11 @@
     const text = context.text.trim();
     if (!text) return;
 
-    if (!force && text.length > AUTO_TRANSLATE_CHARS) return;
+    if (!force && !isTranslatableSelection(text)) {
+      /* Selecting your own sentence means "fix this", not "translate this" */
+      if (context.field && text.length >= 8) void fixSelection();
+      return;
+    }
 
     const now = Date.now();
     if (text === lastTranslate.text && now - lastTranslate.at < 3000) return;

@@ -1,28 +1,15 @@
 /**
- * Translation target languages. Kept deliberately short: a list of every
- * locale would be a maintenance tax with no product value here — these are
- * the languages a DeepSeek/OpenAI model handles well and people actually
- * translate between.
+ * Translation target languages. Deliberately four: English, Polish,
+ * Ukrainian and Russian. The list is a promise — every language here has to
+ * have a voice, a label a person reads and a prompt that names it — so it only
+ * grows when someone actually needs it.
  */
 
 export const LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'pl', label: 'Polski' },
   { code: 'uk', label: 'Українська' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'fr', label: 'Français' },
-  { code: 'es', label: 'Español' },
-  { code: 'it', label: 'Italiano' },
-  { code: 'pt', label: 'Português' },
-  { code: 'nl', label: 'Nederlands' },
-  { code: 'sv', label: 'Svenska' },
-  { code: 'cs', label: 'Čeština' },
   { code: 'ru', label: 'Русский' },
-  { code: 'tr', label: 'Türkçe' },
-  { code: 'ja', label: '日本語' },
-  { code: 'zh', label: '中文' },
-  { code: 'ar', label: 'العربية' },
-  { code: 'hi', label: 'हिन्दी' },
 ];
 
 export function languageLabel(code) {

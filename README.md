@@ -206,6 +206,18 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.10.0
+
+- Auto-translate is for words, not paragraphs. A selection of one or two words
+  translates as before; a longer selection stops translating and asks for a
+  correction instead (that is what selecting your own sentence means). The
+  right-click "Translate selection" still translates anything on demand, and
+  typing is checked as before.
+- Four target languages only: English, Polski, Українська, Русский. The other
+  thirteen were a promise the product could not keep well — every language here
+  needs a voice, a label and a prompt that names it — and it made the picker
+  noise.
+
 ## Differences from v2.9.0
 
 - Fixed: an OpenAI key looked broken ("That model is not available on this

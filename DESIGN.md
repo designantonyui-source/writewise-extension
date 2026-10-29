@@ -126,6 +126,14 @@ speaker pulses at 1.1s while audio is playing, because that is the only signal
 that sound is coming from this button. `prefers-reduced-motion: reduce` removes
 the entrance, the spinner rotation and the pulse.
 
+## Selection
+
+- One or two words on selection: translate. That is the reading-help case.
+- More than that, inside a field: check it. Selecting your own sentence means
+  "fix this", and auto-translate had been answering a question nobody asked.
+- The context menu is the escape hatch: "Translate selection" translates any
+  length on demand, "Fix selection" checks any length.
+
 ## Copy
 
 - Say what happened and what to do: “Key rejected — check it in settings.”
