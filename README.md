@@ -33,10 +33,6 @@ selection** from the context menu when you want translation instead of a fix.
 Saved words keep their translation and the sentence where you found them.
 Search the list, export it, or review words due today.
 
-![Saved words list with context, review and export controls](docs/vocab-light.png)
-
-![Spaced-repetition review card with Again, Good and Easy actions](docs/vocab-review.png)
-
 ## What it does
 
 - **Corrects as you type.** Pause for a moment in any editable field and a card
