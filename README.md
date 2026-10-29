@@ -206,6 +206,18 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.5.1
+
+- Card rhythm: 14px padding, a 24px icon cluster in the header (13px speaker,
+  12px close, 2px apart) instead of two loose glyphs, 12px from header to body,
+  a 15px/1.45 translation, and the "from English" caption 4px under it. Same
+  metrics in the prototype, so the two cannot drift.
+- Replacements read as pairs: the inline `ins`/`del` chips now have 3px between
+  them, so "Please pls" stops colliding into one word.
+- The offline fallback stylesheet (used only if `tokens.css` cannot load) now
+  carries the current neutral palette and the same metrics, so a broken CSS
+  fetch degrades to the same card rather than the old cream one.
+
 ## Differences from v2.3
 
 - Palette: the accent is now `#ffaf01`, and the neutrals are neutral rather than

@@ -72,7 +72,7 @@
   max-width: calc(100vw - 16px);
   max-height: 320px;
   margin: 0;
-  padding: 12px;
+  padding: 14px;
   overflow: hidden;
   background: var(--ww-surface);
   color: var(--ww-tx);
@@ -150,6 +150,14 @@
   white-space: nowrap;
 }
 
+.ww-tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: -4px -6px -4px 0;
+}
+
 .ww-x {
   flex: 0 0 auto;
   display: inline-flex;
@@ -157,7 +165,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  margin: -4px -6px -4px 0;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 6px;
@@ -181,8 +189,7 @@
 /* ── pronunciation ────────────────────────────────────────────────────── */
 
 .ww-speak {
-  margin-left: -2px;
-  color: var(--ww-tx-2);
+  color: var(--ww-tx-3);
 }
 
 .ww-speak:hover {
@@ -209,7 +216,7 @@
 .ww-body {
   flex: 1 1 auto;
   min-height: 0;
-  margin-top: 10px;
+  margin-top: 12px;
   padding-right: 2px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -254,6 +261,13 @@
   text-decoration-color: var(--ww-jade);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
+}
+
+/* a replacement is two chips in one slot: give the pair a breath so it does
+   not read as one word ("Pleasepls") */
+.ww-ins + .ww-del,
+.ww-del + .ww-ins {
+  margin-left: 3px;
 }
 
 .ww-del {
@@ -422,8 +436,8 @@
 
 .ww-trans {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.45;
   color: var(--ww-tx);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -432,7 +446,7 @@
 }
 
 .ww-src {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   font-size: 11px;
   color: var(--ww-tx-2);
 }

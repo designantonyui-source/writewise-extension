@@ -36,21 +36,21 @@
     '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" vector-effect="non-scaling-stroke"/><path d="M17 9C17.6254 9.81968 18 10.8634 18 12C18 13.1366 17.6254 14.1803 17 15" vector-effect="non-scaling-stroke"/><path d="M20 7C21.2508 8.36613 22 10.1057 22 12C22 13.8943 21.2508 15.6339 20 17" vector-effect="non-scaling-stroke"/></svg>';
 
   const CLOSE_SVG =
-    '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.9991 19L5 5.00098" vector-effect="non-scaling-stroke"/><path d="M19 5L5.00092 18.999" vector-effect="non-scaling-stroke"/></svg>';
+    '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18.9991 19L5 5.00098" vector-effect="non-scaling-stroke"/><path d="M19 5L5.00092 18.999" vector-effect="non-scaling-stroke"/></svg>';
 
   const FALLBACK_CSS = [
-    '.ww-tokens{position:absolute;top:0;left:0;display:block;color:#f2ede6;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:left;direction:ltr}',
-    '.ww-card{display:flex;flex-direction:column;width:380px;max-width:calc(100vw - 16px);max-height:320px;padding:12px;background:#141413;color:#f2ede6;border:1px solid #262521;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.42);pointer-events:auto;overflow:hidden}',
+    '.ww-tokens{position:absolute;top:0;left:0;display:block;color:#f2f2f0;font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:left;direction:ltr}',
+    '.ww-card{display:flex;flex-direction:column;width:380px;max-width:calc(100vw - 16px);max-height:320px;padding:14px;background:#131313;color:#f2f2f0;border:1px solid #262626;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.38),0 1px 3px rgba(0,0,0,.24);pointer-events:auto;overflow:hidden}',
     '.ww-head{display:flex;align-items:center;gap:8px}', '.ww-mark{color:#ffaf01;display:inline-flex}',
     '.ww-title{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.ww-x{width:24px;height:24px;border:0;background:none;color:#8c8882;cursor:pointer}',
-    '.ww-body{flex:1;min-height:0;overflow:auto;margin-top:10px}', '.ww-foot{display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #262521}',
-    '.ww-meta{flex:1;min-width:0;font-size:11px;color:#aeaaa3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.ww-btn{height:30px;padding:0 12px;border-radius:8px;font:600 12px/1 inherit;cursor:pointer;border:1px solid transparent;background:none;color:#f2ede6}',
-    '.ww-btn-ghost{color:#aeaaa3;border-color:#33322c}', '.ww-btn-primary{background:#ffaf01;color:#1a1a18}',
-    '.ww-ins{background:rgba(92,184,122,.15);color:#5cb87a;text-decoration:underline;text-decoration-color:#5cb87a}',
+    '.ww-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:0;background:none;color:#8d8d89;cursor:pointer}', '.ww-tools{display:flex;align-items:center;gap:2px;margin:-4px -6px -4px 0}', '.ww-speak{color:#8d8d89}',
+    '.ww-body{flex:1;min-height:0;overflow:auto;margin-top:12px}', '.ww-foot{display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #262626}',
+    '.ww-meta{flex:1;min-width:0;font-size:11px;color:#aeaeaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.ww-btn{height:30px;padding:0 12px;border-radius:8px;font:600 12px/1 inherit;cursor:pointer;border:1px solid transparent;background:none;color:#f2f2f0}',
+    '.ww-btn-ghost{color:#aeaeaa;border-color:#343434}', '.ww-btn-primary{background:#ffaf01;color:#1a1a18}',
+    '.ww-ins{background:rgba(92,184,122,.15);color:#5cb87a;text-decoration:underline;text-decoration-color:#5cb87a}', '.ww-ins + .ww-del,.ww-del + .ww-ins{margin-left:3px}',
     '.ww-del{background:rgba(217,83,79,.15);color:#e27d79;text-decoration:line-through;text-decoration-color:#e27d79}',
-    '.ww-sub,.ww-msg{margin:0;color:#aeaaa3}', '.ww-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}', '.ww-skel{height:8px;border-radius:4px;background:#24231f;margin:0 0 8px}',
+    '.ww-sub,.ww-msg{margin:0;color:#aeaeaa}', '.ww-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}', '.ww-skel{height:8px;border-radius:4px;background:#232323;margin:0 0 8px}',
   ].join('\n');
 
   /* ── state ─────────────────────────────────────────────────────────── */
@@ -270,13 +270,15 @@
       (opts.spinner ? '<span class="ww-spin" aria-hidden="true"></span>' : '') +
       '<span class="ww-title">' + esc(opts.title) + '</span>' +
       (opts.timer ? '<span class="ww-timer" data-ww-elapsed></span>' : '') +
-      (opts.speak
-        ? '<button type="button" class="ww-x ww-speak" data-ww-action="speak"' +
-          ' aria-label="Play pronunciation" aria-pressed="false" title="Play pronunciation">' +
-          '<span class="ww-sr">Play pronunciation</span>' + SPEAK_SVG + '</button>'
-        : '') +
-      '<button type="button" class="ww-x" data-ww-action="dismiss" aria-label="Dismiss">' +
-        '<span class="ww-sr">Dismiss</span>' + CLOSE_SVG + '</button>' +
+      '<span class="ww-tools">' +
+        (opts.speak
+          ? '<button type="button" class="ww-x ww-speak" data-ww-action="speak"' +
+            ' aria-label="Play pronunciation" aria-pressed="false" title="Play pronunciation">' +
+            '<span class="ww-sr">Play pronunciation</span>' + SPEAK_SVG + '</button>'
+          : '') +
+        '<button type="button" class="ww-x" data-ww-action="dismiss" aria-label="Dismiss">' +
+          '<span class="ww-sr">Dismiss</span>' + CLOSE_SVG + '</button>' +
+      '</span>' +
       '</div>';
   }
 

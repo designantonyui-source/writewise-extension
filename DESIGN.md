@@ -2,7 +2,7 @@
 
 Surface mode: **Operate**. The user is mid-sentence; the interface gets about
 two seconds of attention. Restraint is the feature. Personality lives in the ✳
-mark, the warm neutrals, and the diff typography — nowhere else.
+mark, the neutral greys, and the diff typography — nowhere else.
 
 ## Tokens
 
@@ -62,15 +62,23 @@ instructions.
   danger = rejected, muted = untested).
 - **Fix row** — icon-less label + switch. No emoji, no decorative glyphs.
 - **Pills** — tone presets, 24px, muted until active.
-- **Card** — 380px, 12px padding, 14px radius, one shadow, hairline border.
+- **Card** — 380px, 14px padding, 14px radius, one shadow, hairline border.
+  The header is a 20px row: 16px mark, title, then a 24px icon cluster with a
+  2px gap (speaker 13px, close 12px), pulled in 4px vertically and 6px
+  horizontally so the glyphs align with the padding while the hit areas stay
+  24px. Head to body is 12px; the body's answer type is 15px/1.45, and the
+  source label sits 4px under it at 11px, because it is a caption on the
+  answer, not a second paragraph.
 - **Diff** — inline `<ins>` jade with underline, `<del>` danger with strike.
-  Never colour alone: the underline/strike carries the meaning too.
-- **Speaker** — a 28px quiet icon at 50–65% (`--ww-tx-3`), resolving to
-  accent-on-accent-soft on hover and while playing. It is a glyph button, not a
-  labelled button: the word it belongs to is the label, and `aria-label` spells
-  the pair out for screen readers. In the card it sits in the header, last
-  before the close button; in the vocabulary list it leads the row's side
-  cluster, before the due pill.
+  Never colour alone: the underline/strike carries the meaning too. A
+  replacement is two chips in one slot, so `ins + del` and `del + ins` get 3px
+  between them; without it "Please" and "pls" collide and read as one word.
+- **Speaker** — a quiet glyph at ~`--ww-tx-3` (50–65% opacity in the wordier
+  vocabulary rows), resolving to accent-on-accent-soft on hover and while
+  playing. It is a glyph button, not a labelled button: the word it belongs to
+  is the label, and `aria-label` spells the pair out for screen readers. In the
+  card it is 13px inside a 24px header button, last before the close button; in
+  the vocabulary list it leads the row's side cluster, before the due pill.
 
 ## Motion
 
@@ -98,7 +106,7 @@ the entrance, the spinner rotation and the pulse.
   Tab is never intercepted.
 - Any press outside the card dismisses it (and cancels the request behind it),
   so the close button is a convenience, not a requirement.
-- Focus: one warm ring (`--ww-focus`, accent-derived, 2px + 2px offset) on
+- Focus: one ring (`--ww-focus`, accent-derived, 2px + 2px offset) on
   everything. No blue focus state anywhere — it read as a different product.
 
 ## Vocabulary page
