@@ -15,9 +15,12 @@ MV3 · no build step · DeepSeek or OpenAI · MIT
 
 WriteWise waits until you pause, then shows the suggested edits in the page.
 You can inspect the diff and apply the result with one click, or dismiss it and
-keep writing.
+keep writing. The in-page card, settings and saved-word page support light and
+dark themes.
 
-![Correction card with highlighted changes](docs/card-dark.png)
+| Light | Dark |
+|:---|:---|
+| ![Correction card in light theme](docs/card-light.png) | ![Correction card in dark theme](docs/card-dark.png) |
 
 ### Translate a selection
 
