@@ -33,7 +33,7 @@ const ELEMENT_IDS = [
   'fixSpelling', 'fixGrammar', 'fixClarity', 'fixTone', 'toneRow',
   'translateTarget', 'translateToggle', 'translateOnSelect',
   'siteHost', 'pauseSiteBtn',
-  'minChars', 'maxWords',
+  'minChars', 'maxWords', 'premiumVoice', 'voiceSelect', 'voiceHint',
   'statFixes', 'statCost', 'vocabLink', 'vocabCount',
 ];
 
@@ -82,6 +82,7 @@ function renderAll() {
   renderFix();
   renderTone();
   renderTranslate();
+  renderSpeech();
   renderDelay();
   renderSite();
   renderStats();
@@ -165,6 +166,21 @@ function loadVocabCount() {
     const list = Array.isArray(got.ww_vocab) ? got.ww_vocab : [];
     el.vocabCount.textContent = String(list.length);
   }).catch(() => {});
+}
+
+function renderSpeech() {
+  const sp = state.settings.speech || {};
+  const hasOpenAiKey = !!String(state.settings.keys?.openai || '').trim();
+  el.premiumVoice.checked = sp.premium === true;
+  el.premiumVoice.disabled = !hasOpenAiKey;
+  el.voiceSelect.value = sp.voice || 'nova';
+  el.voiceSelect.disabled = sp.premium !== true || !hasOpenAiKey;
+  el.voiceHint.classList.toggle('is-error', sp.premium === true && !hasOpenAiKey);
+  el.voiceHint.textContent = !hasOpenAiKey
+    ? 'Needs an OpenAI key — add one on the OpenAI tab.'
+    : sp.premium === true
+      ? 'Neural voice through your OpenAI key · about 1¢ a minute.'
+      : 'Use your OpenAI key for a natural voice. The OS voice is free and offline.';
 }
 
 function renderTranslate() {
@@ -301,6 +317,7 @@ function afterSave(patch) {
   if ('keys' in patch) renderKeyBox();
   if ('fix' in patch || 'tonePreset' in patch) renderTone();
   if ('translate' in patch) renderTranslate();
+  if ('speech' in patch || 'keys' in patch) renderSpeech();
   if ('pausedSites' in patch) renderSite();
   if ('delayMs' in patch) renderDelay();
   if ('minChars' in patch || 'maxWords' in patch) reflectNumbers();
@@ -320,6 +337,14 @@ function bind() {
 
   el.translateOnSelect.addEventListener('change', () => {
     save({ translate: { onSelect: el.translateOnSelect.checked } });
+  });
+
+  el.premiumVoice.addEventListener('change', () => {
+    save({ speech: { premium: el.premiumVoice.checked } });
+  });
+
+  el.voiceSelect.addEventListener('change', () => {
+    save({ speech: { voice: el.voiceSelect.value } });
   });
 
   el.vocabLink.addEventListener('click', () => {

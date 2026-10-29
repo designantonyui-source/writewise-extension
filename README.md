@@ -206,6 +206,22 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.7.1
+
+- Pronunciation can now use a neural voice. The default is still the OS voice,
+  but Advanced → Pronunciation adds “Neural voice”, which routes playback
+  through the OpenAI key already in settings (audio fetched by the service
+  worker, played with Web Audio, cached per word so a repeat click is free and
+  instant). Six voices; about 1¢ a minute; off by default because it is the one
+  part of the product that leaves the device on a click.
+- The local voice picker got smarter: it ranks premium/enhanced/neural/Siri/
+  Google/Microsoft voices above “compact”, exact locale above same-language,
+  and drops novelty voices entirely. Previously a local compact voice could
+  outrank a Premium one.
+- Either engine fails soft: no key, no network, a rejected request or an
+  unplayable clip falls back to the other one, so the speaker never becomes a
+  button that does nothing.
+
 ## Differences from v2.7.0
 
 - The translation card now shows the original alongside the translation, and

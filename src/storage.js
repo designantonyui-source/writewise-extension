@@ -24,9 +24,15 @@ export const DEFAULTS = Object.freeze({
     onSelect: true, // auto-translate when text is selected (double-click always works)
     target: '', // '' = follow the browser language
   },
+  speech: {
+    premium: false, // false = the OS voice; true = neural voice via the OpenAI key
+    voice: 'nova',
+  },
   pausedSites: [],
   theme: 'system', // 'system' | 'dark' | 'light'
 });
+
+export const SPEECH_VOICES = Object.freeze(['nova', 'shimmer', 'alloy', 'echo', 'onyx', 'fable']);
 
 const clamp = (n, min, max, fallback) => {
   const v = Number(n);
@@ -67,6 +73,10 @@ export function normalize(raw) {
       onSelect: s.translate?.onSelect !== false,
       target: typeof s.translate?.target === 'string' ? s.translate.target : '',
     },
+    speech: {
+      premium: s.speech?.premium === true,
+      voice: SPEECH_VOICES.includes(s.speech?.voice) ? s.speech.voice : DEFAULTS.speech.voice,
+    },
     pausedSites: Array.isArray(s.pausedSites)
       ? [...new Set(s.pausedSites.filter((h) => typeof h === 'string' && h))]
       : [],
@@ -88,6 +98,7 @@ export async function setSettings(patch) {
     models: { ...current.models, ...(patch?.models || {}) },
     fix: { ...current.fix, ...(patch?.fix || {}) },
     translate: { ...current.translate, ...(patch?.translate || {}) },
+    speech: { ...current.speech, ...(patch?.speech || {}) },
   });
   await chrome.storage.local.set({ [SETTINGS_KEY]: next });
   return next;

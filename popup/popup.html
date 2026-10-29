@@ -185,6 +185,32 @@
         <input class="input input-num" id="maxWords" type="number" min="10" max="2000" step="10"
                inputmode="numeric" aria-label="Maximum words">
       </div>
+      <div class="adv-caption">Pronunciation</div>
+      <label class="row">
+        <span class="row-label">Neural voice</span>
+        <span class="switch">
+          <input type="checkbox" id="premiumVoice" role="switch" aria-label="Use a neural voice">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
+      <div class="row">
+        <label class="row-label" for="voiceSelect">Voice</label>
+        <span class="select-wrap">
+          <select class="select" id="voiceSelect" aria-label="Pronunciation voice">
+            <option value="nova">Nova · warm</option>
+            <option value="shimmer">Shimmer · bright</option>
+            <option value="alloy">Alloy · neutral</option>
+            <option value="echo">Echo · even</option>
+            <option value="onyx">Onyx · deep</option>
+            <option value="fable">Fable · narrative</option>
+          </select>
+          <span class="select-chev" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" vector-effect="non-scaling-stroke"/></svg>
+          </span>
+        </span>
+      </div>
+      <p class="hint" id="voiceHint">Uses your OpenAI key · about 1¢ a minute</p>
     </div>
   </details>
 

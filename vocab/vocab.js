@@ -686,6 +686,9 @@ function cache() {
 
 async function boot() {
   cache();
+  if (window.WriteWiseSpeech && window.WriteWiseSpeech.connectRemote) {
+    window.WriteWiseSpeech.connectRemote();
+  }
   await applyTheme();
   bind();
   await refresh({ keepScroll: false });

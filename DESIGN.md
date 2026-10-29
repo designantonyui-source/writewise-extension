@@ -101,7 +101,13 @@ instructions.
   between them; without it "Please" and "pls" collide and read as one word.
 - **Speaker** — a quiet glyph at ~`--ww-tx-3` (50–65% opacity in the wordier
   vocabulary rows), resolving to accent-on-accent-soft on hover and while
-  playing. It is a glyph button, not a labelled button: the word it belongs to
+  playing. Two engines sit behind it and the caller never chooses: the OS voice
+  (free, offline, quality varies by platform) and an optional neural voice
+  fetched by the service worker (OpenAI audio/speech, Web Audio playback,
+  cached per word). The OS voice is ranked by quality, not availability —
+  premium/neural/enhanced/Siri/Google/Microsoft names beat “compact”, exact
+  locale beats same language, novelty voices are excluded — and either engine
+  falls back to the other, so the button always makes a sound. It is a glyph button, not a labelled button: the word it belongs to
   is the label, and `aria-label` spells the pair out for screen readers. It sits
   on the line it reads: the card shows the original above `from English`, each
   line with its own speaker, so the English word and the translation are

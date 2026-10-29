@@ -1003,6 +1003,13 @@
     if (!settings) return;
     UI.setTheme(settings.theme);
 
+    /* premium voice: the service worker does the fetching, this side plays it.
+       Off by default; when it fails (no key, no network) speak() falls back to
+       the OS voice on its own. */
+    if (window.WriteWiseSpeech && window.WriteWiseSpeech.connectRemote) {
+      window.WriteWiseSpeech.connectRemote();
+    }
+
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'local' || !changes.ww_settings) return;
       void readSettings().then((next) => {

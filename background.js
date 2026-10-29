@@ -94,6 +94,9 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
     case 'BUMP_STATS':
       void bumpStats({ fixes: Number(msg.fixes) || 0 }).then(() => respond({ ok: true }));
       return true;
+    case 'SPEAK':
+      void onSpeak(msg, respond);
+      return true;
     case 'OPEN_SETTINGS':
       chrome.tabs
         .create({ url: chrome.runtime.getURL('popup/popup.html') })
@@ -105,6 +108,88 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
       return false;
   }
 });
+
+/* ── pronunciation ─────────────────────────────────────────────────────────
+   Optional neural voice. The content script asks; the key stays here; the
+   result is cached per voice+text so a second click on the same word is free
+   and instant. Any failure returns `{ ok:false }` and the caller falls back to
+   the OS voice, so pronunciation never becomes a button that does nothing. */
+
+const TTS_MODEL = 'gpt-4o-mini-tts';
+const TTS_VOICES = new Set(['nova', 'shimmer', 'alloy', 'echo', 'onyx', 'fable']);
+const TTS_MAX_CHARS = 300;
+const TTS_CACHE_LIMIT = 48;
+const ttsCache = new Map();
+
+function bytesToBase64(bytes) {
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+async function onSpeak(msg, respond) {
+  const text = String(msg?.text || '').replace(/\s+/g, ' ').trim().slice(0, TTS_MAX_CHARS);
+  if (!text) {
+    respond({ ok: false, code: 'EMPTY' });
+    return;
+  }
+
+  const settings = await getSettings();
+  if (settings.speech.premium !== true) {
+    respond({ ok: false, code: 'OFF' });
+    return;
+  }
+  const apiKey = String(settings.keys.openai || '').trim();
+  if (!apiKey) {
+    respond({ ok: false, code: 'NO_KEY' });
+    return;
+  }
+
+  const voice = TTS_VOICES.has(settings.speech.voice) ? settings.speech.voice : 'nova';
+  const cacheKey = voice + '\u0000' + text;
+  const cached = ttsCache.get(cacheKey);
+  if (cached) {
+    respond({ ok: true, audio: cached, mime: 'audio/mpeg', cached: true });
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: TTS_MODEL,
+        voice,
+        input: text,
+        response_format: 'mp3',
+        instructions: 'Pronounce this clearly and naturally, like a patient language teacher. Do not add words of your own.',
+      }),
+    });
+
+    if (!res.ok) {
+      const code = res.status === 401 || res.status === 403 ? 'BAD_KEY'
+        : res.status === 429 ? 'RATE'
+          : 'FAILED';
+      respond({ ok: false, code, status: res.status });
+      return;
+    }
+
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    if (!bytes.length) {
+      respond({ ok: false, code: 'EMPTY_AUDIO' });
+      return;
+    }
+    const audio = bytesToBase64(bytes);
+    if (ttsCache.size >= TTS_CACHE_LIMIT) ttsCache.delete(ttsCache.keys().next().value);
+    ttsCache.set(cacheKey, audio);
+    respond({ ok: true, audio, mime: 'audio/mpeg' });
+  } catch {
+    respond({ ok: false, code: 'NETWORK' });
+  }
+}
 
 async function onAnalyze(msg, sender, respond) {
   const settings = await getSettings();
