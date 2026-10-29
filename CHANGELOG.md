@@ -4,6 +4,19 @@ All notable changes to WriteWise. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] — 2026-10-29
+
+Public versioning restarts at 1.0.0. The earlier `v2.10.1` GitHub release
+remains an archive; this build includes the changes through source version
+2.11.0.
+
+- Improve spelling, grammar, clarity and tone while typing, with a reviewable
+  diff before applying a correction.
+- Translate selected text with DeepSeek or OpenAI, and save words with context
+  for local spaced-repetition review.
+- Use the in-page card, settings and saved-word page in light or dark theme.
+- Keep API keys in local extension storage; no WriteWise account or server.
+
 ## [2.11.0] — 2026-10-29
 
 ### Removed

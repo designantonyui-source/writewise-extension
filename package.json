@@ -1,6 +1,6 @@
 {
   "name": "writewise-extension",
-  "version": "2.11.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Quiet writing fixes as you type — DeepSeek or OpenAI.",
   "type": "module",
