@@ -939,6 +939,9 @@
     if (!settings.enabled || isPausedSite()) return;
     const el = selectedEditable(context) || pickField();
     if (!el) return;
+    ++translateToken;
+    lastTranslation = null;
+    clearTimeout(selectionTimer);
 
     settings.hasKey = !!(await readSettings()).hasKey;
     if (!settings.hasKey) {
@@ -951,9 +954,6 @@
     current = { el, adapter };
     pendingSelection = null;
     lastResult = null;
-    lastTranslation = null;
-    ++translateToken;
-    clearTimeout(selectionTimer);
 
     let text = '';
     if (adapter.kind === 'value') {
