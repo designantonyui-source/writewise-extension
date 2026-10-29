@@ -206,6 +206,20 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.9.0
+
+- Fixed: an OpenAI key looked broken ("That model is not available on this
+  key") because every build up to v2.8.4 shipped *placeholder* model ids —
+  `gpt-6-luna`, `gpt-6.1-terra`, `gpt-5.4-nano`, `deepseek-flash`,
+  `deepseek-v4-pro`. No real key has those models, so the first request came
+  back 404. Defaults are now real (`gpt-4o-mini`, `deepseek-chat`), and the
+  popup asks the provider for the models the key can actually use, keeps only
+  chat models, and heals a saved selection that isn't on that list. Saved
+  placeholder ids are migrated on read, so nothing needs re-entering.
+- The model error is now actionable from the card: "Model unavailable — pick
+  another in settings" with a **Change model** button, in both the fix and the
+  translate flows.
+
 ## Differences from v2.8.3
 
 - The card and the saved-words list read the language by name: `English →

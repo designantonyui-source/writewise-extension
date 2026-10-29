@@ -11,7 +11,7 @@ export const DEFAULTS = Object.freeze({
   version: 2,
   provider: 'deepseek', // 'deepseek' | 'openai'
   keys: { deepseek: '', openai: '' },
-  models: { deepseek: 'deepseek-flash', openai: 'gpt-6-luna' },
+  models: { deepseek: 'deepseek-chat', openai: 'gpt-4o-mini' },
   enabled: true,
   autoCheck: true,
   delayMs: 900, // 400–3000
@@ -34,11 +34,24 @@ export const DEFAULTS = Object.freeze({
 
 export const SPEECH_VOICES = Object.freeze(['nova', 'shimmer', 'alloy', 'echo', 'onyx', 'fable']);
 
+/* v2.0–v2.8 shipped fictional demo ids ("gpt-6-luna", "deepseek-flash").
+   Anyone who saved one gets the real default instead of a 404. */
+const LEGACY_MODELS = {
+  deepseek: new Set(['deepseek-flash', 'deepseek-v4-pro']),
+  openai: new Set(['gpt-6-luna', 'gpt-6.1-terra', 'gpt-5.4-nano']),
+};
+
 const clamp = (n, min, max, fallback) => {
   const v = Number(n);
   if (!Number.isFinite(v)) return fallback;
   return Math.min(max, Math.max(min, Math.round(v)));
 };
+
+function pickStoredModel(providerId, value) {
+  const id = String(value || '').trim();
+  if (!id || LEGACY_MODELS[providerId].has(id)) return DEFAULTS.models[providerId];
+  return id;
+}
 
 export function normalize(raw) {
   const s = raw && typeof raw === 'object' ? raw : {};
@@ -51,8 +64,8 @@ export function normalize(raw) {
       openai: String(s.keys?.openai || ''),
     },
     models: {
-      deepseek: String(s.models?.deepseek || DEFAULTS.models.deepseek),
-      openai: String(s.models?.openai || DEFAULTS.models.openai),
+      deepseek: pickStoredModel('deepseek', s.models?.deepseek),
+      openai: pickStoredModel('openai', s.models?.openai),
     },
     enabled: s.enabled !== false,
     autoCheck: s.autoCheck !== false,

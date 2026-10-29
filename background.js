@@ -6,7 +6,16 @@
  * messages: ANALYZE, CANCEL, BUMP_STATS, GET_ACTIVE_INFO, OPEN_SETTINGS.
  */
 
-import { analyze, translate, listModels, providerMeta, estimateCost } from './src/providers.js';
+import {
+  analyze,
+  translate,
+  listModels,
+  providerMeta,
+  estimateCost,
+  isChatModel,
+  modelLabel,
+  pickModel,
+} from './src/providers.js';
 import { getSettings, bumpStats, migrateLegacy } from './src/storage.js';
 import {
   codeForLanguageName,
@@ -377,15 +386,12 @@ async function onModels(msg, respond) {
   }
   try {
     const ids = await listModels({ providerId, apiKey });
-    const meta = providerMeta(providerId);
-    const preferred = meta.models[0].id;
+    const best = pickModel(providerId, ids);
     const models = ids
-      .map((id) => {
-        const known = meta.models.find((m) => m.id === id);
-        return { id, label: known?.label || id, tier: known?.tier || 'other' };
-      })
-      .sort((a, b) => (b.id === preferred) - (a.id === preferred));
-    respond({ ok: true, models });
+      .filter(isChatModel)
+      .map((id) => ({ id, label: modelLabel(id) }))
+      .sort((a, b) => (b.id === best) - (a.id === best));
+    respond({ ok: true, models, defaultId: best });
   } catch (err) {
     respond({
       ok: false,

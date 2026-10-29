@@ -44,6 +44,7 @@ const state = {
   stats: { fixes: 0, costUsd: 0 },
   site: { known: false, host: '', supported: false },
   models: { deepseek: null, openai: null },
+  modelsDefault: { deepseek: '', openai: '' },
   keyState: 'idle', // idle | busy | ok | bad
   pending: {},
   saveTimer: null,
@@ -68,6 +69,7 @@ async function loadSettings() {
   }
   fillLanguages();
   renderAll();
+  void syncModels(state.settings.provider);
   loadVocabCount();
   loadSite();
   loadStats();
@@ -133,10 +135,38 @@ function renderModels(provider) {
   }
 
   const saved = state.settings.models[provider];
-  if (saved && !Array.from(el.modelSelect.options).some((o) => o.value === saved)) {
-    el.modelSelect.append(new Option(saved, saved));
+  const known = Array.from(el.modelSelect.options).some((o) => o.value === saved);
+  const fallback = state.modelsDefault[provider];
+  const usable = known ? saved
+    : (fallback && Array.from(el.modelSelect.options).some((o) => o.value === fallback))
+      ? fallback
+      : rows[0]?.id || '';
+  el.modelSelect.value = usable;
+}
+
+/** Ask the provider which models this key can use; heal a stale selection. */
+async function syncModels(provider) {
+  const apiKey = String(state.settings.keys[provider] || '').trim();
+  if (!apiKey) return;
+  let result = null;
+  try {
+    result = await sendMessage({ type: 'MODELS', provider, apiKey }, 20000);
+  } catch (err) {
+    return;
   }
-  el.modelSelect.value = saved || rows[0]?.id || '';
+  if (!result || !result.ok || !Array.isArray(result.models) || !result.models.length) return;
+
+  const rows = orderModels(provider, result.models.map(toModelRow));
+  state.models[provider] = rows;
+  state.modelsDefault[provider] = result.defaultId && rows.some((r) => r.id === result.defaultId)
+    ? result.defaultId
+    : rows[0].id;
+
+  const saved = state.settings.models[provider];
+  if (!rows.some((r) => r.id === saved)) {
+    await save({ models: { [provider]: state.modelsDefault[provider] } });
+  }
+  if (state.settings.provider === provider) renderModels(provider);
 }
 
 function renderKeyBox() {
@@ -469,9 +499,16 @@ async function testKey() {
     const rows = orderModels(provider, (Array.isArray(result.models) ? result.models : []).map(toModelRow));
     if (rows.length) {
       state.models[provider] = rows;
+      state.modelsDefault[provider] = result.defaultId && rows.some((r) => r.id === result.defaultId)
+        ? result.defaultId
+        : rows[0].id;
+      const saved = state.settings.models[provider];
+      const next = rows.some((r) => r.id === saved) ? saved : state.modelsDefault[provider];
+      await save({ keys: { [provider]: apiKey }, models: { [provider]: next } });
       renderModels(provider);
+    } else {
+      await save({ keys: { [provider]: apiKey } });
     }
-    await save({ keys: { [provider]: apiKey } });
     setKeyState('ok', 'Connected');
     renderKeyBox();
     renderStatus();

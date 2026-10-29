@@ -23,8 +23,8 @@ export const PROVIDERS = {
     // $/1M tokens, peak hours (conservative for estimates).
     price: { in: 0.3, out: 1.2 },
     models: [
-      { id: 'deepseek-flash', label: 'DeepSeek Flash', tier: 'fast', note: 'default' },
-      { id: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro', tier: 'quality' },
+      { id: 'deepseek-chat', label: 'DeepSeek Chat', tier: 'fast', note: 'default' },
+      { id: 'deepseek-reasoner', label: 'DeepSeek Reasoner', tier: 'quality' },
     ],
   },
 
@@ -39,9 +39,10 @@ export const PROVIDERS = {
     extraBody: {},
     price: { in: 0.1, out: 0.5 },
     models: [
-      { id: 'gpt-6-luna', label: 'GPT-6 Luna', tier: 'fast', note: 'default' },
-      { id: 'gpt-6.1-terra', label: 'GPT-6.1 Terra', tier: 'quality' },
-      { id: 'gpt-5.4-nano', label: 'GPT-5.4 nano', tier: 'fast' },
+      { id: 'gpt-4o-mini', label: 'GPT-4o mini', tier: 'fast', note: 'default' },
+      { id: 'gpt-4o', label: 'GPT-4o', tier: 'quality' },
+      { id: 'gpt-4.1-mini', label: 'GPT-4.1 mini', tier: 'fast' },
+      { id: 'gpt-4.1', label: 'GPT-4.1', tier: 'quality' },
     ],
   },
 };
@@ -55,6 +56,53 @@ export function providerMeta(id) {
 export function defaultModel(providerId) {
   const p = providerMeta(providerId);
   return p.models[0].id;
+}
+
+/* Model ids we'd reach for first, in order, when we have to choose from a live
+   list. Anything newer than this list still gets offered; this only decides
+   which one is picked automatically. */
+const PREFERRED = {
+  deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+  openai: [
+    'gpt-5-mini', 'gpt-5', 'gpt-4.1-mini', 'gpt-4.1',
+    'gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-3.5-turbo',
+  ],
+};
+
+/* Not chat models: the /models endpoint returns everything the key can touch,
+   and picking an embedding model would fail at the first request. */
+const NOT_CHAT = /(embedding|tts|whisper|transcribe|dall-e|image|moderation|realtime|audio|search|sora|rerank)/i;
+
+/** True for ids that can answer a chat completion. */
+export function isChatModel(id) {
+  return typeof id === 'string' && !!id && !NOT_CHAT.test(id);
+}
+
+/** "gpt-4.1-mini" -> "GPT-4.1 mini"; unknown ids are shown as they are. */
+export function modelLabel(id) {
+  const raw = String(id || '');
+  const known = Object.values(PROVIDERS)
+    .flatMap((p) => p.models)
+    .find((m) => m.id === raw);
+  if (known) return known.label;
+  const gpt = raw.match(/^gpt-([\d.]+)(?:-([a-z]+))?$/i);
+  if (gpt) return `GPT-${gpt[1]}${gpt[2] ? ' ' + gpt[2] : ''}`;
+  const ds = raw.match(/^deepseek-([a-z]+)$/i);
+  if (ds) return `DeepSeek ${ds[1].charAt(0).toUpperCase()}${ds[1].slice(1)}`;
+  return raw;
+}
+
+/** The model to use when the saved one is unknown or unavailable. */
+export function pickModel(providerId, ids) {
+  const list = (Array.isArray(ids) ? ids : []).filter((id) => typeof id === 'string' && id && !NOT_CHAT.test(id));
+  if (!list.length) return '';
+  const preferred = PREFERRED[providerId] || [];
+  for (const want of preferred) {
+    if (list.includes(want)) return want;
+  }
+  /* Otherwise respect the provider's own ordering but skip previews/aliases. */
+  const stable = list.filter((id) => !/(preview|beta|alpha|latest)/i.test(id));
+  return (stable[0] || list[0]);
 }
 
 /** Rough $ estimate for the usage footer. */

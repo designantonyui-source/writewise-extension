@@ -323,13 +323,13 @@
   }
 
   function shortModel(model) {
-    if (!model) return '';
-    if (model === 'deepseek-flash') return 'DeepSeek Flash';
-    if (model === 'deepseek-v4-pro') return 'DeepSeek V4 Pro';
-    if (model === 'gpt-6-luna') return 'GPT-6 Luna';
-    if (model === 'gpt-6.1-terra') return 'GPT-6.1 Terra';
-    if (model === 'gpt-5.4-nano') return 'GPT-5.4 nano';
-    return model;
+    const id = String(model || '').trim();
+    if (!id) return '';
+    const gpt = id.match(/^gpt-([\d.]+)(?:-([a-z]+))?$/i);
+    if (gpt) return `GPT-${gpt[1]}${gpt[2] ? ' ' + gpt[2] : ''}`;
+    const ds = id.match(/^deepseek-([a-z]+)$/i);
+    if (ds) return `DeepSeek ${ds[1].charAt(0).toUpperCase()}${ds[1].slice(1)}`;
+    return id;
   }
 
   function renderError(el, error) {
@@ -375,7 +375,7 @@
         state: 'error',
         title: 'Model unavailable',
         body: 'That model is not enabled for this key. Pick another in settings.',
-        action: { id: 'open-settings', label: 'Open settings' },
+        action: { id: 'open-settings', label: 'Change model' },
       },
       CONTEXT: {
         state: 'error',
@@ -543,6 +543,11 @@
         title: 'Rate limited',
         body: 'You have hit the provider limit. Give it a moment.',
         action: { id: 'retry', label: 'Try again' },
+      },
+      MODEL: {
+        title: 'Model unavailable',
+        body: 'That model is not enabled for this key. Pick another in settings.',
+        action: { id: 'open-settings', label: 'Change model' },
       },
       TIMEOUT: { title: 'Took too long', body: 'The model did not answer in time.', action: { id: 'retry', label: 'Try again' } },
       NETWORK: { title: 'No connection', body: 'Could not reach the provider.', action: { id: 'retry', label: 'Try again' } },
