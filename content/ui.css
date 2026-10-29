@@ -123,7 +123,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  color: var(--ww-brand); /* the logo keeps the button gold in both themes */
+  color: var(--ww-brand); /* the logo rides the accent's graphic tone */
 }
 
 .ww-mark svg {
@@ -448,7 +448,7 @@
 }
 
 .ww-btn-primary {
-  /* accent surface + ink label = 9.4:1 — the gold stays the gold.
+  /* orchid surface + ink label = 9.2:1 — a light fill cannot carry white.
      Flat on purpose: no lift, no glow. The fill is the emphasis. */
   background: var(--ww-accent-hi);
   color: var(--ww-accent-ink);

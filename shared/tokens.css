@@ -9,26 +9,27 @@
 
 :root,
 .ww-tokens {
-  /* Brand — #ffaf01 is the identity. White text on it is 1.8:1, so an accent
-     *surface* carries ink instead (9.4:1), and accent *text* darkens on the
-     light ground. Every rule here is asserted in contrast.test.mjs. */
-  --ww-accent: #ffaf01;
-  --ww-accent-hi: #ffaf01; /* filled surfaces: buttons, switch tracks */
-  --ww-brand: #ffaf01; /* the ✳ mark: always the button gold, both themes */
+  /* Brand — orchid. #d6adf2 is light: a *surface* carries an ink label
+     (9.2:1) because white on it is 1.9:1, so it never needs a darker fill to
+     stay legible. Where the accent is text or a graphic on white it steps down
+     to the deeper violets. Every pair is asserted in contrast.test.mjs. */
+  --ww-accent: #d6adf2; /* graphics: dots, slider fill, progress */
+  --ww-accent-hi: #d6adf2; /* filled surfaces: buttons, switch tracks */
+  --ww-brand: #d6adf2; /* the ✳ mark: the accent's graphic tone for this ground */
   --ww-accent-ink: #1a1a18; /* label/mark/knob on an accent surface */
-  --ww-accent-soft: rgba(255, 175, 1, 0.14);
-  --ww-accent-text: #ffaf01;
+  --ww-accent-soft: rgba(214, 173, 242, 0.16);
+  --ww-accent-text: #d6adf2;
   --ww-jade: #5cb87a;
   --ww-jade-soft: rgba(92, 184, 122, 0.15);
   --ww-danger: #e27d79;
   --ww-danger-soft: rgba(217, 83, 79, 0.15);
   --ww-amber: #e0a33a;
-  --ww-focus: #ffaf01; /* 10:1 on the dark ground */
-  /* the knob is ink once the track turns accent; the track carries the state */
+  --ww-focus: #d6adf2; /* 10:1 on the dark ground */
+  /* the knob is ink on the orchid track; the track carries the state */
   --ww-switch-thumb: #1a1a18;
 
   /* Surfaces — neutral on purpose. A warm-grey ground plus a warm accent reads
-     like someone else's brand; neutral lets the gold be the only voice. */
+     like someone else's brand; neutral lets the violet be the only voice. */
   --ww-bg: #0a0a0a;
   --ww-surface: #131313;
   --ww-surface-2: #1b1b1b;
@@ -103,10 +104,11 @@
     --ww-tx-3: #6e6e69;
     --ww-jade: #2a7448;
     --ww-danger: #b3261e;
-    --ww-accent: #b57a00; /* graphics on white need ≥ 3:1 */
-    --ww-accent-soft: rgba(255, 175, 1, 0.12);
-    --ww-accent-text: #8f5c00; /* 5.7:1 on white, 5.2:1 on the ground */
-    --ww-focus: #8f5c00;
+    --ww-accent: #a878d4; /* graphics on white: 3.3:1 */
+    --ww-brand: #a878d4; /* the logo takes the same step on white */
+    --ww-accent-soft: rgba(214, 173, 242, 0.22);
+    --ww-accent-text: #8448b0; /* 5.9:1 on white, 5.2:1 on its own tint */
+    --ww-focus: #8448b0;
     --ww-shadow: 0 10px 28px rgba(24, 24, 22, 0.12), 0 1px 3px rgba(24, 24, 22, 0.06);
     color-scheme: light;
   }
@@ -123,10 +125,10 @@
   --ww-tx: #f2f2f0;
   --ww-tx-2: #aeaeaa;
   --ww-tx-3: #8d8d89;
-  --ww-accent: #ffaf01;
-  --ww-accent-soft: rgba(255, 175, 1, 0.14);
-  --ww-accent-text: #ffaf01;
-  --ww-focus: #ffaf01;
+  --ww-accent: #d6adf2;
+  --ww-accent-soft: rgba(214, 173, 242, 0.16);
+  --ww-accent-text: #d6adf2;
+  --ww-focus: #d6adf2;
   --ww-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), 0 1px 3px rgba(0, 0, 0, 0.24);
   color-scheme: dark;
 }
@@ -144,10 +146,11 @@
   --ww-tx-3: #6e6e69;
   --ww-jade: #2a7448;
   --ww-danger: #b3261e;
-  --ww-accent: #b57a00;
-  --ww-accent-soft: rgba(255, 175, 1, 0.12);
-  --ww-accent-text: #8f5c00;
-  --ww-focus: #8f5c00;
+  --ww-accent: #a878d4;
+  --ww-brand: #a878d4;
+  --ww-accent-soft: rgba(214, 173, 242, 0.22);
+  --ww-accent-text: #8448b0;
+  --ww-focus: #8448b0;
   --ww-shadow: 0 10px 28px rgba(24, 24, 22, 0.12), 0 1px 3px rgba(24, 24, 22, 0.06);
   color-scheme: light;
 }

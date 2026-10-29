@@ -11,11 +11,11 @@ duration or font in a component file.
 
 | Token | Meaning |
 |---|---|
-| `--ww-accent` | the brand gold, `#ffaf01`; marks, dots, focus, graphics. Darkens to `#b57a00` in light mode, where graphics sit on white (3.7:1) |
-| `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the ink that goes on them. Ink on `#ffaf01` is 9.4:1; white would be 1.8:1 |
-| `--ww-accent-text` | accent used *as text*: `#ffaf01` on the dark ground (10:1), `#8f5c00` on white (5.7:1) |
-| `--ww-brand` | the ✳ mark only. Always `#ffaf01`, i.e. the same gold as a filled button, in both themes — a logo is allowed the brand colour that text is not |
-| `--ww-accent-soft` | 12–14% tint for selected pills, hint chips, hover washes |
+| `--ww-accent` | the brand orchid, `#d6adf2`; dots, slider fill, progress. On white it steps to `#a878d4` so graphics keep 3.3:1 |
+| `--ww-accent-hi` / `--ww-accent-ink` | accent **surfaces** (filled buttons, switch tracks) and the label that goes on them. `#d6adf2` is a light surface: ink is 9.2:1, while white would be 1.9:1 — the label is the dark one here |
+| `--ww-accent-text` | accent used *as text*: `#d6adf2` on the dark ground (9.8:1), `#8448b0` on white (5.9:1) |
+| `--ww-brand` | the ✳ mark only: the accent's *graphic* tone for the ground — `#d6adf2` on dark, `#a878d4` on white — never the darkened tone text has to use |
+| `--ww-accent-soft` | 16–22% tint for selected pills, hint chips, hover washes |
 | `--ww-jade` / `--ww-danger` | insertions / deletions |
 | `--ww-bg`, `--ww-surface`, `--ww-surface-2`, `--ww-surface-3` | depth ladder |
 | `--ww-border`, `--ww-border-2` | hairlines |
@@ -32,13 +32,13 @@ Dark is the default. Light follows `prefers-color-scheme` or an explicit
 `[data-theme]` on `:root` (extension pages) / `.ww-tokens` (shadow card).
 
 The accent is deliberately allowed to change *role* rather than get muddied:
-`#ffaf01` is unchanged where it is a surface, ink is used where text sits on it,
-and the accent darkens only when it is text or a hairline on white. Every pair
-below is asserted in `_wwtest/contrast.test.mjs`, so a future palette tweak
-cannot quietly break AA.
+`#d6adf2` is unchanged where it is a surface, ink is used where a label sits on
+it (a light fill cannot carry white), and the accent steps down only when it is
+a graphic or text on white. Every pair below is asserted in
+`_wwtest/contrast.test.mjs`, so a future palette tweak cannot quietly break AA.
 
 The greys are neutral, not warm. A warm-grey ground plus a warm accent reads as
-someone else's brand; neutral surfaces let the gold be the only colour in the
+someone else's brand; neutral surfaces let the orchid be the only colour in the
 room. Depth is equally disciplined: only the floating card has a shadow. Buttons,
 switches, segmented tiles and slider thumbs are flat — a control that floats
 reads as a different material from the field it sits in.

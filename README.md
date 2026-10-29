@@ -206,6 +206,15 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.6.2
+
+- The accent is orchid: `#d6adf2`. It is a light surface, so filled buttons,
+  switch tracks and the toolbar icon carry an ink label at 9.2:1 — white would
+  be 1.9:1. Where the accent is a graphic or text on white it steps down to
+  `#a878d4` (3.3:1) and `#8448b0` (5.9:1); on the dark ground it stays `#d6adf2`
+  (9.8:1). The ✳ mark rides that same graphic tone in each theme so it does not
+  vanish on white. Full contract in `_wwtest/contrast.test.mjs`.
+
 ## Differences from v2.6.1
 
 - The card's footer lost its hairline. Separation above it is a 14px gap; the
