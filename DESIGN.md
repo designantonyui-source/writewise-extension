@@ -79,12 +79,15 @@ instructions.
 - **Pills** — tone presets, 24px capsules, muted until active.
 - **Card** — 380px, 14px padding, 24px continuous corners, one shadow, no
   border: the edge is the shadow, not a line.
-  The header is a 20px row: 16px mark, title, then a 24px icon cluster with a
-  2px gap (speaker 13px, close 12px), pulled in 4px vertically and 6px
-  horizontally so the glyphs align with the padding while the hit areas stay
-  24px. Head to body is 12px; the body's answer type is 15px/1.45, and the
-  source label sits 4px under it at 11px, because it is a caption on the
-  answer, not a second paragraph.
+  The header is a 20px row: 16px mark, title, then a 24px close button pulled
+  in 4px vertically and 6px horizontally so the glyph aligns with the padding
+  while the hit area stays 24px. Head to body is 12px. The body is one
+  dictionary row — `original → translation`, original 13px muted and capped at
+  18ch with an ellipsis, translation 15px/1.45, each followed by its own 20px
+  speaker — and the language pair lives in the footer meta (`English → Polski
+  (pl) · 16 ms`). Stacking the original, the translation and a "from English"
+  caption cost three lines and ~45px of height for three short strings; the row
+  says the same thing in one, and the speakers stay attached to their word.
 - **Card footer** — no rule above it: the 14px gap does the separating, and a
   hairline through the quietest part of the card was the last piece of
   furniture in it. One labelled action per state (Apply, Replace, Undo, Add

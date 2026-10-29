@@ -189,30 +189,46 @@
 
 /* ── pronunciation ────────────────────────────────────────────────────── */
 
-/* One speaker per line: the button sits on the words it reads aloud, so the
-   original and the translation are separately playable instead of the header
-   guessing which one you meant. */
-.ww-line {
+/* The pair on one line: `original → translation`, each word with the speaker
+   that reads it. Two stacked lines plus a caption cost ~40px of card height for
+   three short strings; the dictionary row costs one, and the language pair
+   moves into the footer meta where it is already being read. */
+.ww-pair {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 8px;
-}
-
-.ww-line > :first-child {
-  flex: 1 1 auto;
+  gap: 2px 6px;
   min-width: 0;
 }
 
-.ww-line-src {
-  margin-top: 4px;
+.ww-unit {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ww-unit-trans {
+  flex: 1 1 auto;
+}
+
+.ww-arrow {
+  flex: 0 0 auto;
+  color: var(--ww-tx-3);
+  font-size: var(--ww-fs-12);
+  line-height: 1.45;
 }
 
 .ww-og {
   margin: 0;
+  max-width: 18ch;
   color: var(--ww-tx-2);
   font-size: var(--ww-fs-13);
   line-height: 1.5;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ww-say {
@@ -220,9 +236,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin: -1px -3px 0 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: var(--ww-r-pill);
@@ -531,8 +547,6 @@
   color: var(--ww-tx);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  max-height: 190px;
-  overflow-y: auto;
 }
 
 .ww-src {

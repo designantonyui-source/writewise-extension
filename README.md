@@ -206,6 +206,15 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.8.0
+
+- The translation card is one dictionary row again: `sentance → zdanie`, the
+  original muted at 13px, the translation at 15px, each with its own speaker.
+  The "from English" line is gone — the language pair moved into the footer
+  meta as `English → Polski (pl) · 16 ms` — which takes the card from three
+  text lines to one and makes it ~45px shorter. The original is clipped at
+  18ch with an ellipsis and keeps the full text in its `title`.
+
 ## Differences from v2.7.1
 
 - Pronunciation can now use a neural voice. The default is still the OS voice,
