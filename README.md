@@ -2,8 +2,8 @@
 
 **Improve your writing without leaving the text field.** WriteWise checks
 spelling, grammar, clarity and tone after you pause. It highlights each change
-before you apply it. Select text to translate it, then save useful words to
-review later.
+before you apply it. Select writing in an editable field to check it, or select
+page text to translate it and save useful words for later review.
 
 MV3 · no build step · DeepSeek or OpenAI · MIT
 
@@ -22,8 +22,9 @@ dark themes.
 
 ### Translate a selection
 
-Select a word or sentence to see the translation beside your work. Copy it,
-replace selected text in an editable field, or save a word for later.
+Select a word or sentence on a page to see its translation beside your work.
+Copy it or save a word for later. In an editable field, use **Translate
+selection** from the context menu when you want translation instead of a fix.
 
 ![Translation card with copy, save and replace actions](docs/card-translate.png)
 
@@ -41,8 +42,10 @@ Search the list, export it, or review words due today.
 - **Corrects as you type.** Pause for a moment in any editable field and a card
   appears under it with an inline diff: spelling, grammar, clarity and tone,
   depending on what you allow.
-- **Translates what you select.** Double-click a word or select a sentence —
-  English, Polish, Ukrainian or Russian.
+- **Checks selected writing.** Select text in an editable field to see a
+  correction card, without switching to translation.
+- **Translates page text.** Double-click a word or select a sentence outside an
+  editable field — English, Polish, Ukrainian or Russian.
 - **Explains nothing you didn't ask.** No sidebar, no dashboard, no "AI magic".
   One card, the changes, two ways to dismiss it.
 - **Keeps a vocabulary.** Words you save are stored locally with the sentence
@@ -81,7 +84,8 @@ Get a key: [platform.deepseek.com](https://platform.deepseek.com/api_keys) ·
 | Gesture | Result |
 |---|---|
 | Type and pause | Correction card with diff · **Apply** or dismiss |
-| Select text (any length) | Translation card |
+| Select text in an editable field | Correction card for the selection |
+| Select page text | Translation card |
 | `Alt+Shift+W` | Check the focused field now |
 | Right-click → *Fix selection* | Check just that fragment |
 | Right-click → *Translate selection* | Translate the selection on demand |
