@@ -61,11 +61,21 @@
   --ww-5: 20px;
   --ww-6: 24px;
 
-  /* shape */
-  --ww-r-sm: 8px;
-  --ww-r: 12px;
-  --ww-r-lg: 16px;
+  /* shape — an iOS-ish ladder: controls are capsules or near-capsules, only
+     containers keep a visible corner. */
+  --ww-r-xs: 6px;
+  --ww-r-sm: 10px;
+  --ww-r: 14px;
+  --ww-r-lg: 20px;
+  --ww-r-xl: 24px;
   --ww-r-pill: 999px;
+  /* Continuous corners where the engine can draw them: the curve starts
+     earlier and hands off to the edge without a tangent break, which is the
+     difference between "rounded rectangle" and the iOS shape. Chrome 139+
+     supports it; older engines drop the declaration and keep the plain
+     circular arc, so every radius is also chosen to read well as a round
+     corner. */
+  --ww-corner: squircle;
   --ww-control-h: 32px;
   --ww-touch-h: 36px;
 

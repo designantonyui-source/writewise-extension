@@ -22,7 +22,8 @@ duration or font in a component file.
 | `--ww-tx`, `--ww-tx-2`, `--ww-tx-3` | primary, secondary, tertiary text |
 | `--ww-fs-10 … --ww-fs-18` | type scale (10/11/12/13/15/18) |
 | `--ww-1 … --ww-6` | 4/8/12/16/20/24 spacing |
-| `--ww-r-sm`, `--ww-r`, `--ww-r-lg`, `--ww-r-pill` | 8/12/16/999 |
+| `--ww-r-xs`, `--ww-r-sm`, `--ww-r`, `--ww-r-lg`, `--ww-r-xl`, `--ww-r-pill` | 6/10/14/20/24/999 — chips, glyph buttons, fields, containers, the card, capsules |
+| `--ww-corner` | `squircle`: continuous corners on every rounded surface. Chrome 139+ draws them; older engines drop the declaration and keep the circular arc |
 | `--ww-control-h`, `--ww-touch-h` | 32px controls, 36px touch target |
 | `--ww-shadow` | the single depth: the floating card. Controls are flat |
 | `--ww-ease`, `--ww-dur`, `--ww-dur-slow` | 140ms / 200ms, one easing curve |
@@ -42,6 +43,18 @@ room. Depth is equally disciplined: only the floating card has a shadow. Buttons
 switches, segmented tiles and slider thumbs are flat — a control that floats
 reads as a different material from the field it sits in.
 
+Shape carries the same discipline. Three tiers, and nothing in between: glyph
+buttons are **discs**, actions are **capsules**, and containers keep a visible
+corner (20px lists and callouts, 24px for the card and the review card). Fields
+sit at 14px so they read as controls rather than containers. Corners are drawn
+with `corner-shape: squircle` — the continuous curve starts earlier and meets
+the edge without a tangent break, which is what the eye reads as "iOS" rather
+than "rounded rectangle". It is set through the `--ww-corner` token so an engine
+without `corner-shape` simply ignores the declaration and keeps the circular
+arc; every radius is chosen to read well both ways. Hairline borders stay only
+where they separate two surfaces of the same colour; the card lost its border
+and is defined by its shadow alone.
+
 ## Type
 
 System UI stack. No webfonts — a popup that waits on a font download is a popup
@@ -51,7 +64,7 @@ instructions.
 
 ## Components
 
-- **Switch** — 36×20, real `<input type="checkbox">` + styled track. React to
+- **Switch** — 36×20 capsule track, real `<input type="checkbox">` + styled track. React to
   `change` only. Never re-toggle `.checked` in a click handler; that is the bug
   that broke v1. Flat, no shadow; the thumb is ink on the accent track. The off track is neutral with a muted knob; the on track is
   the accent with an ink knob (`--ww-switch-thumb`), because the accent is
@@ -61,8 +74,9 @@ instructions.
 - **Key row** — password input + `Test` button + status dot (jade = connected,
   danger = rejected, muted = untested).
 - **Fix row** — icon-less label + switch. No emoji, no decorative glyphs.
-- **Pills** — tone presets, 24px, muted until active.
-- **Card** — 380px, 14px padding, 14px radius, one shadow, hairline border.
+- **Pills** — tone presets, 24px capsules, muted until active.
+- **Card** — 380px, 14px padding, 24px continuous corners, one shadow, no
+  border: the edge is the shadow, not a line.
   The header is a 20px row: 16px mark, title, then a 24px icon cluster with a
   2px gap (speaker 13px, close 12px), pulled in 4px vertically and 6px
   horizontally so the glyphs align with the padding while the hit areas stay

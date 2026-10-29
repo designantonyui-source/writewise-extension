@@ -118,13 +118,14 @@ button {
   justify-content: center;
   gap: 6px;
   height: var(--ww-touch-h);
-  padding: 0 14px;
+  padding: 0 16px;
   font-size: var(--ww-fs-12);
   font-weight: 500;
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -214,7 +215,8 @@ button {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
   transition: border-color var(--ww-dur) var(--ww-ease);
 }
 
@@ -270,7 +272,8 @@ button {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
   transition: border-color var(--ww-dur) var(--ww-ease);
   appearance: none;
 }
@@ -301,6 +304,7 @@ button {
   background: var(--ww-surface-2);
   border: 1px solid var(--ww-border);
   border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
 }
 
 .seg-btn {
@@ -315,6 +319,7 @@ button {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--ww-r-sm);
+  corner-shape: var(--ww-corner);
   cursor: pointer;
   transition:
     background-color var(--ww-dur) var(--ww-ease),
@@ -370,7 +375,8 @@ button {
   padding: 16px;
   background: var(--ww-surface);
   border: 1px solid var(--ww-border);
-  border-radius: var(--ww-r);
+  border-radius: var(--ww-r-lg);
+  corner-shape: var(--ww-corner);
 }
 
 .add-grid {
@@ -417,7 +423,8 @@ button {
   margin-top: 16px;
   background: var(--ww-surface);
   border: 1px solid var(--ww-border);
-  border-radius: var(--ww-r);
+  border-radius: var(--ww-r-lg);
+  corner-shape: var(--ww-corner);
   overflow: hidden;
 }
 
@@ -555,7 +562,8 @@ button {
   color: var(--ww-tx-3);
   background: none;
   border: 1px solid transparent;
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
   cursor: pointer;
   opacity: 0.5;
   transition:
@@ -777,7 +785,8 @@ button {
   padding: 28px 32px;
   background: var(--ww-surface);
   border: 1px solid var(--ww-border);
-  border-radius: var(--ww-r-lg);
+  border-radius: var(--ww-r-xl);
+  corner-shape: var(--ww-corner);
 }
 
 .card-question {

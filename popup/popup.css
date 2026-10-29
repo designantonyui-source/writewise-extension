@@ -215,7 +215,8 @@ body.is-off .mark {
   min-height: 30px;
   padding: 1px var(--ww-2);
   margin-inline: calc(-1 * var(--ww-2));
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
 }
 
 .row-label {
@@ -245,6 +246,7 @@ body.is-off .mark {
   background: var(--ww-surface-2);
   border: 1px solid var(--ww-border);
   border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
 }
 
 .seg-btn {
@@ -257,6 +259,7 @@ body.is-off .mark {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--ww-r-sm);
+  corner-shape: var(--ww-corner);
   cursor: pointer;
   transition:
     background-color var(--ww-dur) var(--ww-ease),
@@ -285,7 +288,8 @@ body.is-off .mark {
   padding: 8px 10px;
   background: var(--ww-accent-soft);
   border: 1px solid var(--ww-accent-soft);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
 }
 
 .setup[hidden] {
@@ -331,7 +335,8 @@ body.is-off .mark {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
   transition: border-color var(--ww-dur) var(--ww-ease);
 }
 
@@ -374,14 +379,15 @@ body.is-off .mark {
 .btn {
   flex: none;
   height: var(--ww-control-h);
-  padding: 0 12px;
+  padding: 0 14px;
   font-family: inherit;
   font-size: var(--ww-fs-12);
   font-weight: 500;
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r-pill);
+  corner-shape: var(--ww-corner);
   cursor: pointer;
   transition:
     background-color var(--ww-dur) var(--ww-ease),
@@ -441,6 +447,7 @@ body.is-off .mark {
   line-height: 1.4;
   color: var(--ww-tx-2);
   border-radius: var(--ww-r-sm);
+  corner-shape: var(--ww-corner);
   transition: color var(--ww-dur) var(--ww-ease);
 }
 
@@ -501,7 +508,8 @@ body.is-off .mark {
   color: var(--ww-tx);
   background: var(--ww-surface);
   border: 1px solid var(--ww-border-2);
-  border-radius: var(--ww-r-sm);
+  border-radius: var(--ww-r);
+  corner-shape: var(--ww-corner);
   appearance: none;
   cursor: pointer;
   transition: border-color var(--ww-dur) var(--ww-ease);

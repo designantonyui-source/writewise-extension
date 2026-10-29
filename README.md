@@ -206,6 +206,17 @@ mouse/keyboard events: auto-check debounce, request shape, apply/undo on all
 three field types, error persistence, shadow-DOM isolation against hostile CSS,
 per-site pause, word-limit guard, shortcut and selection paths.
 
+## Differences from v2.6.0
+
+- Shape: everything is rounder and more iOS. Glyph buttons are discs, actions
+  are capsules (the card's Copy/Save/Replace/Apply, the popup's Test/Pause, the
+  vocabulary page's buttons), fields sit at 14px, containers at 20px, and the
+  card and review card at 24px. Corners are continuous where the engine can
+  draw them (`corner-shape: squircle`, through the `--ww-corner` token) and
+  degrade to a circular arc elsewhere.
+- Cleaner: the card lost its hairline border — the shadow is the edge. The
+  floating card is still the only depth in the product.
+
 ## Differences from v2.5.1
 
 - Card rhythm: 14px padding, a 24px icon cluster in the header (13px speaker,
